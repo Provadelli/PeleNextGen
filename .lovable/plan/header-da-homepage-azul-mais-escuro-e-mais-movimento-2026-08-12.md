@@ -8,7 +8,7 @@
 - Em telas pequenas, o menu vira uma faixa rolável horizontal com os mesmos atalhos.
 
 ## 2. Azul mais escuro nas seções
-- As seções "Mais que uma peneira" e "Como funciona" trocam o azul forte pelo azul escuro da página: o gradiente do fundo azul passa a usar apenas os tons escuros já existentes no design system, sem cor nova e sem valores fixos.
+- As seções "Mais que uma peneira" e "Como funciona" trocam o azul forte pelo azul escuro da página: o gradiente do fundo azul passa a usar apenas os tons escuros já existentes no design system, sem cor nova e sem valores fixos..
 
 ## 3. Mais movimento e interatividade
 - Entradas escalonadas no estilo do Legado aplicadas às demais seções (itens aparecendo em sequência conforme entram na tela).
