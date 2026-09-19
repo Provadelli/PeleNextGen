@@ -237,8 +237,8 @@ function PrivacidadePage() {
             <h2 className="font-display text-xl font-bold text-foreground">13. Contato</h2>
             <p className="mt-2">
               Dúvidas sobre esta política ou sobre seus dados podem ser enviadas para{" "}
-              <a href="mailto:pedroprovadelli@gmail.com" className="text-primary underline">
-                pedroprovadelli@gmail.com
+              <a href="mailto:suportepelenextgen@hotmail.com" className="text-primary underline">
+                suportepelenextgen@hotmail.com
               </a>
               .
             </p>
