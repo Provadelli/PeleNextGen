@@ -23,11 +23,13 @@ import { Route as ManualRouteImport } from './routes/manual'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PerfilAtletaRouteImport } from './routes/perfil-atleta'
 import { Route as PerfilOlheiroRouteImport } from './routes/perfil-olheiro'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RankingRouteImport } from './routes/ranking'
 import { Route as RegistroAdminRouteImport } from './routes/registro-admin'
 import { Route as RegistroClubeRouteImport } from './routes/registro-clube'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SuporteRouteImport } from './routes/suporte'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AAtletaIdRouteImport } from './routes/a.$atletaId'
 import { Route as AtletasAtletaIdRouteImport } from './routes/atletas.$atletaId'
 import { Route as CandidatosIndexRouteImport } from './routes/candidatos.index'
@@ -114,6 +116,11 @@ const PerfilOlheiroRoute = PerfilOlheiroRouteImport.update({
   path: '/perfil-olheiro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RankingRoute = RankingRouteImport.update({
   id: '/ranking',
   path: '/ranking',
@@ -137,6 +144,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const SuporteRoute = SuporteRouteImport.update({
   id: '/suporte',
   path: '/suporte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AAtletaIdRoute = AAtletaIdRouteImport.update({
@@ -232,11 +244,13 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof PerfilRoute
   '/perfil-atleta': typeof PerfilAtletaRoute
   '/perfil-olheiro': typeof PerfilOlheiroRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/ranking': typeof RankingRoute
   '/registro-admin': typeof RegistroAdminRoute
   '/registro-clube': typeof RegistroClubeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/suporte': typeof SuporteRoute
+  '/termos': typeof TermosRoute
   '/a/$atletaId': typeof AAtletaIdRoute
   '/atletas/$atletaId': typeof AtletasAtletaIdRoute
   '/candidatos/$candidatoId': typeof CandidatosCandidatoIdRoute
@@ -268,11 +282,13 @@ export interface FileRoutesByTo {
   '/perfil': typeof PerfilRoute
   '/perfil-atleta': typeof PerfilAtletaRoute
   '/perfil-olheiro': typeof PerfilOlheiroRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/ranking': typeof RankingRoute
   '/registro-admin': typeof RegistroAdminRoute
   '/registro-clube': typeof RegistroClubeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/suporte': typeof SuporteRoute
+  '/termos': typeof TermosRoute
   '/a/$atletaId': typeof AAtletaIdRoute
   '/atletas/$atletaId': typeof AtletasAtletaIdRoute
   '/candidatos/$candidatoId': typeof CandidatosCandidatoIdRoute
@@ -305,11 +321,13 @@ export interface FileRoutesById {
   '/perfil': typeof PerfilRoute
   '/perfil-atleta': typeof PerfilAtletaRoute
   '/perfil-olheiro': typeof PerfilOlheiroRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/ranking': typeof RankingRoute
   '/registro-admin': typeof RegistroAdminRoute
   '/registro-clube': typeof RegistroClubeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/suporte': typeof SuporteRoute
+  '/termos': typeof TermosRoute
   '/a/$atletaId': typeof AAtletaIdRoute
   '/atletas/$atletaId': typeof AtletasAtletaIdRoute
   '/candidatos/$candidatoId': typeof CandidatosCandidatoIdRoute
@@ -343,11 +361,13 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/perfil-atleta'
     | '/perfil-olheiro'
+    | '/privacidade'
     | '/ranking'
     | '/registro-admin'
     | '/registro-clube'
     | '/sitemap.xml'
     | '/suporte'
+    | '/termos'
     | '/a/$atletaId'
     | '/atletas/$atletaId'
     | '/candidatos/$candidatoId'
@@ -379,11 +399,13 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/perfil-atleta'
     | '/perfil-olheiro'
+    | '/privacidade'
     | '/ranking'
     | '/registro-admin'
     | '/registro-clube'
     | '/sitemap.xml'
     | '/suporte'
+    | '/termos'
     | '/a/$atletaId'
     | '/atletas/$atletaId'
     | '/candidatos/$candidatoId'
@@ -415,11 +437,13 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/perfil-atleta'
     | '/perfil-olheiro'
+    | '/privacidade'
     | '/ranking'
     | '/registro-admin'
     | '/registro-clube'
     | '/sitemap.xml'
     | '/suporte'
+    | '/termos'
     | '/a/$atletaId'
     | '/atletas/$atletaId'
     | '/candidatos/$candidatoId'
@@ -452,11 +476,13 @@ export interface RootRouteChildren {
   PerfilRoute: typeof PerfilRoute
   PerfilAtletaRoute: typeof PerfilAtletaRoute
   PerfilOlheiroRoute: typeof PerfilOlheiroRoute
+  PrivacidadeRoute: typeof PrivacidadeRoute
   RankingRoute: typeof RankingRoute
   RegistroAdminRoute: typeof RegistroAdminRoute
   RegistroClubeRoute: typeof RegistroClubeRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SuporteRoute: typeof SuporteRoute
+  TermosRoute: typeof TermosRoute
   AAtletaIdRoute: typeof AAtletaIdRoute
   AtletasAtletaIdRoute: typeof AtletasAtletaIdRoute
   CandidatosCandidatoIdRoute: typeof CandidatosCandidatoIdRoute
@@ -574,6 +600,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PerfilOlheiroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ranking': {
       id: '/ranking'
       path: '/ranking'
@@ -607,6 +640,13 @@ declare module '@tanstack/react-router' {
       path: '/suporte'
       fullPath: '/suporte'
       preLoaderRoute: typeof SuporteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/a/$atletaId': {
@@ -732,11 +772,13 @@ const rootRouteChildren: RootRouteChildren = {
   PerfilRoute: PerfilRoute,
   PerfilAtletaRoute: PerfilAtletaRoute,
   PerfilOlheiroRoute: PerfilOlheiroRoute,
+  PrivacidadeRoute: PrivacidadeRoute,
   RankingRoute: RankingRoute,
   RegistroAdminRoute: RegistroAdminRoute,
   RegistroClubeRoute: RegistroClubeRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SuporteRoute: SuporteRoute,
+  TermosRoute: TermosRoute,
   AAtletaIdRoute: AAtletaIdRoute,
   AtletasAtletaIdRoute: AtletasAtletaIdRoute,
   CandidatosCandidatoIdRoute: CandidatosCandidatoIdRoute,
