@@ -4,11 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { useNotifications } from "@/lib/notifications";
 import { useSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 
 function timeAgo(iso: string) {
@@ -45,11 +41,16 @@ export function NotificationsBell() {
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-[360px] p-0" align="end">
+      <PopoverContent className="w-[min(360px,calc(100vw-2rem))] p-0" align="end">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <p className="text-sm font-semibold">Notificações</p>
           {unreadCount > 0 && (
-            <Button variant="ghost" size="sm" onClick={markAllRead} className="h-7 gap-1 px-2 text-xs">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={markAllRead}
+              className="h-7 gap-1 px-2 text-xs"
+            >
               <Check className="h-3.5 w-3.5" /> Marcar todas
             </Button>
           )}
@@ -62,12 +63,26 @@ export function NotificationsBell() {
           ) : (
             items.map((n) => {
               const body = (
-                <div className={cn("flex gap-3 px-4 py-3 hover:bg-sidebar-accent/50", !n.read_at && "bg-primary/5")}>
-                  <div className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", !n.read_at ? "bg-primary" : "bg-transparent")} />
+                <div
+                  className={cn(
+                    "flex gap-3 px-4 py-3 hover:bg-sidebar-accent/50",
+                    !n.read_at && "bg-primary/5",
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "mt-1.5 h-2 w-2 shrink-0 rounded-full",
+                      !n.read_at ? "bg-primary" : "bg-transparent",
+                    )}
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{n.title}</p>
-                    {n.body && <p className="line-clamp-2 text-xs text-muted-foreground">{n.body}</p>}
-                    <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">{timeAgo(n.created_at)}</p>
+                    {n.body && (
+                      <p className="line-clamp-2 text-xs text-muted-foreground">{n.body}</p>
+                    )}
+                    <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+                      {timeAgo(n.created_at)}
+                    </p>
                   </div>
                   <button
                     aria-label="Remover"

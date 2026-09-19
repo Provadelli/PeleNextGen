@@ -30,6 +30,7 @@ import { unlockContato, useSession } from "@/lib/session";
 import { startConversation } from "@/lib/chat";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Reveal } from "@/components/home/Reveal";
 
 export const Route = createFileRoute("/clubes")({
   head: () => ({
@@ -135,9 +136,7 @@ function ClubesPage() {
       }));
 
       const unlockedIds = new Set(user?.contatosDesbloqueados ?? []);
-      const allUserIds = baseList
-        .filter((a) => a.userId)
-        .map((a) => a.userId as string);
+      const allUserIds = baseList.filter((a) => a.userId).map((a) => a.userId as string);
 
       if (allUserIds.length > 0) {
         const { data: profs } = await supabase
@@ -162,10 +161,7 @@ function ClubesPage() {
         }
       }
 
-
-      const merged = baseList.sort(
-        (a, b) => (b.notaGeral ?? -1) - (a.notaGeral ?? -1),
-      );
+      const merged = baseList.sort((a, b) => (b.notaGeral ?? -1) - (a.notaGeral ?? -1));
 
       if (!cancelled) {
         setAprovados(merged);
@@ -183,7 +179,15 @@ function ClubesPage() {
     const iMax = idadeMax ? parseInt(idadeMax, 10) : null;
     const cidadeT = filtroCidade.trim().toLowerCase();
     return aprovados.filter((c) => {
-      if (t && !(c.nome.toLowerCase().includes(t) || c.posicao.toLowerCase().includes(t) || c.cidade.toLowerCase().includes(t))) return false;
+      if (
+        t &&
+        !(
+          c.nome.toLowerCase().includes(t) ||
+          c.posicao.toLowerCase().includes(t) ||
+          c.cidade.toLowerCase().includes(t)
+        )
+      )
+        return false;
       if (filtroPosicao && c.posicao !== filtroPosicao) return false;
       if (cidadeT && !c.cidade.toLowerCase().includes(cidadeT)) return false;
       if (somenteValidados && !c.isValidated) return false;
@@ -199,7 +203,17 @@ function ClubesPage() {
       }
       return true;
     });
-  }, [q, aprovados, filtroPosicao, filtroCidade, idadeMin, idadeMax, somenteValidados, skillFiltro, skillMin]);
+  }, [
+    q,
+    aprovados,
+    filtroPosicao,
+    filtroCidade,
+    idadeMin,
+    idadeMax,
+    somenteValidados,
+    skillFiltro,
+    skillMin,
+  ]);
 
   const filtrosAtivos =
     (filtroPosicao ? 1 : 0) +
@@ -218,7 +232,6 @@ function ClubesPage() {
     setSkillMin(60);
     setSomenteValidados(false);
   }
-
 
   const desbloqueados = new Set(user?.contatosDesbloqueados ?? []);
 
@@ -253,7 +266,6 @@ function ClubesPage() {
     setTarget(null);
   }
 
-
   async function handleEnviarMensagem(c: AtletaAprovado) {
     if (!c.userId) return;
     setStartingChat(c.candidatoId);
@@ -269,22 +281,20 @@ function ClubesPage() {
 
   return (
     <AppLayout>
-      <header className="mb-8">
+      <Reveal immediate as="header" className="mb-8">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
           Área do clube
         </p>
-        <h1 className="mt-1 font-display text-3xl font-extrabold sm:text-4xl">
-          Atletas aprovados
-        </h1>
+        <h1 className="mt-1 font-display text-3xl font-extrabold sm:text-4xl">Atletas aprovados</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">
-          Veja todos os atletas aprovados pelos olheiros. Para visualizar e-mail e celular,
-          libere o contato pagando{" "}
+          Veja todos os atletas aprovados pelos olheiros. Para visualizar e-mail e celular, libere o
+          contato pagando{" "}
           <strong className="text-primary">
             R$ {PRECO_CONTATO_BRL.toFixed(2).replace(".", ",")}
           </strong>{" "}
           por atleta.
         </p>
-      </header>
+      </Reveal>
 
       <div className="mb-6 space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -321,27 +331,56 @@ function ClubesPage() {
           <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Posição</label>
+                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Posição
+                </label>
                 <select
                   value={filtroPosicao}
                   onChange={(e) => setFiltroPosicao(e.target.value)}
                   className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
                 >
                   {POSICAO_OPTIONS.map((p) => (
-                    <option key={p} value={p}>{p || "Qualquer"}</option>
+                    <option key={p} value={p}>
+                      {p || "Qualquer"}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Cidade</label>
-                <Input value={filtroCidade} onChange={(e) => setFiltroCidade(e.target.value)} placeholder="ex.: Recife" className="h-9" />
+                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Cidade
+                </label>
+                <Input
+                  value={filtroCidade}
+                  onChange={(e) => setFiltroCidade(e.target.value)}
+                  placeholder="ex.: Recife"
+                  className="h-9"
+                />
               </div>
               <div>
-                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Idade</label>
+                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Idade
+                </label>
                 <div className="flex items-center gap-2">
-                  <Input type="number" min={10} max={40} value={idadeMin} onChange={(e) => setIdadeMin(e.target.value)} placeholder="mín" className="h-9" />
+                  <Input
+                    type="number"
+                    min={10}
+                    max={40}
+                    value={idadeMin}
+                    onChange={(e) => setIdadeMin(e.target.value)}
+                    placeholder="mín"
+                    className="h-9"
+                  />
                   <span className="text-xs text-muted-foreground">a</span>
-                  <Input type="number" min={10} max={40} value={idadeMax} onChange={(e) => setIdadeMax(e.target.value)} placeholder="máx" className="h-9" />
+                  <Input
+                    type="number"
+                    min={10}
+                    max={40}
+                    value={idadeMax}
+                    onChange={(e) => setIdadeMax(e.target.value)}
+                    placeholder="máx"
+                    className="h-9"
+                  />
                 </div>
               </div>
               <div>
@@ -355,7 +394,9 @@ function ClubesPage() {
                     className="h-9 flex-1 rounded-md border border-input bg-background px-2 text-sm"
                   >
                     {SKILL_OPTIONS.map((s) => (
-                      <option key={s.key} value={s.key}>{s.label}</option>
+                      <option key={s.key} value={s.key}>
+                        {s.label}
+                      </option>
                     ))}
                   </select>
                   <Input
@@ -363,7 +404,9 @@ function ClubesPage() {
                     min={0}
                     max={100}
                     value={skillMin}
-                    onChange={(e) => setSkillMin(Math.max(0, Math.min(100, Number(e.target.value) || 0)))}
+                    onChange={(e) =>
+                      setSkillMin(Math.max(0, Math.min(100, Number(e.target.value) || 0)))
+                    }
                     className="h-9 w-16"
                     disabled={!skillFiltro}
                   />
@@ -378,7 +421,8 @@ function ClubesPage() {
                   onChange={(e) => setSomenteValidados(e.target.checked)}
                   className="h-4 w-4"
                 />
-                Somente atletas com habilidades <span className="font-semibold text-primary">validadas</span>
+                Somente atletas com habilidades{" "}
+                <span className="font-semibold text-primary">validadas</span>
               </label>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">
@@ -393,7 +437,6 @@ function ClubesPage() {
         )}
       </div>
 
-
       {loading ? (
         <div className="flex items-center justify-center rounded-2xl border border-border bg-card p-12">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -407,12 +450,14 @@ function ClubesPage() {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {list.map((c) => {
+          {list.map((c, i) => {
             const liberado = desbloqueados.has(c.candidatoId);
             return (
-              <article
+              <Reveal
                 key={c.candidatoId}
-                className="flex flex-col rounded-2xl border border-border bg-card p-5 shadow-card"
+                as="article"
+                delay={(i % 6) * 60}
+                className="flex flex-col rounded-2xl border border-border bg-card p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-gold"
               >
                 <div className="flex items-start gap-4">
                   <div className="relative">
@@ -453,18 +498,8 @@ function ClubesPage() {
                 )}
 
                 <div className="mt-4 space-y-2 rounded-xl border border-border bg-bg2 p-3">
-                  <ContatoRow
-                    icon={Mail}
-                    label="E-mail"
-                    value={c.email}
-                    liberado={liberado}
-                  />
-                  <ContatoRow
-                    icon={Phone}
-                    label="Celular"
-                    value={c.celular}
-                    liberado={liberado}
-                  />
+                  <ContatoRow icon={Mail} label="E-mail" value={c.email} liberado={liberado} />
+                  <ContatoRow icon={Phone} label="Celular" value={c.celular} liberado={liberado} />
                 </div>
 
                 {liberado ? (
@@ -488,11 +523,10 @@ function ClubesPage() {
                 ) : (
                   <Button onClick={() => setTarget(c)} className="mt-4 w-full">
                     <Lock className="mr-2 h-4 w-4" />
-                    Liberar contato — R${" "}
-                    {PRECO_CONTATO_BRL.toFixed(2).replace(".", ",")}
+                    Liberar contato — R$ {PRECO_CONTATO_BRL.toFixed(2).replace(".", ",")}
                   </Button>
                 )}
-              </article>
+              </Reveal>
             );
           })}
         </div>
@@ -516,8 +550,8 @@ function ClubesPage() {
               R$ {PRECO_CONTATO_BRL.toFixed(2).replace(".", ",")}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Pagamento único por atleta. Acesso permanente após confirmação. Após liberar,
-              você também poderá enviar mensagens diretamente para o atleta.
+              Pagamento único por atleta. Acesso permanente após confirmação. Após liberar, você
+              também poderá enviar mensagens diretamente para o atleta.
             </p>
           </div>
 

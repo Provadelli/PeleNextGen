@@ -32,7 +32,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-
 export const Route = createFileRoute("/candidatos/")({
   head: () => ({
     meta: [
@@ -80,7 +79,9 @@ function CandidatosPage() {
       const [{ data: profs }, { data: notas }] = await Promise.all([
         supabase
           .from("profiles")
-          .select("id, nome, email, celular, avatar_url, data_nascimento, posicao, cidade, altura, peso, pe")
+          .select(
+            "id, nome, email, celular, avatar_url, data_nascimento, posicao, cidade, altura, peso, pe",
+          )
           .in("id", ids),
         supabase
           .from("avaliacoes")
@@ -132,10 +133,6 @@ function CandidatosPage() {
     }
   }
 
-  if (ready && isClube) {
-    return <Navigate to="/clubes" />;
-  }
-
   const list = useMemo(() => {
     return realAtletas.filter((c) => {
       if (effectiveStatus !== "todos" && c.status !== effectiveStatus) return false;
@@ -149,12 +146,14 @@ function CandidatosPage() {
     });
   }, [q, effectiveStatus, realAtletas]);
 
+  if (ready && isClube) {
+    return <Navigate to="/clubes" />;
+  }
+
   return (
     <AppLayout>
       <header className="mb-8">
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
-          Candidatos
-        </p>
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Candidatos</p>
         <h1 className="mt-1 font-display text-3xl font-extrabold sm:text-4xl">
           {isClube ? "Atletas aprovados" : "Atletas inscritos"}
         </h1>
@@ -199,8 +198,8 @@ function CandidatosPage() {
       {isClube ? (
         <ClubeCardsView list={list} />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-card">
+          <table className="w-full min-w-[640px] text-sm">
             <thead className="bg-bg2 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="px-5 py-3">Atleta</th>
@@ -222,7 +221,11 @@ function CandidatosPage() {
                         params={{ atletaId: c.userId }}
                         className="flex items-center gap-3 font-semibold hover:text-primary"
                       >
-                        <AthleteAvatar src={c.avatar} alt={c.nome} className="h-9 w-9 border border-border" />
+                        <AthleteAvatar
+                          src={c.avatar}
+                          alt={c.nome}
+                          className="h-9 w-9 border border-border"
+                        />
                         {c.nome}
                       </Link>
                     ) : (
@@ -231,14 +234,22 @@ function CandidatosPage() {
                         params={{ candidatoId: c.id }}
                         className="flex items-center gap-3 font-semibold hover:text-primary"
                       >
-                        <AthleteAvatar src={c.avatar} alt={c.nome} className="h-9 w-9 border border-border" />
+                        <AthleteAvatar
+                          src={c.avatar}
+                          alt={c.nome}
+                          className="h-9 w-9 border border-border"
+                        />
                         {c.nome}
                       </Link>
                     )}
                   </td>
                   <td className="px-5 py-3 text-muted-foreground">{c.posicao}</td>
-                  <td className="hidden px-5 py-3 text-muted-foreground md:table-cell">{calcularIdade(c.dataNascimento)} anos</td>
-                  <td className="hidden px-5 py-3 text-muted-foreground lg:table-cell">{c.cidade}</td>
+                  <td className="hidden px-5 py-3 text-muted-foreground md:table-cell">
+                    {calcularIdade(c.dataNascimento)} anos
+                  </td>
+                  <td className="hidden px-5 py-3 text-muted-foreground lg:table-cell">
+                    {c.cidade}
+                  </td>
                   <td className="px-5 py-3 font-bold text-gradient-gold">
                     {c.notaGeral?.toFixed(1) ?? "—"}
                   </td>
@@ -255,10 +266,7 @@ function CandidatosPage() {
                             size="sm"
                             aria-label={`Ver perfil de ${c.nome}`}
                           >
-                            <Link
-                              to="/atletas/$atletaId"
-                              params={{ atletaId: c.userId }}
-                            >
+                            <Link to="/atletas/$atletaId" params={{ atletaId: c.userId }}>
                               <UserCircle2 className="h-4 w-4" />
                             </Link>
                           </Button>
@@ -310,7 +318,6 @@ function CandidatosPage() {
                 </tr>
               )}
             </tbody>
-
           </table>
         </div>
       )}
@@ -385,24 +392,9 @@ function ClubeCardsView({ list }: { list: Candidato[] }) {
               </header>
 
               <dl className="space-y-2 rounded-xl bg-bg2 p-4 text-sm">
-                <InfoRow
-                  icon={MapPin}
-                  label="Local"
-                  value={c.cidade}
-                  hidden={!isUnlocked}
-                />
-                <InfoRow
-                  icon={Phone}
-                  label="Telefone"
-                  value={c.celular}
-                  hidden={!isUnlocked}
-                />
-                <InfoRow
-                  icon={Mail}
-                  label="E-mail"
-                  value={c.email}
-                  hidden={!isUnlocked}
-                />
+                <InfoRow icon={MapPin} label="Local" value={c.cidade} hidden={!isUnlocked} />
+                <InfoRow icon={Phone} label="Telefone" value={c.celular} hidden={!isUnlocked} />
+                <InfoRow icon={Mail} label="E-mail" value={c.email} hidden={!isUnlocked} />
               </dl>
 
               {isUnlocked ? (
@@ -510,8 +502,7 @@ function CandStatus({ status }: { status: string }) {
   return (
     <span
       className={
-        "inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold " +
-        (map[status] ?? "")
+        "inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold " + (map[status] ?? "")
       }
     >
       {labels[status] ?? status}

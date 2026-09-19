@@ -1,12 +1,6 @@
 import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useSession } from "@/lib/session";
-import {
-  Trophy,
-  Users,
-  Star,
-  TrendingUp,
-  ArrowUpRight,
-} from "lucide-react";
+import { Trophy, Users, Star, TrendingUp, ArrowUpRight } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -24,6 +18,7 @@ import {
 } from "recharts";
 import { AppLayout } from "@/components/AppLayout";
 import { peneiras, candidatos } from "@/lib/mock-data";
+import { Reveal } from "@/components/home/Reveal";
 
 type TooltipEntry = {
   name?: string;
@@ -54,9 +49,7 @@ function AccessibleTooltip({
       style={{ minWidth: 180 }}
     >
       {label !== undefined && (
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">
-          {label}
-        </p>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
       )}
       <ul className="flex flex-col gap-1.5">
         {payload.map((entry, i) => {
@@ -135,46 +128,35 @@ function Dashboard() {
 
   return (
     <AppLayout>
-      <header className="mb-8">
+      <Reveal immediate as="header" className="mb-8">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
           Painel administrativo
         </p>
-        <h1 className="mt-1 font-display text-3xl font-extrabold sm:text-4xl">
-          Visão geral
-        </h1>
+        <h1 className="mt-1 font-display text-3xl font-extrabold sm:text-4xl">Visão geral</h1>
         <p className="mt-2 text-muted-foreground">
           Acompanhe inscrições, peneiras e desempenho dos candidatos em tempo real.
         </p>
-      </header>
+      </Reveal>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KPI
-          icon={Trophy}
-          label="Peneiras ativas"
-          value={peneirasAtivas}
-          delta="+2 este mês"
-        />
-        <KPI
-          icon={Users}
-          label="Atletas inscritos"
-          value={total}
-          delta="+18% vs mês anterior"
-        />
-        <KPI
-          icon={Star}
-          label="Atletas aprovados"
-          value={aprovados}
-          delta="Taxa 24%"
-        />
-        <KPI
-          icon={TrendingUp}
-          label="Avaliações pendentes"
-          value={pendentes}
-          delta="Próx. peneira em 14 dias"
-        />
+        {[
+          { icon: Trophy, label: "Peneiras ativas", value: peneirasAtivas, delta: "+2 este mês" },
+          { icon: Users, label: "Atletas inscritos", value: total, delta: "+18% vs mês anterior" },
+          { icon: Star, label: "Atletas aprovados", value: aprovados, delta: "Taxa 24%" },
+          {
+            icon: TrendingUp,
+            label: "Avaliações pendentes",
+            value: pendentes,
+            delta: "Próx. peneira em 14 dias",
+          },
+        ].map((kpi, i) => (
+          <Reveal key={kpi.label} immediate delay={i * 80}>
+            <KPI {...kpi} />
+          </Reveal>
+        ))}
       </section>
 
-      <section className="mt-8 grid gap-6 xl:grid-cols-3">
+      <Reveal as="section" delay={120} className="mt-8 grid gap-6 xl:grid-cols-3">
         <ChartCard
           className="xl:col-span-2"
           title="Inscrições mensais"
@@ -222,19 +204,14 @@ function Dashboard() {
                   <Cell key={i} fill={COLORS[i % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip
-                content={<AccessibleTooltip unitLabel="Atletas" />}
-              />
-              <Legend
-                verticalAlign="bottom"
-                wrapperStyle={{ fontSize: 12, color: "#8a9bb5" }}
-              />
+              <Tooltip content={<AccessibleTooltip unitLabel="Atletas" />} />
+              <Legend verticalAlign="bottom" wrapperStyle={{ fontSize: 12, color: "#8a9bb5" }} />
             </PieChart>
           </ResponsiveContainer>
         </ChartCard>
-      </section>
+      </Reveal>
 
-      <section className="mt-6 grid gap-6 xl:grid-cols-3">
+      <Reveal as="section" delay={160} className="mt-6 grid gap-6 xl:grid-cols-3">
         <ChartCard
           className="xl:col-span-2"
           title="Médias por critério"
@@ -247,9 +224,7 @@ function Dashboard() {
               <YAxis stroke="#8a9bb5" fontSize={12} domain={[0, 10]} />
               <Tooltip
                 cursor={{ fill: "rgba(212,175,55,0.08)" }}
-                content={
-                  <AccessibleTooltip unitLabel="Média" valueSuffix=" / 10" />
-                }
+                content={<AccessibleTooltip unitLabel="Média" valueSuffix=" / 10" />}
               />
               <Bar dataKey="media" fill="#d4af37" radius={[8, 8, 0, 0]} />
             </BarChart>
@@ -273,7 +248,7 @@ function Dashboard() {
               .map((p) => (
                 <li
                   key={p.id}
-                  className="flex items-center gap-3 rounded-xl border border-border bg-bg2 p-3"
+                  className="flex items-center gap-3 rounded-xl border border-border bg-bg2 p-3 transition-colors hover:border-primary/40"
                 >
                   <div className="h-12 w-12 overflow-hidden rounded-lg">
                     <img src={p.imagem} alt="" className="h-full w-full object-cover" />
@@ -289,7 +264,7 @@ function Dashboard() {
               ))}
           </ul>
         </div>
-      </section>
+      </Reveal>
     </AppLayout>
   );
 }
@@ -306,7 +281,7 @@ function KPI({
   delta: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+    <div className="rounded-2xl border border-border bg-card p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-gold">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           {label}
@@ -334,9 +309,7 @@ function ChartCard({
 }) {
   return (
     <div
-      className={
-        "rounded-2xl border border-border bg-card p-6 shadow-card " + (className ?? "")
-      }
+      className={"rounded-2xl border border-border bg-card p-6 shadow-card " + (className ?? "")}
     >
       <div className="mb-4">
         <h2 className="font-display text-lg font-bold">{title}</h2>

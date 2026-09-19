@@ -5,12 +5,8 @@ import { AppLayout } from "@/components/AppLayout";
 import { PeneiraCard } from "@/components/PeneiraCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { peneiras as mockPeneiras, type Peneira, type StatusPeneira } from "@/lib/mock-data";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { Peneira, StatusPeneira } from "@/lib/mock-data";
 import { fetchPeneirasFromDb } from "@/lib/peneiras.db";
 import { useSession } from "@/lib/session";
 import { useRequireAuth } from "@/hooks/use-require-auth";
@@ -95,9 +91,8 @@ function PeneirasPage() {
   }
 
   const allUnique = useMemo(() => {
-    const merged: Peneira[] = [...dbPeneiras, ...mockPeneiras];
     const seen = new Set<string>();
-    return merged.filter((p) => {
+    return dbPeneiras.filter((p) => {
       if (seen.has(p.id) || hiddenIds.has(p.id)) return false;
       seen.add(p.id);
       return true;
@@ -129,9 +124,7 @@ function PeneirasPage() {
   return (
     <AppLayout>
       <header className="mb-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-          Peneiras
-        </p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Peneiras</p>
         <h1 className="mt-1 font-display text-2xl font-extrabold sm:text-3xl">
           Encontre sua próxima oportunidade
         </h1>
@@ -168,8 +161,8 @@ function PeneirasPage() {
             </Button>
           )}
         </div>
-        {geoStatus === "granted" && (
-          nearby.length === 0 ? (
+        {geoStatus === "granted" &&
+          (nearby.length === 0 ? (
             <p className="mt-3 text-xs text-foreground/70">
               Nenhuma peneira aberta encontrada perto de você no momento.
             </p>
@@ -184,8 +177,7 @@ function PeneirasPage() {
                 </div>
               ))}
             </div>
-          )
-        )}
+          ))}
       </section>
 
       <div className="mb-4 flex flex-col gap-2.5 sm:flex-row sm:items-center">
@@ -226,9 +218,7 @@ function PeneirasPage() {
                     onClick={() => setFilter(f.value)}
                     className={
                       "flex items-center justify-between rounded-lg px-2.5 py-2 text-sm font-medium transition-colors " +
-                      (active
-                        ? "bg-primary/15 text-primary"
-                        : "text-foreground hover:bg-bg2")
+                      (active ? "bg-primary/15 text-primary" : "text-foreground hover:bg-bg2")
                     }
                   >
                     {f.label}

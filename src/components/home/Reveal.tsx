@@ -12,13 +12,14 @@ export function Reveal({
   delay = 0,
   as: Tag = "div",
   immediate = false,
+  ...rest
 }: {
   children: ReactNode;
   className?: string;
   delay?: number;
   as?: "div" | "section" | "li" | "article" | "header";
   immediate?: boolean;
-}) {
+} & Record<string, unknown>) {
   const { ref, shown } = useReveal<HTMLDivElement>();
   const [mounted, setMounted] = useState(false);
 
@@ -36,24 +37,17 @@ export function Reveal({
       style={{ transitionDelay: `${delay}ms` }}
       className={cn(
         "transition-[opacity,transform,filter] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none",
-        visible
-          ? "translate-y-0 opacity-100 blur-0"
-          : "translate-y-6 opacity-0 blur-[2px]",
+        visible ? "translate-y-0 opacity-100 blur-0" : "translate-y-6 opacity-0 blur-[2px]",
         className,
       )}
+      {...rest}
     >
       {children}
     </Tag>
   );
 }
 
-export function Eyebrow({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <p
       className={cn(
@@ -68,13 +62,7 @@ export function Eyebrow({
 }
 
 /** Botão dourado com brilho corrido no hover (desenho clássico da marca). */
-export function GoldButton({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+export function GoldButton({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <span
       className={cn(

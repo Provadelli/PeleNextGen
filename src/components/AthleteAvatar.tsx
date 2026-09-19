@@ -13,17 +13,13 @@ interface AthleteAvatarProps {
  * Mostra a foto do atleta se houver `src`; caso contrário, exibe um
  * placeholder neutro com ícone de usuário sobre fundo da marca.
  */
-export function AthleteAvatar({
-  src,
-  alt = "",
-  className,
-  iconClassName,
-}: AthleteAvatarProps) {
+export function AthleteAvatar({ src, alt = "", className, iconClassName }: AthleteAvatarProps) {
   if (src) {
     return (
       <img
         src={src}
         alt={alt}
+        loading="lazy"
         className={cn("rounded-full object-cover", className)}
       />
     );

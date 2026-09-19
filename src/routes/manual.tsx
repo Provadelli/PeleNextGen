@@ -135,7 +135,9 @@ function ManualPage() {
                       <s.icon
                         className={cn(
                           "h-3.5 w-3.5 shrink-0",
-                          active ? "text-primary" : "text-muted-foreground group-hover:text-foreground",
+                          active
+                            ? "text-primary"
+                            : "text-muted-foreground group-hover:text-foreground",
                         )}
                       />
                       <span className="truncate">{s.short}</span>
@@ -157,8 +159,8 @@ function ManualPage() {
               Prepare-se para brilhar na peneira
             </h1>
             <p className="mt-3 max-w-2xl text-base text-foreground/80 sm:text-lg">
-              Um guia rápido, prático e interativo para você chegar confiante, mostrar seu
-              melhor e sair na frente.
+              Um guia rápido, prático e interativo para você chegar confiante, mostrar seu melhor e
+              sair na frente.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild size="lg" className="rounded-xl">
@@ -172,7 +174,6 @@ function ManualPage() {
                 </Link>
               </Button>
             </div>
-
           </div>
 
           {/* Mobile pill nav */}
@@ -340,8 +341,8 @@ function ManualPage() {
                 ]}
               />
               <Callout tone="info" title="Lembre-se" icon={HeartHandshake}>
-                Nem sempre o melhor tecnicamente é escolhido — quem tem atitude e disciplina sai
-                na frente.
+                Nem sempre o melhor tecnicamente é escolhido — quem tem atitude e disciplina sai na
+                frente.
               </Callout>
             </Accordion>
 
@@ -366,8 +367,8 @@ function ManualPage() {
             <Star className="mx-auto h-10 w-10" />
             <h3 className="mt-3 font-display text-2xl font-extrabold">Bora pra cima!</h3>
             <p className="mx-auto mt-3 max-w-xl text-sm font-medium">
-              A peneira é mais do que um teste — é uma oportunidade de crescimento. Dê o seu
-              melhor, respeite todos e aproveite a experiência. ⚽
+              A peneira é mais do que um teste — é uma oportunidade de crescimento. Dê o seu melhor,
+              respeite todos e aproveite a experiência. ⚽
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-3">
               <Button asChild size="lg" variant="secondary" className="rounded-xl">
@@ -427,9 +428,7 @@ function Accordion({
         <div
           className={cn(
             "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-transform",
-            tone === "danger"
-              ? "bg-destructive/15 text-destructive"
-              : "bg-primary/15 text-primary",
+            tone === "danger" ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary",
             open && "scale-105",
           )}
         >
@@ -468,10 +467,7 @@ function BulletList({ items }: { items: string[] }) {
     <ul className="mt-2 space-y-1.5">
       {items.map((it) => (
         <li key={it} className="flex items-start gap-2">
-          <span
-            aria-hidden
-            className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/70"
-          />
+          <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/70" />
           <span className="text-foreground/85">{it}</span>
         </li>
       ))}
@@ -568,34 +564,71 @@ function Callout({
   return (
     <div className={cn("mt-4 flex gap-3 rounded-xl p-4", config.wrap)}>
       <div
-        className={cn(
-          "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
-          config.chip,
-        )}
+        className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", config.chip)}
       >
         <Icon className="h-5 w-5" />
       </div>
       <div className="min-w-0 text-sm">
-        <p className={cn("font-bold uppercase tracking-wider text-xs", config.label)}>
-          {title}
-        </p>
+        <p className={cn("font-bold uppercase tracking-wider text-xs", config.label)}>{title}</p>
         <p className="mt-1 text-foreground/85">{children}</p>
       </div>
     </div>
   );
 }
 
-function VideoPlaceholder({ title }: { title: string }) {
+/**
+ * Sem `youtubeId`: mantém o placeholder "em breve".
+ * Com `youtubeId`: facade de vídeo (thumbnail estática + botão de play) que só
+ * monta o iframe do YouTube no clique, evitando carregar o player inteiro
+ * antes do usuário pedir.
+ */
+function VideoPlaceholder({ title, youtubeId }: { title: string; youtubeId?: string }) {
+  const [playing, setPlaying] = useState(false);
+
+  if (youtubeId && playing) {
+    return (
+      <div className="mt-5 aspect-video w-full overflow-hidden rounded-xl border border-border">
+        <iframe
+          className="h-full w-full"
+          src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1`}
+          title={title}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className="mt-5 group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl border border-border bg-gradient-to-br from-bg2 to-bg3 transition-all hover:border-primary/40">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,theme(colors.primary/0.15),transparent_60%)]" />
+    <button
+      type="button"
+      onClick={youtubeId ? () => setPlaying(true) : undefined}
+      aria-label={youtubeId ? `Assistir: ${title}` : undefined}
+      className={cn(
+        "mt-5 group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl border border-border bg-gradient-to-br from-bg2 to-bg3 transition-all hover:border-primary/40",
+        youtubeId ? "cursor-pointer" : "cursor-default",
+      )}
+    >
+      {youtubeId ? (
+        <img
+          src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover opacity-60 transition-opacity group-hover:opacity-75"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,theme(colors.primary/0.15),transparent_60%)]" />
+      )}
       <div className="relative flex flex-col items-center gap-3 text-center">
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform group-hover:scale-110">
           <Play className="h-6 w-6 translate-x-0.5" />
         </div>
         <p className="text-sm font-semibold text-foreground">{title}</p>
-        <p className="text-xs text-muted-foreground">Vídeo explicativo em breve</p>
+        <p className="text-xs text-muted-foreground">
+          {youtubeId ? "Assistir vídeo" : "Vídeo explicativo em breve"}
+        </p>
       </div>
-    </div>
+    </button>
   );
 }

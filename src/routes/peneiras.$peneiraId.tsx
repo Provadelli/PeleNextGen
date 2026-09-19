@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { StatusBadge } from "@/components/StatusBadge";
+import { Reveal } from "@/components/home/Reveal";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -46,8 +47,7 @@ export const Route = createFileRoute("/peneiras/$peneiraId")({
     const url = `https://pelenextgen.vercel.app/peneiras/${params.peneiraId}`;
     const titulo = loaderData?.peneira.titulo ?? "Peneira";
     const desc =
-      loaderData?.peneira.descricao?.slice(0, 155) ??
-      "Detalhes da peneira oficial Pelé Next Gen.";
+      loaderData?.peneira.descricao?.slice(0, 155) ?? "Detalhes da peneira oficial Pelé Next Gen.";
     return {
       meta: [
         { title: `${titulo} — Pelé Next Gen` },
@@ -191,11 +191,7 @@ function PeneiraDetalhe() {
 
       <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-card">
         <div className="relative h-64 sm:h-80">
-          <img
-            src={peneira.imagem}
-            alt={peneira.titulo}
-            className="h-full w-full object-cover"
-          />
+          <img src={peneira.imagem} alt={peneira.titulo} className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
           <div className="absolute bottom-6 left-6 right-6">
             <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -217,7 +213,7 @@ function PeneiraDetalhe() {
         </div>
 
         <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
+          <Reveal immediate className="lg:col-span-2">
             <h2 className="font-display text-lg font-bold">Sobre a peneira</h2>
             <p className="mt-2 text-muted-foreground">{peneira.descricao}</p>
 
@@ -232,11 +228,7 @@ function PeneiraDetalhe() {
                 label="Janela de jogos"
                 value={`${peneira.horaInicio} – ${peneira.horaFim}`}
               />
-              <Info
-                icon={Timer}
-                label="Duração / jogo"
-                value={`${peneira.duracaoJogoMin} min`}
-              />
+              <Info icon={Timer} label="Duração / jogo" value={`${peneira.duracaoJogoMin} min`} />
               <Info
                 icon={ListChecks}
                 label="Jogos no dia"
@@ -253,11 +245,7 @@ function PeneiraDetalhe() {
                 value={`${peneira.inscritos}/${peneira.vagas} preenchidas`}
               />
               <Info icon={ShieldCheck} label="Organizador" value={peneira.organizador} />
-              <Info
-                icon={Trophy}
-                label="Categorias"
-                value={peneira.categorias.join(", ")}
-              />
+              <Info icon={Trophy} label="Categorias" value={peneira.categorias.join(", ")} />
             </div>
 
             {/* Cronograma de jogos */}
@@ -267,14 +255,14 @@ function PeneiraDetalhe() {
                 Cronograma do dia
               </h3>
               <p className="mt-1 text-xs text-muted-foreground">
-                {totalJogos} jogos × {peneira.participantesPorJogo} atletas ={" "}
-                {peneira.vagas} vagas totais
+                {totalJogos} jogos × {peneira.participantesPorJogo} atletas = {peneira.vagas} vagas
+                totais
               </p>
               <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {peneira.jogos.slice(0, 12).map((j: { numero: number; horario: string }) => (
                   <div
                     key={j.numero}
-                    className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                    className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-sm transition-colors hover:border-primary/40"
                   >
                     <span className="font-display font-bold">Jogo {j.numero}</span>
                     <span className="rounded bg-primary/15 px-2 py-0.5 text-xs font-bold text-primary">
@@ -292,8 +280,7 @@ function PeneiraDetalhe() {
 
             <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-5">
               <h3 className="flex items-center gap-2 font-display font-bold">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
-                O que levar no dia
+                <CheckCircle2 className="h-5 w-5 text-primary" />O que levar no dia
               </h3>
               <ul className="mt-3 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
                 <li>• Documento com foto</li>
@@ -302,9 +289,9 @@ function PeneiraDetalhe() {
                 <li>• Roupa esportiva</li>
               </ul>
             </div>
-          </div>
+          </Reveal>
 
-          <aside className="lg:sticky lg:top-24 lg:self-start">
+          <aside className="animate-fade-in lg:sticky lg:top-24 lg:self-start">
             {ready && (!user || isAtleta) && (
               <div className="rounded-2xl border border-border bg-bg2 p-6">
                 {inscrito ? (
@@ -370,10 +357,8 @@ function PeneiraDetalhe() {
                           </AlertDialogTitle>
                           <AlertDialogDescription className="text-center">
                             Você está prestes a se inscrever em{" "}
-                            <span className="font-semibold text-foreground">
-                              {peneira.titulo}
-                            </span>
-                            . Confira os dados antes de confirmar.
+                            <span className="font-semibold text-foreground">{peneira.titulo}</span>.
+                            Confira os dados antes de confirmar.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
 
@@ -421,35 +406,38 @@ function PeneiraDetalhe() {
             )}
 
             {/* Link de convite para olheiros — só aparece para admins/clubes em peneiras privadas */}
-            {peneira.visibilidade === "privada" && user && (user.role === "admin" || user.role === "clube") && (
-              <div className="mt-4 rounded-2xl border border-primary/30 bg-primary/5 p-5">
-                <p className="text-xs font-bold uppercase tracking-wider text-primary">
-                  🔗 Link de convite para olheiros
-                </p>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Esta peneira é privada para olheiros. Compartilhe o link abaixo para convidar outros olheiros.
-                </p>
-                <div className="mt-3 flex items-center gap-2">
-                  <input
-                    readOnly
-                    value={`${typeof window !== "undefined" ? window.location.origin : ""}/peneiras/${peneira.id}?invite=${peneira.inviteToken ?? "token"}`}
-                    className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground"
-                  />
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        `${window.location.origin}/peneiras/${peneira.id}?invite=${peneira.inviteToken ?? "token"}`
-                      );
-                      toast.success("Link copiado!");
-                    }}
-                  >
-                    Copiar
-                  </Button>
+            {peneira.visibilidade === "privada" &&
+              user &&
+              (user.role === "admin" || user.role === "clube") && (
+                <div className="mt-4 rounded-2xl border border-primary/30 bg-primary/5 p-5">
+                  <p className="text-xs font-bold uppercase tracking-wider text-primary">
+                    🔗 Link de convite para olheiros
+                  </p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Esta peneira é privada para olheiros. Compartilhe o link abaixo para convidar
+                    outros olheiros.
+                  </p>
+                  <div className="mt-3 flex items-center gap-2">
+                    <input
+                      readOnly
+                      value={`${typeof window !== "undefined" ? window.location.origin : ""}/peneiras/${peneira.id}?invite=${peneira.inviteToken ?? "token"}`}
+                      className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground"
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          `${window.location.origin}/peneiras/${peneira.id}?invite=${peneira.inviteToken ?? "token"}`,
+                        );
+                        toast.success("Link copiado!");
+                      }}
+                    >
+                      Copiar
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </aside>
         </div>
 
@@ -463,11 +451,7 @@ function PeneiraDetalhe() {
   );
 }
 
-function VisibilidadeBadge({
-  visibilidade,
-}: {
-  visibilidade: "publica" | "privada";
-}) {
+function VisibilidadeBadge({ visibilidade }: { visibilidade: "publica" | "privada" }) {
   if (visibilidade === "privada") {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-blue-dark/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground backdrop-blur">
@@ -561,9 +545,7 @@ function InscritosSection({ peneiraId }: { peneiraId: string }) {
         </p>
       )}
 
-      {!rows && !error && (
-        <p className="text-sm text-muted-foreground">Carregando inscritos…</p>
-      )}
+      {!rows && !error && <p className="text-sm text-muted-foreground">Carregando inscritos…</p>}
 
       {rows && rows.length === 0 && (
         <p className="rounded-xl border border-dashed border-border bg-bg2 p-6 text-center text-sm text-muted-foreground">
@@ -576,11 +558,7 @@ function InscritosSection({ peneiraId }: { peneiraId: string }) {
           {rows.map((r) => {
             const inner = (
               <div className="flex items-center gap-3 rounded-xl border border-border bg-bg2 p-3 transition-colors hover:border-primary/40 hover:bg-bg3">
-                <AthleteAvatar
-                  src={r.avatar}
-                  alt={r.nome}
-                  className="h-11 w-11 shrink-0"
-                />
+                <AthleteAvatar src={r.avatar} alt={r.nome} className="h-11 w-11 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{r.nome}</p>
                   <p className="truncate text-xs text-muted-foreground">
@@ -595,11 +573,7 @@ function InscritosSection({ peneiraId }: { peneiraId: string }) {
             return (
               <li key={r.id}>
                 {r.user_id ? (
-                  <Link
-                    to="/atletas/$atletaId"
-                    params={{ atletaId: r.user_id }}
-                    className="block"
-                  >
+                  <Link to="/atletas/$atletaId" params={{ atletaId: r.user_id }} className="block">
                     {inner}
                   </Link>
                 ) : (

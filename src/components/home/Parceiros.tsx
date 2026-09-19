@@ -22,9 +22,9 @@ export function Parceiros() {
         <Reveal className="max-w-xl">
           <Eyebrow>Clubes e parceiros</Eyebrow>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            Instituições que organizam peneiras, cedem estrutura e acompanham as
-            avaliações registradas na plataforma. Cada relatório pode ser
-            compartilhado com esses parceiros com a autorização do atleta.
+            Instituições que organizam peneiras, cedem estrutura e acompanham as avaliações
+            registradas na plataforma. Cada relatório pode ser compartilhado com esses parceiros com
+            a autorização do atleta.
           </p>
         </Reveal>
 
@@ -39,8 +39,8 @@ export function Parceiros() {
                   src={p.logo}
                   alt={`Logo ${p.nome}`}
                   loading="lazy"
-                  width={992}
-                  height={672}
+                  width={320}
+                  height={217}
                   className="h-16 w-auto opacity-55 grayscale transition-all duration-500 hover:scale-105 hover:opacity-100 hover:grayscale-0 lg:h-20"
                 />
               </li>
