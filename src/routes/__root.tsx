@@ -39,6 +39,7 @@ export const Route = createRootRoute({
           "Plataforma oficial Pelé Next Gen: peneiras de futebol, avaliação por olheiros e perfis de atletas.",
       },
       { name: "author", content: "Pelé Next Gen" },
+      { name: "google-site-verification", content: "8B7v2AZ4nAn4hYupG0ftbxG3kS5an6nL5yj6rCqhlgE" },
       { property: "og:site_name", content: "Pelé Next Gen" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
