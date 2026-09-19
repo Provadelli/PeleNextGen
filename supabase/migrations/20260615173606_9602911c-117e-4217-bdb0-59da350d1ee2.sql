@@ -35,20 +35,25 @@ ON storage.objects FOR SELECT
 USING (bucket_id = 'avatars' AND auth.uid() IS NOT NULL);
 
 -- 4) realtime.messages: scope channel subscriptions to conversation participants
-ALTER TABLE IF EXISTS realtime.messages ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS "realtime authenticated participants only" ON realtime.messages;
-CREATE POLICY "realtime authenticated participants only"
-ON realtime.messages FOR SELECT
-TO authenticated
-USING (
-  -- Topics shaped like "conversation:<uuid>" must belong to a conversation the user participates in.
-  CASE
-    WHEN realtime.topic() LIKE 'conversation:%' THEN
-      EXISTS (
-        SELECT 1 FROM public.conversations c
-        WHERE c.id = NULLIF(split_part(realtime.topic(), ':', 2), '')::uuid
-          AND (c.iniciador_id = auth.uid() OR c.atleta_id = auth.uid())
-      )
-    ELSE auth.uid() IS NOT NULL
-  END
-);
+-- (skips silently when the migration role doesn't own realtime.messages — managed by Supabase)
+DO $$
+BEGIN
+  ALTER TABLE IF EXISTS realtime.messages ENABLE ROW LEVEL SECURITY;
+  DROP POLICY IF EXISTS "realtime authenticated participants only" ON realtime.messages;
+  CREATE POLICY "realtime authenticated participants only"
+  ON realtime.messages FOR SELECT
+  TO authenticated
+  USING (
+    -- Topics shaped like "conversation:<uuid>" must belong to a conversation the user participates in.
+    CASE
+      WHEN realtime.topic() LIKE 'conversation:%' THEN
+        EXISTS (
+          SELECT 1 FROM public.conversations c
+          WHERE c.id = NULLIF(split_part(realtime.topic(), ':', 2), '')::uuid
+            AND (c.iniciador_id = auth.uid() OR c.atleta_id = auth.uid())
+        )
+      ELSE auth.uid() IS NOT NULL
+    END
+  );
+EXCEPTION WHEN insufficient_privilege THEN NULL;
+END $$;

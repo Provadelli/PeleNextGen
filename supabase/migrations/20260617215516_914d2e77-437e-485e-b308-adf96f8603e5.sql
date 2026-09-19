@@ -20,15 +20,20 @@ BEGIN
 END $$;
 
 -- 3) Tighten realtime.messages policy: only conversation:<uuid> topics for participants
-DROP POLICY IF EXISTS "realtime authenticated participants only" ON realtime.messages;
-CREATE POLICY "realtime authenticated participants only"
-ON realtime.messages FOR SELECT
-TO authenticated
-USING (
-  realtime.topic() LIKE 'conversation:%'
-  AND EXISTS (
-    SELECT 1 FROM public.conversations c
-    WHERE c.id = NULLIF(split_part(realtime.topic(), ':', 2), '')::uuid
-      AND (c.iniciador_id = auth.uid() OR c.atleta_id = auth.uid())
-  )
-);
+-- (skips silently when the migration role doesn't own realtime.messages — managed by Supabase)
+DO $$
+BEGIN
+  DROP POLICY IF EXISTS "realtime authenticated participants only" ON realtime.messages;
+  CREATE POLICY "realtime authenticated participants only"
+  ON realtime.messages FOR SELECT
+  TO authenticated
+  USING (
+    realtime.topic() LIKE 'conversation:%'
+    AND EXISTS (
+      SELECT 1 FROM public.conversations c
+      WHERE c.id = NULLIF(split_part(realtime.topic(), ':', 2), '')::uuid
+        AND (c.iniciador_id = auth.uid() OR c.atleta_id = auth.uid())
+    )
+  );
+EXCEPTION WHEN insufficient_privilege THEN NULL;
+END $$;
