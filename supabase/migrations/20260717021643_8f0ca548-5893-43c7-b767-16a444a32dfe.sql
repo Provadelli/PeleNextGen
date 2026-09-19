@@ -1,6 +1,6 @@
 
 -- Notifications table
-CREATE TABLE public.notifications (
+CREATE TABLE IF NOT EXISTS public.notifications (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   kind TEXT NOT NULL CHECK (kind IN ('skill_validated','new_message','peneira_match','contact_unlocked','system')),
@@ -17,20 +17,23 @@ GRANT ALL ON public.notifications TO service_role;
 
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users read own notifications" ON public.notifications;
 CREATE POLICY "Users read own notifications"
   ON public.notifications FOR SELECT TO authenticated
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users update own notifications" ON public.notifications;
 CREATE POLICY "Users update own notifications"
   ON public.notifications FOR UPDATE TO authenticated
   USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users delete own notifications" ON public.notifications;
 CREATE POLICY "Users delete own notifications"
   ON public.notifications FOR DELETE TO authenticated
   USING (auth.uid() = user_id);
 
-CREATE INDEX idx_notifications_user_created ON public.notifications(user_id, created_at DESC);
-CREATE INDEX idx_notifications_user_unread ON public.notifications(user_id) WHERE read_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_notifications_user_created ON public.notifications(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON public.notifications(user_id) WHERE read_at IS NULL;
 
 ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
 

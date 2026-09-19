@@ -1,3 +1,4 @@
+DROP POLICY IF EXISTS "suporte manage peneiras" ON public.peneiras;
 CREATE POLICY "suporte manage peneiras"
 ON public.peneiras
 FOR ALL

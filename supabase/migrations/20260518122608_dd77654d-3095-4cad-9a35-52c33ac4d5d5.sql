@@ -170,9 +170,11 @@ ALTER TABLE public.chat_reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_presence ENABLE ROW LEVEL SECURITY;
 
 -- conversations
+DROP POLICY IF EXISTS "conv read participants" ON public.conversations;
 CREATE POLICY "conv read participants" ON public.conversations FOR SELECT
 USING (auth.uid() IN (iniciador_id, atleta_id) OR public.has_role(auth.uid(),'admin') OR public.has_role(auth.uid(),'suporte'));
 
+DROP POLICY IF EXISTS "conv insert iniciador" ON public.conversations;
 CREATE POLICY "conv insert iniciador" ON public.conversations FOR INSERT
 WITH CHECK (
   auth.uid() = iniciador_id
@@ -180,40 +182,52 @@ WITH CHECK (
 );
 
 -- messages
+DROP POLICY IF EXISTS "msg read participants" ON public.messages;
 CREATE POLICY "msg read participants" ON public.messages FOR SELECT
 USING (public.is_conversation_participant(conversation_id, auth.uid()) OR public.has_role(auth.uid(),'suporte'));
 
+DROP POLICY IF EXISTS "msg insert participants" ON public.messages;
 CREATE POLICY "msg insert participants" ON public.messages FOR INSERT
 WITH CHECK (
   auth.uid() = sender_id
   AND public.is_conversation_participant(conversation_id, auth.uid())
 );
 
+DROP POLICY IF EXISTS "msg update read participants" ON public.messages;
 CREATE POLICY "msg update read participants" ON public.messages FOR UPDATE
 USING (public.is_conversation_participant(conversation_id, auth.uid()))
 WITH CHECK (public.is_conversation_participant(conversation_id, auth.uid()));
 
 -- chat_blocks
+DROP POLICY IF EXISTS "blocks own read" ON public.chat_blocks;
 CREATE POLICY "blocks own read" ON public.chat_blocks FOR SELECT
 USING (auth.uid() = blocker_id OR auth.uid() = blocked_id);
+DROP POLICY IF EXISTS "blocks own insert" ON public.chat_blocks;
 CREATE POLICY "blocks own insert" ON public.chat_blocks FOR INSERT
 WITH CHECK (auth.uid() = blocker_id);
+DROP POLICY IF EXISTS "blocks own delete" ON public.chat_blocks;
 CREATE POLICY "blocks own delete" ON public.chat_blocks FOR DELETE
 USING (auth.uid() = blocker_id);
 
 -- chat_reports
+DROP POLICY IF EXISTS "reports own insert" ON public.chat_reports;
 CREATE POLICY "reports own insert" ON public.chat_reports FOR INSERT
 WITH CHECK (auth.uid() = reporter_id);
+DROP POLICY IF EXISTS "reports own read" ON public.chat_reports;
 CREATE POLICY "reports own read" ON public.chat_reports FOR SELECT
 USING (auth.uid() = reporter_id OR public.has_role(auth.uid(),'suporte') OR public.has_role(auth.uid(),'admin'));
+DROP POLICY IF EXISTS "reports suporte update" ON public.chat_reports;
 CREATE POLICY "reports suporte update" ON public.chat_reports FOR UPDATE
 USING (public.has_role(auth.uid(),'suporte'))
 WITH CHECK (public.has_role(auth.uid(),'suporte'));
 
 -- user_presence (público para leitura, write apenas próprio)
+DROP POLICY IF EXISTS "presence read all" ON public.user_presence;
 CREATE POLICY "presence read all" ON public.user_presence FOR SELECT USING (true);
+DROP POLICY IF EXISTS "presence upsert own" ON public.user_presence;
 CREATE POLICY "presence upsert own" ON public.user_presence FOR INSERT
 WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "presence update own" ON public.user_presence;
 CREATE POLICY "presence update own" ON public.user_presence FOR UPDATE
 USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
@@ -238,12 +252,14 @@ VALUES ('chat-media', 'chat-media', false)
 ON CONFLICT (id) DO NOTHING;
 
 -- Policies de storage: o primeiro segmento do path é o conversation_id
+DROP POLICY IF EXISTS "chat media read participants" ON storage.objects;
 CREATE POLICY "chat media read participants" ON storage.objects FOR SELECT
 USING (
   bucket_id = 'chat-media'
   AND public.is_conversation_participant(((storage.foldername(name))[1])::uuid, auth.uid())
 );
 
+DROP POLICY IF EXISTS "chat media insert participants" ON storage.objects;
 CREATE POLICY "chat media insert participants" ON storage.objects FOR INSERT
 WITH CHECK (
   bucket_id = 'chat-media'
@@ -251,6 +267,7 @@ WITH CHECK (
   AND auth.uid()::text = (storage.foldername(name))[2]
 );
 
+DROP POLICY IF EXISTS "chat media delete own" ON storage.objects;
 CREATE POLICY "chat media delete own" ON storage.objects FOR DELETE
 USING (
   bucket_id = 'chat-media'

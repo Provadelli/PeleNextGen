@@ -1,6 +1,7 @@
 
 -- 1) athlete-videos: replace overly broad SELECT
 DROP POLICY IF EXISTS "athlete-videos signed url read" ON storage.objects;
+DROP POLICY IF EXISTS "athlete-videos restricted read" ON storage.objects;
 CREATE POLICY "athlete-videos restricted read"
 ON storage.objects FOR SELECT
 USING (
@@ -21,12 +22,14 @@ USING (
 
 -- 2) user_presence: restrict to authenticated
 DROP POLICY IF EXISTS "presence read all" ON public.user_presence;
+DROP POLICY IF EXISTS "presence read authenticated" ON public.user_presence;
 CREATE POLICY "presence read authenticated"
 ON public.user_presence FOR SELECT
 USING (auth.uid() IS NOT NULL);
 
 -- 3) avatars: restrict listing; public URLs still work
 DROP POLICY IF EXISTS "Avatar images are publicly accessible" ON storage.objects;
+DROP POLICY IF EXISTS "Avatar listing for authenticated" ON storage.objects;
 CREATE POLICY "Avatar listing for authenticated"
 ON storage.objects FOR SELECT
 USING (bucket_id = 'avatars' AND auth.uid() IS NOT NULL);

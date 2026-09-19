@@ -1,3 +1,4 @@
+DROP POLICY IF EXISTS "conv delete iniciador or admin" ON public.conversations;
 CREATE POLICY "conv delete iniciador or admin"
 ON public.conversations
 FOR DELETE

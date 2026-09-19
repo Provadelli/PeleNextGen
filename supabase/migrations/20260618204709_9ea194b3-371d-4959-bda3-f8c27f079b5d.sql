@@ -53,6 +53,7 @@ USING (
 
 -- 2) user_presence: restrict reads to self and shared-conversation peers.
 DROP POLICY IF EXISTS "presence read authenticated" ON public.user_presence;
+DROP POLICY IF EXISTS "presence read self or peers" ON public.user_presence;
 CREATE POLICY "presence read self or peers"
 ON public.user_presence
 FOR SELECT
@@ -64,6 +65,7 @@ USING (
 
 -- 3) wearable_daily_metrics: clubes only see unlocked atletas; admin/suporte keep full access.
 DROP POLICY IF EXISTS "Olheiros e clubes veem métricas dos atletas" ON public.wearable_daily_metrics;
+DROP POLICY IF EXISTS "Scouts veem métricas de atletas desbloqueados" ON public.wearable_daily_metrics;
 CREATE POLICY "Scouts veem métricas de atletas desbloqueados"
 ON public.wearable_daily_metrics
 FOR SELECT

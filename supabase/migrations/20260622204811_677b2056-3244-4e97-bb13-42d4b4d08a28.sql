@@ -2,6 +2,7 @@
 -- 1) athlete_videos: remove the conversation-based bypass
 DROP POLICY IF EXISTS "athlete_videos read by scouts and chat peers" ON public.athlete_videos;
 
+DROP POLICY IF EXISTS "athlete_videos read by owner and unlocked" ON public.athlete_videos;
 CREATE POLICY "athlete_videos read by owner and unlocked"
   ON public.athlete_videos
   FOR SELECT

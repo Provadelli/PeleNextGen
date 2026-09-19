@@ -1,3 +1,4 @@
+DROP POLICY IF EXISTS "chat peer profile read" ON public.profiles;
 CREATE POLICY "chat peer profile read"
 ON public.profiles
 FOR SELECT
@@ -9,6 +10,7 @@ USING (
   )
 );
 
+DROP POLICY IF EXISTS "scouts read atleta profiles" ON public.profiles;
 CREATE POLICY "scouts read atleta profiles"
 ON public.profiles
 FOR SELECT

@@ -79,12 +79,14 @@ USING (
 
 -- 5. user_roles: suporte must not be able to grant admin/suporte roles
 DROP POLICY IF EXISTS "suporte manage roles" ON public.user_roles;
+DROP POLICY IF EXISTS "suporte insert non-privileged roles" ON public.user_roles;
 CREATE POLICY "suporte insert non-privileged roles"
 ON public.user_roles FOR INSERT
 WITH CHECK (
   public.has_role(auth.uid(), 'suporte'::app_role)
   AND role NOT IN ('admin'::app_role, 'suporte'::app_role)
 );
+DROP POLICY IF EXISTS "suporte update non-privileged roles" ON public.user_roles;
 CREATE POLICY "suporte update non-privileged roles"
 ON public.user_roles FOR UPDATE
 USING (
@@ -95,6 +97,7 @@ WITH CHECK (
   public.has_role(auth.uid(), 'suporte'::app_role)
   AND role NOT IN ('admin'::app_role, 'suporte'::app_role)
 );
+DROP POLICY IF EXISTS "suporte delete non-privileged roles" ON public.user_roles;
 CREATE POLICY "suporte delete non-privileged roles"
 ON public.user_roles FOR DELETE
 USING (

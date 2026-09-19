@@ -92,29 +92,35 @@ $$;
 -- Update RLS: only suporte can update/read all requests
 DROP POLICY IF EXISTS "admin update admin requests" ON public.admin_requests;
 DROP POLICY IF EXISTS "own admin request read" ON public.admin_requests;
+DROP POLICY IF EXISTS "suporte update admin requests" ON public.admin_requests;
 CREATE POLICY "suporte update admin requests"
 ON public.admin_requests FOR UPDATE
 USING (has_role(auth.uid(), 'suporte'::app_role))
 WITH CHECK (has_role(auth.uid(), 'suporte'::app_role));
+DROP POLICY IF EXISTS "own admin request read" ON public.admin_requests;
 CREATE POLICY "own admin request read"
 ON public.admin_requests FOR SELECT
 USING ((auth.uid() = user_id) OR has_role(auth.uid(), 'suporte'::app_role));
 
 DROP POLICY IF EXISTS "admin update clube requests" ON public.clube_requests;
 DROP POLICY IF EXISTS "own clube request read" ON public.clube_requests;
+DROP POLICY IF EXISTS "suporte update clube requests" ON public.clube_requests;
 CREATE POLICY "suporte update clube requests"
 ON public.clube_requests FOR UPDATE
 USING (has_role(auth.uid(), 'suporte'::app_role))
 WITH CHECK (has_role(auth.uid(), 'suporte'::app_role));
+DROP POLICY IF EXISTS "own clube request read" ON public.clube_requests;
 CREATE POLICY "own clube request read"
 ON public.clube_requests FOR SELECT
 USING ((auth.uid() = user_id) OR has_role(auth.uid(), 'suporte'::app_role));
 
 -- Suporte also needs to be able to read profiles + roles to manage panel
+DROP POLICY IF EXISTS "suporte read all profiles" ON public.profiles;
 CREATE POLICY "suporte read all profiles"
 ON public.profiles FOR SELECT
 USING (has_role(auth.uid(), 'suporte'::app_role));
 
+DROP POLICY IF EXISTS "suporte read all roles" ON public.user_roles;
 CREATE POLICY "suporte read all roles"
 ON public.user_roles FOR SELECT
 USING (has_role(auth.uid(), 'suporte'::app_role));

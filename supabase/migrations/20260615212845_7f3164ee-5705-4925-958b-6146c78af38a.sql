@@ -12,6 +12,7 @@ ALTER TABLE public.admin_requests
   ADD CONSTRAINT admin_requests_idade_check CHECK (idade IS NULL OR (idade BETWEEN 18 AND 99));
 
 -- Storage policies for admin-docs bucket
+DROP POLICY IF EXISTS "admin-docs owner insert" ON storage.objects;
 CREATE POLICY "admin-docs owner insert"
 ON storage.objects FOR INSERT
 TO authenticated
@@ -20,6 +21,7 @@ WITH CHECK (
   AND (storage.foldername(name))[1] = auth.uid()::text
 );
 
+DROP POLICY IF EXISTS "admin-docs owner update" ON storage.objects;
 CREATE POLICY "admin-docs owner update"
 ON storage.objects FOR UPDATE
 TO authenticated
@@ -32,6 +34,7 @@ WITH CHECK (
   AND (storage.foldername(name))[1] = auth.uid()::text
 );
 
+DROP POLICY IF EXISTS "admin-docs owner or suporte read" ON storage.objects;
 CREATE POLICY "admin-docs owner or suporte read"
 ON storage.objects FOR SELECT
 TO authenticated
@@ -43,6 +46,7 @@ USING (
   )
 );
 
+DROP POLICY IF EXISTS "admin-docs suporte delete" ON storage.objects;
 CREATE POLICY "admin-docs suporte delete"
 ON storage.objects FOR DELETE
 TO authenticated

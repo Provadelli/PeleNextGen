@@ -1,6 +1,6 @@
 
 -- 1) Table
-CREATE TABLE public.athlete_videos (
+CREATE TABLE IF NOT EXISTS public.athlete_videos (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   atleta_id uuid NOT NULL,
   path text NOT NULL,
@@ -10,18 +10,20 @@ CREATE TABLE public.athlete_videos (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_athlete_videos_atleta ON public.athlete_videos(atleta_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_athlete_videos_atleta ON public.athlete_videos(atleta_id, created_at DESC);
 
 GRANT SELECT, INSERT, DELETE ON public.athlete_videos TO authenticated;
 GRANT ALL ON public.athlete_videos TO service_role;
 
 ALTER TABLE public.athlete_videos ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "athlete_videos owner manage" ON public.athlete_videos;
 CREATE POLICY "athlete_videos owner manage"
 ON public.athlete_videos FOR ALL
 USING (auth.uid() = atleta_id)
 WITH CHECK (auth.uid() = atleta_id AND public.has_role(auth.uid(), 'atleta'));
 
+DROP POLICY IF EXISTS "athlete_videos read by scouts and chat peers" ON public.athlete_videos;
 CREATE POLICY "athlete_videos read by scouts and chat peers"
 ON public.athlete_videos FOR SELECT
 USING (
@@ -41,6 +43,7 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('athlete-videos', 'athlete-videos', false)
 ON CONFLICT (id) DO NOTHING;
 
+DROP POLICY IF EXISTS "athlete-videos owner upload" ON storage.objects;
 CREATE POLICY "athlete-videos owner upload"
 ON storage.objects FOR INSERT
 WITH CHECK (
@@ -48,6 +51,7 @@ WITH CHECK (
   AND auth.uid()::text = (storage.foldername(name))[1]
 );
 
+DROP POLICY IF EXISTS "athlete-videos owner delete" ON storage.objects;
 CREATE POLICY "athlete-videos owner delete"
 ON storage.objects FOR DELETE
 USING (
@@ -55,6 +59,7 @@ USING (
   AND auth.uid()::text = (storage.foldername(name))[1]
 );
 
+DROP POLICY IF EXISTS "athlete-videos signed url read" ON storage.objects;
 CREATE POLICY "athlete-videos signed url read"
 ON storage.objects FOR SELECT
 USING (bucket_id = 'athlete-videos' AND auth.role() = 'authenticated');

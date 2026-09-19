@@ -1,1 +1,2 @@
+DROP POLICY IF EXISTS "msg delete own" ON public.messages;
 CREATE POLICY "msg delete own" ON public.messages FOR DELETE USING (sender_id = auth.uid() AND is_conversation_participant(conversation_id, auth.uid()));

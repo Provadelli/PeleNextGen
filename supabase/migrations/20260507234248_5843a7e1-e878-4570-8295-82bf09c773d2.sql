@@ -1,7 +1,9 @@
 
-CREATE TYPE public.admin_request_status AS ENUM ('pending', 'approved', 'rejected');
+DO $$ BEGIN
+  CREATE TYPE public.admin_request_status AS ENUM ('pending', 'approved', 'rejected');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE TABLE public.admin_requests (
+CREATE TABLE IF NOT EXISTS public.admin_requests (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL UNIQUE,
   status public.admin_request_status NOT NULL DEFAULT 'pending',
@@ -14,19 +16,23 @@ CREATE TABLE public.admin_requests (
 
 ALTER TABLE public.admin_requests ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "own admin request read" ON public.admin_requests;
 CREATE POLICY "own admin request read"
 ON public.admin_requests FOR SELECT
 USING (auth.uid() = user_id OR public.has_role(auth.uid(), 'admin'));
 
+DROP POLICY IF EXISTS "own admin request insert" ON public.admin_requests;
 CREATE POLICY "own admin request insert"
 ON public.admin_requests FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "admin update admin requests" ON public.admin_requests;
 CREATE POLICY "admin update admin requests"
 ON public.admin_requests FOR UPDATE
 USING (public.has_role(auth.uid(), 'admin'))
 WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
+DROP TRIGGER IF EXISTS set_admin_requests_updated_at ON public.admin_requests;
 CREATE TRIGGER set_admin_requests_updated_at
 BEFORE UPDATE ON public.admin_requests
 FOR EACH ROW EXECUTE FUNCTION public.tg_set_updated_at();

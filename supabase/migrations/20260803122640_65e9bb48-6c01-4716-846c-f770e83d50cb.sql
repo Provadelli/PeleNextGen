@@ -1,4 +1,4 @@
-CREATE TABLE public.scout_profiles (
+CREATE TABLE IF NOT EXISTS public.scout_profiles (
   user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   cargo text,
   especialidades text[] NOT NULL DEFAULT '{}',
@@ -20,23 +20,28 @@ GRANT ALL ON public.scout_profiles TO service_role;
 
 ALTER TABLE public.scout_profiles ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "scout_profiles public read" ON public.scout_profiles;
 CREATE POLICY "scout_profiles public read"
   ON public.scout_profiles FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "scout_profiles owner insert" ON public.scout_profiles;
 CREATE POLICY "scout_profiles owner insert"
   ON public.scout_profiles FOR INSERT TO authenticated
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "scout_profiles owner update" ON public.scout_profiles;
 CREATE POLICY "scout_profiles owner update"
   ON public.scout_profiles FOR UPDATE TO authenticated
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "scout_profiles owner delete" ON public.scout_profiles;
 CREATE POLICY "scout_profiles owner delete"
   ON public.scout_profiles FOR DELETE TO authenticated
   USING (auth.uid() = user_id);
 
+DROP TRIGGER IF EXISTS set_updated_at_scout_profiles ON public.scout_profiles;
 CREATE TRIGGER set_updated_at_scout_profiles
   BEFORE UPDATE ON public.scout_profiles
   FOR EACH ROW EXECUTE FUNCTION public.tg_set_updated_at();

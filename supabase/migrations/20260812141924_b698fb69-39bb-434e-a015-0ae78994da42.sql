@@ -1,5 +1,6 @@
 DROP POLICY IF EXISTS "scout_profiles public read" ON public.scout_profiles;
 
+DROP POLICY IF EXISTS "scout_profiles authenticated read" ON public.scout_profiles;
 CREATE POLICY "scout_profiles authenticated read"
   ON public.scout_profiles FOR SELECT TO authenticated
   USING (true);

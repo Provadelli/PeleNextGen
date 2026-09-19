@@ -1,3 +1,4 @@
+DROP POLICY IF EXISTS "suporte manage roles" ON public.user_roles;
 CREATE POLICY "suporte manage roles"
 ON public.user_roles FOR ALL
 USING (has_role(auth.uid(), 'suporte'::app_role))

@@ -1,5 +1,5 @@
 -- Reuse admin_request_status enum for clube_requests
-CREATE TABLE public.clube_requests (
+CREATE TABLE IF NOT EXISTS public.clube_requests (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL UNIQUE,
   status admin_request_status NOT NULL DEFAULT 'pending',
@@ -12,19 +12,23 @@ CREATE TABLE public.clube_requests (
 
 ALTER TABLE public.clube_requests ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "own clube request insert" ON public.clube_requests;
 CREATE POLICY "own clube request insert"
 ON public.clube_requests FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "own clube request read" ON public.clube_requests;
 CREATE POLICY "own clube request read"
 ON public.clube_requests FOR SELECT
 USING ((auth.uid() = user_id) OR has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "admin update clube requests" ON public.clube_requests;
 CREATE POLICY "admin update clube requests"
 ON public.clube_requests FOR UPDATE
 USING (has_role(auth.uid(), 'admin'::app_role))
 WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
 
+DROP TRIGGER IF EXISTS clube_requests_updated_at ON public.clube_requests;
 CREATE TRIGGER clube_requests_updated_at
 BEFORE UPDATE ON public.clube_requests
 FOR EACH ROW EXECUTE FUNCTION public.tg_set_updated_at();

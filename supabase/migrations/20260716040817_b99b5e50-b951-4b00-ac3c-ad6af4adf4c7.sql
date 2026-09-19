@@ -57,10 +57,12 @@ GRANT ALL ON public.athlete_skill_history TO service_role;
 
 ALTER TABLE public.athlete_skill_history ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "athlete reads own skill history" ON public.athlete_skill_history;
 CREATE POLICY "athlete reads own skill history"
   ON public.athlete_skill_history FOR SELECT
   USING (atleta_id = auth.uid() OR public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "validator reads their entries" ON public.athlete_skill_history;
 CREATE POLICY "validator reads their entries"
   ON public.athlete_skill_history FOR SELECT
   USING (validator_id = auth.uid());
@@ -117,11 +119,13 @@ GRANT ALL ON public.athlete_skill_validators TO service_role;
 
 ALTER TABLE public.athlete_skill_validators ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "athlete manages own validators" ON public.athlete_skill_validators;
 CREATE POLICY "athlete manages own validators"
   ON public.athlete_skill_validators FOR ALL
   USING (atleta_id = auth.uid())
   WITH CHECK (atleta_id = auth.uid());
 
+DROP POLICY IF EXISTS "validator sees own invite" ON public.athlete_skill_validators;
 CREATE POLICY "validator sees own invite"
   ON public.athlete_skill_validators FOR SELECT
   USING (
@@ -130,6 +134,7 @@ CREATE POLICY "validator sees own invite"
         AND lower(invited_email) = lower(coalesce(auth.jwt() ->> 'email', '')))
   );
 
+DROP POLICY IF EXISTS "validator updates own invite" ON public.athlete_skill_validators;
 CREATE POLICY "validator updates own invite"
   ON public.athlete_skill_validators FOR UPDATE
   USING (

@@ -11,6 +11,7 @@ WITH CHECK (auth.uid() IS NOT NULL AND user_id IS NOT NULL AND auth.uid() = user
 --    read-receipt policy that only allows toggling read_at).
 DROP POLICY IF EXISTS "msg update read participants" ON public.messages;
 
+DROP POLICY IF EXISTS "msg update own" ON public.messages;
 CREATE POLICY "msg update own"
 ON public.messages
 FOR UPDATE
@@ -18,6 +19,7 @@ TO authenticated
 USING (sender_id = auth.uid() AND is_conversation_participant(conversation_id, auth.uid()))
 WITH CHECK (sender_id = auth.uid() AND is_conversation_participant(conversation_id, auth.uid()));
 
+DROP POLICY IF EXISTS "msg mark read recipient" ON public.messages;
 CREATE POLICY "msg mark read recipient"
 ON public.messages
 FOR UPDATE

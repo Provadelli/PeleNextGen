@@ -1,14 +1,26 @@
 
 -- ========== ENUMS ==========
-CREATE TYPE public.app_role AS ENUM ('atleta', 'admin', 'clube');
-CREATE TYPE public.posicao AS ENUM ('Goleiro', 'Zagueiro', 'Lateral', 'Volante', 'Meia', 'Atacante');
-CREATE TYPE public.status_peneira AS ENUM ('aberta', 'em_andamento', 'encerrada');
-CREATE TYPE public.visibilidade AS ENUM ('publica', 'privada');
-CREATE TYPE public.status_candidato AS ENUM ('pendente', 'avaliado', 'aprovado', 'reprovado');
-CREATE TYPE public.pe_dominante AS ENUM ('Destro', 'Canhoto');
+DO $$ BEGIN
+  CREATE TYPE public.app_role AS ENUM ('atleta', 'admin', 'clube');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE TYPE public.posicao AS ENUM ('Goleiro', 'Zagueiro', 'Lateral', 'Volante', 'Meia', 'Atacante');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE TYPE public.status_peneira AS ENUM ('aberta', 'em_andamento', 'encerrada');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE TYPE public.visibilidade AS ENUM ('publica', 'privada');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE TYPE public.status_candidato AS ENUM ('pendente', 'avaliado', 'aprovado', 'reprovado');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE TYPE public.pe_dominante AS ENUM ('Destro', 'Canhoto');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- ========== PROFILES ==========
-CREATE TABLE public.profiles (
+CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   nome TEXT NOT NULL,
   email TEXT NOT NULL,
@@ -20,7 +32,7 @@ CREATE TABLE public.profiles (
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- ========== USER_ROLES ==========
-CREATE TABLE public.user_roles (
+CREATE TABLE IF NOT EXISTS public.user_roles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   role app_role NOT NULL,
@@ -41,7 +53,7 @@ AS $$
 $$;
 
 -- ========== PENEIRAS ==========
-CREATE TABLE public.peneiras (
+CREATE TABLE IF NOT EXISTS public.peneiras (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   titulo TEXT NOT NULL,
   cidade TEXT NOT NULL,
@@ -68,7 +80,7 @@ CREATE TABLE public.peneiras (
 ALTER TABLE public.peneiras ENABLE ROW LEVEL SECURITY;
 
 -- ========== CANDIDATOS ==========
-CREATE TABLE public.candidatos (
+CREATE TABLE IF NOT EXISTS public.candidatos (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   peneira_id UUID NOT NULL REFERENCES public.peneiras(id) ON DELETE CASCADE,
@@ -91,7 +103,7 @@ CREATE TABLE public.candidatos (
 ALTER TABLE public.candidatos ENABLE ROW LEVEL SECURITY;
 
 -- ========== AVALIACOES ==========
-CREATE TABLE public.avaliacoes (
+CREATE TABLE IF NOT EXISTS public.avaliacoes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   candidato_id UUID NOT NULL REFERENCES public.candidatos(id) ON DELETE CASCADE,
   avaliador_id UUID REFERENCES auth.users(id),
@@ -106,7 +118,7 @@ CREATE TABLE public.avaliacoes (
 ALTER TABLE public.avaliacoes ENABLE ROW LEVEL SECURITY;
 
 -- ========== CONTATOS_DESBLOQUEADOS ==========
-CREATE TABLE public.contatos_desbloqueados (
+CREATE TABLE IF NOT EXISTS public.contatos_desbloqueados (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   clube_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   candidato_id UUID NOT NULL REFERENCES public.candidatos(id) ON DELETE CASCADE,
@@ -120,12 +132,16 @@ CREATE OR REPLACE FUNCTION public.tg_set_updated_at()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN NEW.updated_at = now(); RETURN NEW; END $$;
 
+DROP TRIGGER IF EXISTS tg_profiles_updated ON public.profiles;
 CREATE TRIGGER tg_profiles_updated BEFORE UPDATE ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.tg_set_updated_at();
+DROP TRIGGER IF EXISTS tg_peneiras_updated ON public.peneiras;
 CREATE TRIGGER tg_peneiras_updated BEFORE UPDATE ON public.peneiras
   FOR EACH ROW EXECUTE FUNCTION public.tg_set_updated_at();
+DROP TRIGGER IF EXISTS tg_candidatos_updated ON public.candidatos;
 CREATE TRIGGER tg_candidatos_updated BEFORE UPDATE ON public.candidatos
   FOR EACH ROW EXECUTE FUNCTION public.tg_set_updated_at();
+DROP TRIGGER IF EXISTS tg_avaliacoes_updated ON public.avaliacoes;
 CREATE TRIGGER tg_avaliacoes_updated BEFORE UPDATE ON public.avaliacoes
   FOR EACH ROW EXECUTE FUNCTION public.tg_set_updated_at();
 
@@ -151,6 +167,7 @@ BEGIN
   RETURN NEW;
 END $$;
 
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
@@ -158,43 +175,53 @@ CREATE TRIGGER on_auth_user_created
 -- ========== RLS POLICIES ==========
 
 -- profiles: user reads/updates own; admin reads all
+DROP POLICY IF EXISTS "own profile read" ON public.profiles;
 CREATE POLICY "own profile read" ON public.profiles FOR SELECT
   USING (auth.uid() = id OR public.has_role(auth.uid(), 'admin'));
+DROP POLICY IF EXISTS "own profile update" ON public.profiles;
 CREATE POLICY "own profile update" ON public.profiles FOR UPDATE
   USING (auth.uid() = id);
 
 -- user_roles: user reads own; admin reads/writes all
+DROP POLICY IF EXISTS "own roles read" ON public.user_roles;
 CREATE POLICY "own roles read" ON public.user_roles FOR SELECT
   USING (auth.uid() = user_id OR public.has_role(auth.uid(), 'admin'));
+DROP POLICY IF EXISTS "admin manage roles" ON public.user_roles;
 CREATE POLICY "admin manage roles" ON public.user_roles FOR ALL
   USING (public.has_role(auth.uid(), 'admin'))
   WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
 -- peneiras: public visible to authenticated; private only to admin/creator; admin manages
+DROP POLICY IF EXISTS "peneiras read" ON public.peneiras;
 CREATE POLICY "peneiras read" ON public.peneiras FOR SELECT
   USING (
     visibilidade = 'publica'
     OR public.has_role(auth.uid(), 'admin')
     OR auth.uid() = created_by
   );
+DROP POLICY IF EXISTS "admin manage peneiras" ON public.peneiras;
 CREATE POLICY "admin manage peneiras" ON public.peneiras FOR ALL
   USING (public.has_role(auth.uid(), 'admin'))
   WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
 -- candidatos: atleta reads own; admin reads all; clube reads aprovados
+DROP POLICY IF EXISTS "candidato own read" ON public.candidatos;
 CREATE POLICY "candidato own read" ON public.candidatos FOR SELECT
   USING (
     auth.uid() = user_id
     OR public.has_role(auth.uid(), 'admin')
     OR (public.has_role(auth.uid(), 'clube') AND status = 'aprovado')
   );
+DROP POLICY IF EXISTS "atleta self insert" ON public.candidatos;
 CREATE POLICY "atleta self insert" ON public.candidatos FOR INSERT
   WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "admin manage candidatos" ON public.candidatos;
 CREATE POLICY "admin manage candidatos" ON public.candidatos FOR ALL
   USING (public.has_role(auth.uid(), 'admin'))
   WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
 -- avaliacoes: admin manages; atleta reads own
+DROP POLICY IF EXISTS "avaliacoes read" ON public.avaliacoes;
 CREATE POLICY "avaliacoes read" ON public.avaliacoes FOR SELECT
   USING (
     public.has_role(auth.uid(), 'admin')
@@ -204,12 +231,15 @@ CREATE POLICY "avaliacoes read" ON public.avaliacoes FOR SELECT
     )
     OR public.has_role(auth.uid(), 'clube')
   );
+DROP POLICY IF EXISTS "admin manage avaliacoes" ON public.avaliacoes;
 CREATE POLICY "admin manage avaliacoes" ON public.avaliacoes FOR ALL
   USING (public.has_role(auth.uid(), 'admin'))
   WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
 -- contatos_desbloqueados: clube reads/inserts own; admin sees all
+DROP POLICY IF EXISTS "clube own contatos read" ON public.contatos_desbloqueados;
 CREATE POLICY "clube own contatos read" ON public.contatos_desbloqueados FOR SELECT
   USING (auth.uid() = clube_id OR public.has_role(auth.uid(), 'admin'));
+DROP POLICY IF EXISTS "clube own contatos insert" ON public.contatos_desbloqueados;
 CREATE POLICY "clube own contatos insert" ON public.contatos_desbloqueados FOR INSERT
   WITH CHECK (auth.uid() = clube_id AND public.has_role(auth.uid(), 'clube'));
