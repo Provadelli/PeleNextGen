@@ -29,7 +29,7 @@ const ETAPAS = [
 
 export function ComoFunciona() {
   return (
-    <section id="como-funciona" className="surface-blue scroll-mt-16">
+    <section id="como-funciona" className="surface-ink scroll-mt-16">
       <div className="mx-auto max-w-[1400px] px-6 py-24 lg:px-10 lg:py-32">
         <Reveal className="max-w-2xl">
           <Eyebrow>Como funciona</Eyebrow>
@@ -37,10 +37,9 @@ export function ComoFunciona() {
             Quatro passos entre você e o campo.
           </h2>
           <p className="mt-6 text-base leading-relaxed text-muted-foreground">
-            O processo é o mesmo para todo mundo: nada de indicação, taxa
-            escondida ou fila de contato. Do primeiro clique ao relatório final,
-            tudo fica registrado no seu perfil e pode ser mostrado a qualquer
-            clube.
+            O processo é o mesmo para todo mundo: nada de indicação, taxa escondida ou fila de
+            contato. Do primeiro clique ao relatório final, tudo fica registrado no seu perfil e
+            pode ser mostrado a qualquer clube.
           </p>
         </Reveal>
 
@@ -58,9 +57,7 @@ export function ComoFunciona() {
               <h3 className="mt-4 text-xs font-bold uppercase tracking-[0.24em] text-primary">
                 {e.t}
               </h3>
-              <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
-                {e.d}
-              </p>
+              <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">{e.d}</p>
               <p className="mt-4 max-w-xs border-l-2 border-primary/60 pl-3 text-xs leading-relaxed text-foreground/85">
                 {e.r}
               </p>
@@ -88,9 +85,7 @@ export function ComoFunciona() {
           ].map(([q, a]) => (
             <div key={q}>
               <p className="font-display text-base font-bold">{q}</p>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {a}
-              </p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{a}</p>
             </div>
           ))}
         </Reveal>

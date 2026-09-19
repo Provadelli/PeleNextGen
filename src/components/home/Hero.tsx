@@ -1,20 +1,54 @@
+import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import type { Peneira } from "@/lib/mock-data";
 import { Reveal } from "./Reveal";
 import { AuthLink } from "./AuthLink";
 import { ProximaPeneiraCard } from "./ProximaPeneiraCard";
+import heroAtleta from "@/assets/home/hero-atleta.jpg";
 
-export function Hero({
-  proxima,
-  loading,
-}: {
-  proxima: Peneira | null;
-  loading: boolean;
-}) {
+function HeroBackgroundMedia() {
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const onChange = () => setReduced(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
   return (
-    <section className="relative overflow-hidden border-b border-border">
+    <div className="absolute inset-0 -z-10 overflow-hidden">
+      {reduced ? (
+        <img
+          src={heroAtleta}
+          alt=""
+          aria-hidden="true"
+          className="h-full w-full object-cover opacity-55"
+        />
+      ) : (
+        <video
+          src="/videos/hero-background.mp4"
+          poster={heroAtleta}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          className="h-full w-full object-cover opacity-55"
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/55 to-ink/20" />
+    </div>
+  );
+}
+
+export function Hero({ proxima, loading }: { proxima: Peneira | null; loading: boolean }) {
+  return (
+    <section className="relative isolate overflow-hidden border-b border-border">
+      <HeroBackgroundMedia />
       <div className="pointer-events-none absolute -left-40 -top-40 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-      <div className="mx-auto grid max-w-[1400px] gap-10 px-6 pb-16 pt-10 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:px-10 lg:pb-24 lg:pt-16">
+      <div className="relative z-10 mx-auto grid max-w-[1400px] gap-10 px-6 pb-16 pt-28 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:px-10 lg:pb-24 lg:pt-32">
         <div className="flex flex-col justify-center">
           <Reveal immediate>
             <p className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.32em] text-primary">
@@ -24,7 +58,7 @@ export function Hero({
           </Reveal>
 
           <Reveal immediate delay={120}>
-            <h1 className="mt-7 max-w-[16ch] font-display text-[2.75rem] font-extrabold leading-[0.95] tracking-[-0.03em] sm:text-6xl lg:text-[5.25rem]">
+            <h1 className="mt-7 max-w-[16ch] font-display text-[2.75rem] font-extrabold leading-[0.95] tracking-[-0.03em] text-white sm:text-6xl lg:text-[5.25rem]">
               O talento existe.
               <br />
               Falta a <span className="text-primary">oportunidade</span>.
@@ -32,12 +66,11 @@ export function Hero({
           </Reveal>
 
           <Reveal immediate delay={240}>
-            <p className="mt-7 max-w-md text-base leading-relaxed text-muted-foreground">
-              O Pelé Scout conecta atletas a peneiras oficiais e a olheiros que
-              avaliam, registram e acompanham cada passo da sua trajetória.
-              Você se inscreve em minutos, participa da avaliação presencial e
-              recebe um relatório com notas técnicas, físicas e táticas — tudo
-              guardado no seu perfil para os clubes verem.
+            <p className="mt-7 max-w-md text-base leading-relaxed text-white/70">
+              O Pelé Scout conecta atletas a peneiras oficiais e a olheiros que avaliam, registram e
+              acompanham cada passo da sua trajetória. Você se inscreve em minutos, participa da
+              avaliação presencial e recebe um relatório com notas técnicas, físicas e táticas —
+              tudo guardado no seu perfil para os clubes verem.
             </p>
           </Reveal>
 
@@ -53,7 +86,7 @@ export function Hero({
               </AuthLink>
               <a
                 href="#como-funciona"
-                className="inline-flex h-12 items-center rounded-full border border-border px-6 text-sm font-bold uppercase tracking-[0.12em] transition-colors hover:border-primary hover:text-primary"
+                className="inline-flex h-12 items-center rounded-full border border-white/25 px-6 text-sm font-bold uppercase tracking-[0.12em] text-white/90 transition-colors hover:border-primary hover:text-primary"
               >
                 Como funciona
               </a>
@@ -61,17 +94,15 @@ export function Hero({
           </Reveal>
 
           <Reveal immediate delay={480}>
-            <dl className="mt-10 grid max-w-md grid-cols-3 gap-6 border-t border-border pt-6">
+            <dl className="mt-10 grid max-w-md grid-cols-3 gap-6 border-t border-white/15 pt-6">
               {[
                 ["Gratuito", "para o atleta"],
                 ["Olheiros", "credenciados"],
                 ["Relatório", "após a avaliação"],
               ].map(([a, b]) => (
                 <div key={a}>
-                  <dt className="font-display text-lg font-extrabold text-primary">
-                    {a}
-                  </dt>
-                  <dd className="mt-1 text-xs text-muted-foreground">{b}</dd>
+                  <dt className="font-display text-lg font-extrabold text-primary">{a}</dt>
+                  <dd className="mt-1 text-xs text-white/60">{b}</dd>
                 </div>
               ))}
             </dl>
