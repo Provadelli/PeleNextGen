@@ -30,12 +30,12 @@ interface Row {
 export const Route = createFileRoute("/ranking")({
   head: () => ({
     meta: [
-      { title: "Ranking de atletas — PeleScout" },
+      { title: "Ranking de atletas — Pelé Next Gen" },
       { name: "description", content: "Leaderboard de atletas por posição, cidade e habilidade." },
-      { property: "og:title", content: "Ranking de atletas — PeleScout" },
-      { property: "og:url", content: "https://pelescout-nextgen.lovable.app/ranking" },
+      { property: "og:title", content: "Ranking de atletas — Pelé Next Gen" },
+      { property: "og:url", content: "https://pelenextgen.vercel.app/ranking" },
     ],
-    links: [{ rel: "canonical", href: "https://pelescout-nextgen.lovable.app/ranking" }],
+    links: [{ rel: "canonical", href: "https://pelenextgen.vercel.app/ranking" }],
   }),
   component: RankingPage,
 });

@@ -195,7 +195,7 @@ Acesse **`/suporte`** (requer papel `suporte`).
 - Nunca aprove um cadastro sem checar CPF/CNPJ.
 - Papéis são armazenados em tabela separada (`user_roles`) — **nunca** edite via JS no navegador.
 - Use o script `scripts/validate_admin_requests.py` para auditar pendências em lote.
-- Acesse logs e métricas pelo backend (Lovable Cloud).
+- Acesse logs e métricas pelo painel do Supabase.
 
 ---
 

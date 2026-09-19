@@ -37,7 +37,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/atletas/$atletaId")({
   head: ({ params }) => {
-    const url = `https://pelescout-nextgen.lovable.app/atletas/${params.atletaId}`;
+    const url = `https://pelenextgen.vercel.app/atletas/${params.atletaId}`;
     const title = "Perfil do atleta — Pelé Next Gen";
     const description =
       "Perfil completo do atleta na Pelé Next Gen: posição, estatísticas, histórico de clubes e vídeos de destaque.";

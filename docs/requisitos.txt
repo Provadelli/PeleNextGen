@@ -152,7 +152,7 @@ RNF-10 Imagens devem usar lazy loading e formatos otimizados.
 --------------------------------------------------------------------------------
 RNF-11 O sistema deve ser hospedável em Cloudflare Workers (via Wrangler)
        e em Vercel (SPA), sem alterações de código.
-RNF-12 Banco e Auth são fornecidos por Lovable Cloud (PostgreSQL gerenciado).
+RNF-12 Banco e Auth são fornecidos por Supabase (PostgreSQL gerenciado).
 RNF-13 Migrations devem ser versionadas em `supabase/migrations/`.
 
 --------------------------------------------------------------------------------

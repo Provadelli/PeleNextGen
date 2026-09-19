@@ -29,7 +29,6 @@ import { Route as RegistroClubeRouteImport } from './routes/registro-clube'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SuporteRouteImport } from './routes/suporte'
 import { Route as AAtletaIdRouteImport } from './routes/a.$atletaId'
-import { Route as ApiTtsRouteImport } from './routes/api/tts'
 import { Route as AtletasAtletaIdRouteImport } from './routes/atletas.$atletaId'
 import { Route as CandidatosIndexRouteImport } from './routes/candidatos.index'
 import { Route as CandidatosCandidatoIdRouteImport } from './routes/candidatos.$candidatoId'
@@ -145,11 +144,6 @@ const AAtletaIdRoute = AAtletaIdRouteImport.update({
   path: '/a/$atletaId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiTtsRoute = ApiTtsRouteImport.update({
-  id: '/api/tts',
-  path: '/api/tts',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AtletasAtletaIdRoute = AtletasAtletaIdRouteImport.update({
   id: '/atletas/$atletaId',
   path: '/atletas/$atletaId',
@@ -244,7 +238,6 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/suporte': typeof SuporteRoute
   '/a/$atletaId': typeof AAtletaIdRoute
-  '/api/tts': typeof ApiTtsRoute
   '/atletas/$atletaId': typeof AtletasAtletaIdRoute
   '/candidatos/$candidatoId': typeof CandidatosCandidatoIdRoute
   '/olheiros/$userId': typeof OlheirosUserIdRoute
@@ -281,7 +274,6 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/suporte': typeof SuporteRoute
   '/a/$atletaId': typeof AAtletaIdRoute
-  '/api/tts': typeof ApiTtsRoute
   '/atletas/$atletaId': typeof AtletasAtletaIdRoute
   '/candidatos/$candidatoId': typeof CandidatosCandidatoIdRoute
   '/olheiros/$userId': typeof OlheirosUserIdRoute
@@ -319,7 +311,6 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/suporte': typeof SuporteRoute
   '/a/$atletaId': typeof AAtletaIdRoute
-  '/api/tts': typeof ApiTtsRoute
   '/atletas/$atletaId': typeof AtletasAtletaIdRoute
   '/candidatos/$candidatoId': typeof CandidatosCandidatoIdRoute
   '/olheiros/$userId': typeof OlheirosUserIdRoute
@@ -358,7 +349,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/suporte'
     | '/a/$atletaId'
-    | '/api/tts'
     | '/atletas/$atletaId'
     | '/candidatos/$candidatoId'
     | '/olheiros/$userId'
@@ -395,7 +385,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/suporte'
     | '/a/$atletaId'
-    | '/api/tts'
     | '/atletas/$atletaId'
     | '/candidatos/$candidatoId'
     | '/olheiros/$userId'
@@ -432,7 +421,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/suporte'
     | '/a/$atletaId'
-    | '/api/tts'
     | '/atletas/$atletaId'
     | '/candidatos/$candidatoId'
     | '/olheiros/$userId'
@@ -470,7 +458,6 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SuporteRoute: typeof SuporteRoute
   AAtletaIdRoute: typeof AAtletaIdRoute
-  ApiTtsRoute: typeof ApiTtsRoute
   AtletasAtletaIdRoute: typeof AtletasAtletaIdRoute
   CandidatosCandidatoIdRoute: typeof CandidatosCandidatoIdRoute
   OlheirosUserIdRoute: typeof OlheirosUserIdRoute
@@ -629,13 +616,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AAtletaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/tts': {
-      id: '/api/tts'
-      path: '/api/tts'
-      fullPath: '/api/tts'
-      preLoaderRoute: typeof ApiTtsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/atletas/$atletaId': {
       id: '/atletas/$atletaId'
       path: '/atletas/$atletaId'
@@ -758,7 +738,6 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SuporteRoute: SuporteRoute,
   AAtletaIdRoute: AAtletaIdRoute,
-  ApiTtsRoute: ApiTtsRoute,
   AtletasAtletaIdRoute: AtletasAtletaIdRoute,
   CandidatosCandidatoIdRoute: CandidatosCandidatoIdRoute,
   OlheirosUserIdRoute: OlheirosUserIdRoute,

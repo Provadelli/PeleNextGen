@@ -43,13 +43,13 @@ function scrollToSection(e: ReactMouseEvent<HTMLAnchorElement>, id: string) {
 }
 
 
-const HOME_OG_IMAGE =
-  "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/03615082-b43f-44bc-a325-e562d4b95d20/id-preview-8a2baf9e--9a1282c2-3650-4073-a7fa-efe94d2d29d8.lovable.app-1777083107748.png";
+// TODO: trocar por uma imagem de compartilhamento própria (1200x630) quando disponível.
+const HOME_OG_IMAGE = "https://pelenextgen.vercel.app/favicon.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Pelé Scout — Peneiras oficiais e avaliação de atletas" },
+      { title: "Pelé Next Gen — Peneiras oficiais e avaliação de atletas" },
       {
         name: "description",
         content:
@@ -57,19 +57,19 @@ export const Route = createFileRoute("/")({
       },
       {
         property: "og:title",
-        content: "Pelé Scout — Peneiras oficiais e avaliação de atletas",
+        content: "Pelé Next Gen — Peneiras oficiais e avaliação de atletas",
       },
       {
         property: "og:description",
         content:
           "Encontre peneiras oficiais em todo o Brasil, seja avaliado por olheiros e dê o próximo passo na sua carreira no futebol.",
       },
-      { property: "og:url", content: "https://pelescout-nextgen.lovable.app/" },
+      { property: "og:url", content: "https://pelenextgen.vercel.app/" },
       { property: "og:image", content: HOME_OG_IMAGE },
       { name: "twitter:image", content: HOME_OG_IMAGE },
       {
         name: "twitter:title",
-        content: "Pelé Scout — Peneiras oficiais e avaliação de atletas",
+        content: "Pelé Next Gen — Peneiras oficiais e avaliação de atletas",
       },
       {
         name: "twitter:description",
@@ -78,7 +78,7 @@ export const Route = createFileRoute("/")({
       },
     ],
     links: [
-      { rel: "canonical", href: "https://pelescout-nextgen.lovable.app/" },
+      { rel: "canonical", href: "https://pelenextgen.vercel.app/" },
     ],
     scripts: [
       {
@@ -86,8 +86,8 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "Pelé Scout",
-          url: "https://pelescout-nextgen.lovable.app",
+          name: "Pelé Next Gen",
+          url: "https://pelenextgen.vercel.app",
         }),
       },
     ],

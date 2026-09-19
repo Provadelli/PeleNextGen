@@ -37,7 +37,7 @@ export const Route = createFileRoute("/a/$atletaId")({
     return { atleta: data };
   },
   head: ({ params, loaderData }) => {
-    const url = `https://pelescout-nextgen.lovable.app/a/${params.atletaId}`;
+    const url = `https://pelenextgen.vercel.app/a/${params.atletaId}`;
     const atleta = loaderData?.atleta;
     const nome = atleta?.nome ?? "Atleta";
     const posicao = atleta?.posicao ?? "Atleta";
@@ -143,7 +143,7 @@ function PublicAtletaPage() {
     conquistas.push({ label: `${atleta.stats.assistencias} Assistências`, sub: "Visão de jogo" });
   if (atleta.stats?.jogos) conquistas.push({ label: `${atleta.stats.jogos} Jogos`, sub: "Disputados" });
 
-  const shareUrl = `https://pelescout-nextgen.lovable.app/a/${atleta.id}`;
+  const shareUrl = `https://pelenextgen.vercel.app/a/${atleta.id}`;
 
   return (
     <PublicShell>

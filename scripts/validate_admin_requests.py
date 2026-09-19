@@ -2,7 +2,7 @@
 """
 Validador da regra de negócio central: aprovação de cadastros de admin (olheiros).
 
-Lê todas as solicitações pendentes em `admin_requests` no Lovable Cloud e verifica
+Lê todas as solicitações pendentes em `admin_requests` no Supabase e verifica
 se cada uma cumpre os critérios obrigatórios antes de poder ser aprovada pelo
 suporte. NÃO altera dados — apenas leitura.
 

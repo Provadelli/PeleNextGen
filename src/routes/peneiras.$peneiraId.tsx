@@ -43,7 +43,7 @@ export const Route = createFileRoute("/peneiras/$peneiraId")({
     return { peneira };
   },
   head: ({ params, loaderData }) => {
-    const url = `https://pelescout-nextgen.lovable.app/peneiras/${params.peneiraId}`;
+    const url = `https://pelenextgen.vercel.app/peneiras/${params.peneiraId}`;
     const titulo = loaderData?.peneira.titulo ?? "Peneira";
     const desc =
       loaderData?.peneira.descricao?.slice(0, 155) ??

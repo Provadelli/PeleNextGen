@@ -60,7 +60,7 @@ O **Pelé Next Gen** organiza seletivas (peneiras) de futebol, hospeda perfis pr
 ```
 
 - **Frontend**: SPA React compilado pelo Vite. Roteamento client-side com TanStack Router.
-- **Backend**: Banco, autenticação, storage e edge functions residem no Supabase (Lovable Cloud).
+- **Backend**: Banco, autenticação, storage e edge functions residem no Supabase.
 - **Server Functions**: As `createServerFn` do TanStack Start funcionam como RPC tipado entre frontend e backend.
 - **Public API**: Webhooks e endpoints chamados externamente ficam em `/api/public/*`.
 
@@ -120,7 +120,6 @@ pelescout-nextgen/
 │   │   └── evaluation/           # Avaliação (RadarPreview, EvaluationCard, etc.)
 │   ├── hooks/                    # Custom React hooks
 │   ├── integrations/
-│   │   ├── lovable/              # Lovable Cloud Auth
 │   │   └── supabase/
 │   │       ├── client.ts         # Cliente Supabase (browser + SSR)
 │   │       ├── client.server.ts  # Cliente Supabase admin (service role)
@@ -175,7 +174,11 @@ pelescout-nextgen/
 
 ## Configuração do Ambiente
 
-Crie um arquivo `.env` na raiz do projeto:
+Copie `.env.example` para `.env` na raiz do projeto e preencha com os valores do seu projeto Supabase. **O `.env` nunca deve ser commitado** (já está no `.gitignore`).
+
+```bash
+cp .env.example .env
+```
 
 ```bash
 # Supabase (obrigatório)
@@ -189,7 +192,16 @@ SUPABASE_PUBLISHABLE_KEY=<sua-anon-key>
 SUPABASE_PROJECT_ID=<seu-project-id>
 ```
 
-> **Nota**: A `SUPABASE_SERVICE_ROLE_KEY` não é necessária para o funcionamento normal do app.
+### Segredos (não são simples "chaves anon", nunca devem ser commitados)
+
+Estas variáveis são usadas por rotas server-only (`client.server.ts`, `wearables.server.ts`, edge function `delete-user`) e **não** devem entrar em `.env`/`wrangler.jsonc` versionados:
+
+| Variável | Onde é usada | Onde configurar |
+|----------|--------------|------------------|
+| `SUPABASE_SERVICE_ROLE_KEY` | Bypass de RLS para operações admin e sincronização de wearables | `wrangler secret put SUPABASE_SERVICE_ROLE_KEY` (produção) / `.dev.vars` (dev local) |
+| `GOOGLE_FIT_CLIENT_ID` / `GOOGLE_FIT_CLIENT_SECRET` | OAuth do Google Fit (conexão de wearables) | idem |
+
+Em dev local, essas variáveis ficam em um arquivo `.dev.vars` na raiz (formato `NOME=valor`, já está no `.gitignore`). Em produção no Cloudflare, use `wrangler secret put <NOME>` — nunca coloque essas chaves no bloco `vars` do `wrangler.jsonc`, que é versionado no Git.
 
 ---
 
@@ -249,22 +261,21 @@ Configuração em `wrangler.jsonc`:
 }
 ```
 
-### Opção 2: Vercel (SPA estático)
+### Opção 2: Vercel
 
-1. Importe o repositório no [Vercel](https://vercel.com).
-2. Framework preset: **Vite**.
-3. Build command: `npm run build`.
-4. Output directory: `dist`.
-5. Adicione as variáveis `VITE_SUPABASE_*` em Project Settings → Environment Variables.
+O app usa TanStack Start com SSR e rotas de servidor (`src/routes/api/*`, `/sitemap.xml`, server functions) — **não é um SPA estático**, então não há `index.html` para servir. O build é feito pelo [Nitro](https://nitro.build) (motor de servidor do TanStack Start), que tem um preset nativo para a [Build Output API da Vercel](https://vercel.com/docs/build-output-api) e empacota tudo como Serverless Functions automaticamente.
 
-O `vercel.json` já trata o SPA routing:
+1. Importe o repositório no [Vercel](https://vercel.com/new).
+2. Framework preset: **Other** (a Vercel detecta o output do Nitro automaticamente após o build).
+3. Build command: deixe o padrão — a Vercel já roda o script `vercel-build` do `package.json` (`NITRO_PRESET=vercel vite build`) automaticamente quando ele existe.
+4. Output directory: irrelevante (o Nitro gera `.vercel/output/` direto, seguindo a Build Output API).
+5. Em Project Settings → Environment Variables, adicione as mesmas variáveis do `.env.example`: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_PROJECT_ID` e, se for usar wearables, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_FIT_CLIENT_ID`, `GOOGLE_FIT_CLIENT_SECRET`.
 
-```json
-{
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
+Para testar localmente antes de subir:
+
+```bash
+NITRO_PRESET=vercel npm run build   # gera .vercel/output/
+npx vercel deploy --prebuilt        # opcional: deploy manual via CLI
 ```
 
 ---

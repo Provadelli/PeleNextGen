@@ -10,7 +10,6 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { type Role } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { useTTS } from "@/hooks/use-tts";
 
@@ -64,7 +63,11 @@ function LoginPage() {
 
     supabase.auth.getUser().then(async ({ data }) => {
       if (!active || !data.user) return;
-      const dest = await destinationFor(data.user.id);
+      // Após um redirect de OAuth (ex.: Google), o papel selecionado antes de
+      // sair da página fica salvo aqui — a sessionStorage sobrevive ao reload.
+      const oauthRole = sessionStorage.getItem("png-oauth-role") as Role | null;
+      sessionStorage.removeItem("png-oauth-role");
+      const dest = await destinationFor(data.user.id, oauthRole ?? undefined);
       if (!active) return;
       if (!dest) {
         await supabase.auth.signOut();
@@ -176,30 +179,22 @@ function LoginPage() {
 
   async function loginWithGoogle() {
     setLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/login`,
-      extraParams: { prompt: "select_account" },
+    // Salva o papel selecionado para recuperá-lo depois do redirect de volta do Google.
+    sessionStorage.setItem("png-oauth-role", role);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/login`,
+        queryParams: { prompt: "select_account" },
+      },
     });
-    if (result.error) {
+    if (error) {
+      sessionStorage.removeItem("png-oauth-role");
       setLoading(false);
       toast.error("Falha ao entrar com Google.");
       return;
     }
-    if (result.redirected) return;
-    const { data } = await supabase.auth.getUser();
-    if (data.user) {
-      const dest = await destinationFor(data.user.id, role);
-      if (!dest) {
-        await supabase.auth.signOut();
-        setLoading(false);
-        return;
-      }
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("png-selected-role", role);
-      }
-      goTo(dest);
-    }
-    setLoading(false);
+    // Sucesso: o navegador está sendo redirecionado para o Google agora.
   }
 
   return (
