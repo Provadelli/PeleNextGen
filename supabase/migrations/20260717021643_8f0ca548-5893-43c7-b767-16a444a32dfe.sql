@@ -35,7 +35,9 @@ CREATE POLICY "Users delete own notifications"
 CREATE INDEX IF NOT EXISTS idx_notifications_user_created ON public.notifications(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON public.notifications(user_id) WHERE read_at IS NULL;
 
-ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
+DO $$ BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- Trigger: notify athlete when skills are validated
 CREATE OR REPLACE FUNCTION public.tg_notify_skill_validation()
