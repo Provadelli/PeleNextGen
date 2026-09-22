@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { ArrowLeft, Mail, Lock, Shield, User, Building2, Volume2, VolumeX, Loader2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { PrivacyNotice } from "@/components/PrivacyNotice";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 import { Button } from "@/components/ui/button";
@@ -395,7 +394,17 @@ function LoginPage() {
             </p>
           </div>
 
-          <PrivacyNotice className="mt-6" />
+          <p className="mt-4 text-center text-sm font-medium text-foreground">
+            Ao continuar, você concorda com os{" "}
+            <Link to="/termos" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline hover:text-gold-light">
+              Termos de Uso
+            </Link>{" "}
+            e a{" "}
+            <Link to="/privacidade" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline hover:text-gold-light">
+              Política de Privacidade
+            </Link>
+            .
+          </p>
         </div>
       </div>
     </div>

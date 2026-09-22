@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { ArrowLeft, CheckCircle2, Camera, Trash2, CalendarIcon, Ruler, Weight } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { PrivacyNotice } from "@/components/PrivacyNotice";
 import { AthleteAvatar } from "@/components/AthleteAvatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -212,8 +211,6 @@ function CadastroPage() {
               desempenho durante as peneiras.
             </p>
           </div>
-
-          <PrivacyNotice className="mb-8" />
 
           <form onSubmit={submit} className="space-y-8">
             <div>
@@ -441,20 +438,20 @@ function CadastroPage() {
               </Field>
             </Section>
 
-            <div className="flex items-start gap-3 rounded-xl border border-border bg-bg2/40 p-3">
+            <div className="flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3">
               <Checkbox
                 id="aceite-termos"
                 checked={aceitaTermos}
                 onCheckedChange={(v) => setAceitaTermos(v === true)}
                 className="mt-0.5"
               />
-              <Label htmlFor="aceite-termos" className="text-xs font-normal leading-relaxed text-muted-foreground">
+              <Label htmlFor="aceite-termos" className="text-sm font-normal leading-relaxed text-foreground">
                 Li e aceito os{" "}
-                <Link to="/termos" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:text-gold-light">
+                <Link to="/termos" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline hover:text-gold-light">
                   Termos de Uso
                 </Link>{" "}
                 e a{" "}
-                <Link to="/privacidade" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:text-gold-light">
+                <Link to="/privacidade" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline hover:text-gold-light">
                   Política de Privacidade
                 </Link>
                 .

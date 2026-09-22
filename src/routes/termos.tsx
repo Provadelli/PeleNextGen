@@ -106,8 +106,8 @@ function TermosPage() {
             <h2 className="font-display text-xl font-bold text-foreground">9. Contato</h2>
             <p className="mt-2">
               Dúvidas sobre estes termos podem ser enviadas para{" "}
-              <a href="mailto:suportepelenextgen@hotmail.com" className="text-primary underline">
-                suportepelenextgen@hotmail.com
+              <a href="mailto:pelenextgen@hotmail.com" className="text-primary underline">
+                pelenextgen@hotmail.com
               </a>
               .
             </p>

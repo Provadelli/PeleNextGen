@@ -43,7 +43,7 @@ export function Footer() {
             Termos de uso
           </Link>
           <a
-            href="mailto:suportepelenextgen@hotmail.com"
+            href="mailto:pelenextgen@hotmail.com"
             className="transition-colors hover:text-primary"
           >
             Fale conosco
@@ -53,7 +53,7 @@ export function Footer() {
 
       <div className="relative mx-auto flex max-w-[1400px] flex-col gap-2 border-t border-white/10 px-6 pb-10 pt-6 text-xs text-ink-foreground/50 sm:flex-row sm:items-center sm:justify-between lg:px-10">
         <p>© {new Date().getFullYear()} Pelé Next Gen — Academia</p>
-        <p>suportepelenextgen@hotmail.com</p>
+        <p>pelenextgen@hotmail.com</p>
       </div>
     </footer>
   );
