@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Trophy,
@@ -71,6 +71,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open]);
 
   const role: Role | null = user?.role ?? null;
   const items = role ? NAV.filter((i) => i.roles.includes(role)) : [];
@@ -179,7 +188,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Backdrop */}
       {open && (
         <div
+          role="button"
+          tabIndex={0}
+          aria-label="Fechar menu"
           onClick={() => setOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setOpen(false);
+            }
+          }}
           className="fixed inset-0 z-20 bg-background/70 backdrop-blur-sm lg:hidden"
         />
       )}

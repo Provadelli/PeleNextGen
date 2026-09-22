@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
+import { TERMOS_VERSAO_ATUAL } from "@/lib/legal";
 
 export const Route = createFileRoute("/registro-clube")({
   head: () => ({
@@ -60,6 +62,7 @@ function CadastroClubePage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [aceitaTermos, setAceitaTermos] = useState(false);
 
   function update(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -79,6 +82,10 @@ function CadastroClubePage() {
       toast.error("Corrija os campos destacados.");
       return;
     }
+    if (!aceitaTermos) {
+      toast.error("Você precisa aceitar os Termos de Uso e a Política de Privacidade.");
+      return;
+    }
 
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
@@ -90,6 +97,8 @@ function CadastroClubePage() {
           nome: form.nome,
           nome_clube: form.nomeClube,
           cnpj: form.cnpj,
+          termos_aceitos_em: new Date().toISOString(),
+          termos_versao: TERMOS_VERSAO_ATUAL,
         },
       },
     });
@@ -239,6 +248,26 @@ function CadastroClubePage() {
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
             <strong className="text-primary">Importante:</strong> O cadastro não concede acesso
             imediato. Após o envio, o suporte validará seus dados e liberará o acesso.
+          </div>
+
+          <div className="flex items-start gap-3 rounded-xl border border-border bg-card/40 p-3">
+            <Checkbox
+              id="aceite-termos"
+              checked={aceitaTermos}
+              onCheckedChange={(v) => setAceitaTermos(v === true)}
+              className="mt-0.5"
+            />
+            <Label htmlFor="aceite-termos" className="text-xs font-normal leading-relaxed text-muted-foreground">
+              Li e aceito os{" "}
+              <Link to="/termos" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:text-gold-light">
+                Termos de Uso
+              </Link>{" "}
+              e a{" "}
+              <Link to="/privacidade" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:text-gold-light">
+                Política de Privacidade
+              </Link>
+              .
+            </Label>
           </div>
 
           <Button

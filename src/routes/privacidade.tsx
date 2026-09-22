@@ -161,7 +161,7 @@ function PrivacidadePage() {
                 <strong>Supabase</strong> — banco de dados, autenticação e armazenamento de arquivos.
               </li>
               <li>
-                <strong>Vercel</strong> — hospedagem da aplicação web.
+                <strong>Cloudflare</strong> — hospedagem da aplicação web (Cloudflare Workers).
               </li>
               <li>
                 <strong>Google (Fitness API)</strong> — leitura de dados de atividade física, apenas para
@@ -186,7 +186,7 @@ function PrivacidadePage() {
           </section>
 
           <section>
-            <h2 className="font-display text-xl font-bold text-foreground">8. Cookies e tecnologias similares</h2>
+            <h2 id="cookies" className="font-display text-xl font-bold text-foreground">8. Cookies e tecnologias similares</h2>
             <p className="mt-2">
               Usamos cookies e armazenamento local do navegador apenas para manter sua sessão autenticada e
               lembrar preferências de interface (como tema claro/escuro). Não usamos cookies de

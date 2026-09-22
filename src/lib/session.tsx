@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export type Role = "atleta" | "admin" | "clube" | "suporte";
@@ -96,7 +96,14 @@ async function loadSessionUser(userId: string): Promise<SessionUser | null> {
   };
 }
 
-export function useSession() {
+interface SessionContextValue {
+  user: SessionUser | null;
+  ready: boolean;
+}
+
+const SessionContext = createContext<SessionContextValue | null>(null);
+
+export function SessionProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [ready, setReady] = useState(false);
 
@@ -163,5 +170,11 @@ export function useSession() {
     };
   }, []);
 
-  return { user, ready };
+  return <SessionContext.Provider value={{ user, ready }}>{children}</SessionContext.Provider>;
+}
+
+export function useSession() {
+  const ctx = useContext(SessionContext);
+  if (!ctx) throw new Error("useSession must be used within SessionProvider");
+  return ctx;
 }

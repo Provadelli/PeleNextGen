@@ -1,4 +1,5 @@
 import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
+import { memo, useMemo } from "react";
 import { useSession } from "@/lib/session";
 import { Trophy, Users, Star, TrendingUp, ArrowUpRight } from "lucide-react";
 import {
@@ -117,14 +118,35 @@ const desempenhoData = [
 function Dashboard() {
   const { user, ready } = useSession();
 
+  const total = useMemo(() => candidatos.length, []);
+  const aprovados = useMemo(() => candidatos.filter((c) => c.status === "aprovado").length, []);
+  const pendentes = useMemo(() => candidatos.filter((c) => c.status === "pendente").length, []);
+  const peneirasAtivas = useMemo(
+    () => peneiras.filter((p) => p.status !== "encerrada").length,
+    [],
+  );
+  const proximasPeneiras = useMemo(
+    () => peneiras.filter((p) => p.status !== "encerrada").slice(0, 4),
+    [],
+  );
+  const kpiItems = useMemo(
+    () => [
+      { icon: Trophy, label: "Peneiras ativas", value: peneirasAtivas, delta: "+2 este mês" },
+      { icon: Users, label: "Atletas inscritos", value: total, delta: "+18% vs mês anterior" },
+      { icon: Star, label: "Atletas aprovados", value: aprovados, delta: "Taxa 24%" },
+      {
+        icon: TrendingUp,
+        label: "Avaliações pendentes",
+        value: pendentes,
+        delta: "Próx. peneira em 14 dias",
+      },
+    ],
+    [peneirasAtivas, total, aprovados, pendentes],
+  );
+
   if (ready && user && user.role !== "admin" && user.role !== "suporte") {
     return <Navigate to={user.role === "clube" ? "/clubes" : "/peneiras"} />;
   }
-
-  const total = candidatos.length;
-  const aprovados = candidatos.filter((c) => c.status === "aprovado").length;
-  const pendentes = candidatos.filter((c) => c.status === "pendente").length;
-  const peneirasAtivas = peneiras.filter((p) => p.status !== "encerrada").length;
 
   return (
     <AppLayout>
@@ -139,17 +161,7 @@ function Dashboard() {
       </Reveal>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          { icon: Trophy, label: "Peneiras ativas", value: peneirasAtivas, delta: "+2 este mês" },
-          { icon: Users, label: "Atletas inscritos", value: total, delta: "+18% vs mês anterior" },
-          { icon: Star, label: "Atletas aprovados", value: aprovados, delta: "Taxa 24%" },
-          {
-            icon: TrendingUp,
-            label: "Avaliações pendentes",
-            value: pendentes,
-            delta: "Próx. peneira em 14 dias",
-          },
-        ].map((kpi, i) => (
+        {kpiItems.map((kpi, i) => (
           <Reveal key={kpi.label} immediate delay={i * 80}>
             <KPI {...kpi} />
           </Reveal>
@@ -242,26 +254,23 @@ function Dashboard() {
             </Link>
           </div>
           <ul className="mt-4 space-y-3">
-            {peneiras
-              .filter((p) => p.status !== "encerrada")
-              .slice(0, 4)
-              .map((p) => (
-                <li
-                  key={p.id}
-                  className="flex items-center gap-3 rounded-xl border border-border bg-bg2 p-3 transition-colors hover:border-primary/40"
-                >
-                  <div className="h-12 w-12 overflow-hidden rounded-lg">
-                    <img src={p.imagem} alt="" className="h-full w-full object-cover" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold">{p.titulo}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {p.cidade}/{p.estado} ·{" "}
-                      {new Date(p.data + "T00:00:00").toLocaleDateString("pt-BR")}
-                    </p>
-                  </div>
-                </li>
-              ))}
+            {proximasPeneiras.map((p) => (
+              <li
+                key={p.id}
+                className="flex items-center gap-3 rounded-xl border border-border bg-bg2 p-3 transition-colors hover:border-primary/40"
+              >
+                <div className="h-12 w-12 overflow-hidden rounded-lg">
+                  <img src={p.imagem} alt={p.titulo} loading="lazy" className="h-full w-full object-cover" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">{p.titulo}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {p.cidade}/{p.estado} ·{" "}
+                    {new Date(p.data + "T00:00:00").toLocaleDateString("pt-BR")}
+                  </p>
+                </div>
+              </li>
+            ))}
           </ul>
         </div>
       </Reveal>
@@ -269,7 +278,7 @@ function Dashboard() {
   );
 }
 
-function KPI({
+const KPI = memo(function KPI({
   icon: Icon,
   label,
   value,
@@ -294,9 +303,9 @@ function KPI({
       <p className="mt-1 text-xs text-success">{delta}</p>
     </div>
   );
-}
+});
 
-function ChartCard({
+const ChartCard = memo(function ChartCard({
   title,
   subtitle,
   children,
@@ -318,4 +327,4 @@ function ChartCard({
       {children}
     </div>
   );
-}
+});

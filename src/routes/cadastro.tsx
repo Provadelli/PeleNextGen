@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { TERMOS_VERSAO_ATUAL } from "@/lib/legal";
 import {
   Select,
   SelectContent,
@@ -85,6 +87,7 @@ function CadastroPage() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [aceitaTermos, setAceitaTermos] = useState(false);
   const [foto, setFoto] = useState<string>("");
   const [fotoFile, setFotoFile] = useState<File | null>(null);
   const fotoInputRef = useRef<HTMLInputElement>(null);
@@ -131,6 +134,10 @@ function CadastroPage() {
       toast.error("Verifique os campos do formulário.");
       return;
     }
+    if (!aceitaTermos) {
+      toast.error("Você precisa aceitar os Termos de Uso e a Política de Privacidade.");
+      return;
+    }
     setLoading(true);
     const { data: signUpData, error } = await supabase.auth.signUp({
       email: form.email,
@@ -145,6 +152,8 @@ function CadastroPage() {
           altura: form.altura,
           peso: form.peso,
           pe: form.pe,
+          termos_aceitos_em: new Date().toISOString(),
+          termos_versao: TERMOS_VERSAO_ATUAL,
         },
       },
     });
@@ -428,6 +437,26 @@ function CadastroPage() {
                 </RadioGroup>
               </Field>
             </Section>
+
+            <div className="flex items-start gap-3 rounded-xl border border-border bg-bg2/40 p-3">
+              <Checkbox
+                id="aceite-termos"
+                checked={aceitaTermos}
+                onCheckedChange={(v) => setAceitaTermos(v === true)}
+                className="mt-0.5"
+              />
+              <Label htmlFor="aceite-termos" className="text-xs font-normal leading-relaxed text-muted-foreground">
+                Li e aceito os{" "}
+                <Link to="/termos" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:text-gold-light">
+                  Termos de Uso
+                </Link>{" "}
+                e a{" "}
+                <Link to="/privacidade" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:text-gold-light">
+                  Política de Privacidade
+                </Link>
+                .
+              </Label>
+            </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
               <Button type="button" variant="outline" asChild>

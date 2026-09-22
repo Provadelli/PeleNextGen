@@ -1,30 +1,11 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider, THEME_INIT_SCRIPT } from "@/lib/theme";
+import { SessionProvider } from "@/lib/session";
+import { NotFound } from "@/components/NotFound";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 
 import appCss from "../styles.css?url";
-
-function NotFoundComponent() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-gradient-gold">404</h1>
-        <h2 className="mt-4 text-xl font-semibold">Página não encontrada</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          A página que você procura não existe ou foi movida.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-gold-light"
-          >
-            Voltar ao início
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export const Route = createRootRoute({
   head: () => ({
@@ -70,7 +51,7 @@ export const Route = createRootRoute({
   }),
   shellComponent: RootShell,
   component: RootComponent,
-  notFoundComponent: NotFoundComponent,
+  notFoundComponent: NotFound,
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
@@ -92,7 +73,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <ThemeProvider>
-      <Outlet />
+      <SessionProvider>
+        <Outlet />
+        <CookieConsentBanner />
+      </SessionProvider>
     </ThemeProvider>
   );
 }
