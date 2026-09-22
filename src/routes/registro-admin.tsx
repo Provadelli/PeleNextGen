@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useRef, type FormEvent, type ChangeEvent } from "react";
 import { ArrowLeft, Shield, Mail, Lock, User, CheckCircle2, Phone, Calendar, Building2, IdCard, Upload, X } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { PrivacyNotice } from "@/components/PrivacyNotice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -222,6 +223,8 @@ function CadastroAdminPage() {
             </p>
           </div>
         </div>
+
+        <PrivacyNotice className="mb-6" />
 
         <form onSubmit={submit} className="space-y-4">
           <Field label="Nome completo" error={errors.nome}>

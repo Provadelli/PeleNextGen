@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { ArrowLeft, CheckCircle2, Camera, Trash2, CalendarIcon, Ruler, Weight } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { PrivacyNotice } from "@/components/PrivacyNotice";
 import { AthleteAvatar } from "@/components/AthleteAvatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -211,6 +212,8 @@ function CadastroPage() {
               desempenho durante as peneiras.
             </p>
           </div>
+
+          <PrivacyNotice className="mb-8" />
 
           <form onSubmit={submit} className="space-y-8">
             <div>
