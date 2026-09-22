@@ -5,7 +5,7 @@ import {
   saveConnection,
   syncConnection,
   verifyState,
-} from "@/lib/wearables.server";
+} from "@/server/wearables.server";
 
 export const Route = createFileRoute("/api/wearables/callback/$provider")({
   server: {

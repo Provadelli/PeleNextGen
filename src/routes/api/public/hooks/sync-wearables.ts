@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getAdmin, syncConnection } from "@/lib/wearables.server";
+import { getAdmin, syncConnection } from "@/server/wearables.server";
 
 // Called daily by pg_cron. Auth via Supabase anon `apikey` header.
 export const Route = createFileRoute("/api/public/hooks/sync-wearables")({

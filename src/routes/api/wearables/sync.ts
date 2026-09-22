@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getAdmin, getUserIdFromBearer, syncConnection } from "@/lib/wearables.server";
+import { getAdmin, getUserIdFromBearer, syncConnection } from "@/server/wearables.server";
 
 export const Route = createFileRoute("/api/wearables/sync")({
   server: {

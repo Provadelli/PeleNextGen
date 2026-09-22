@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { getAdmin, getUserIdFromBearer } from "@/lib/wearables.server";
+import { getAdmin, getUserIdFromBearer } from "@/server/wearables.server";
 
 const BodySchema = z.object({
   candidatoId: z.string().uuid(),

@@ -59,10 +59,12 @@ O **Pelé Next Gen** organiza seletivas (peneiras) de futebol, hospeda perfis pr
         │                                               │  - Row Level Security
 ```
 
-- **Frontend**: SPA React compilado pelo Vite. Roteamento client-side com TanStack Router.
-- **Backend**: Banco, autenticação, storage e edge functions residem no Supabase.
-- **Server Functions**: As `createServerFn` do TanStack Start funcionam como RPC tipado entre frontend e backend.
-- **Public API**: Webhooks e endpoints chamados externamente ficam em `/api/public/*`.
+- **Frontend**: app React (SSR + hidratação client-side) em `src/`, roteado pelo TanStack Router.
+- **Backend**: banco, autenticação, storage e Edge Functions residem no Supabase (pasta `supabase/`), mais um punhado de código 100% servidor dentro de `src/server/` (ver abaixo).
+- **Server Functions**: as `createServerFn` do TanStack Start funcionam como RPC tipado entre frontend e backend — o código roda só no servidor, mas a *referência* à função pode (e deve) ser importada normalmente por componentes/rotas client-side.
+- **Public API**: webhooks e endpoints chamados externamente ficam em `src/routes/api/*`.
+
+> **Convenção importante**: qualquer arquivo dentro de `src/server/` é **bloqueado pelo bundler para import em código cliente** (o build falha se uma rota/componente tentar importar algo de lá). É o lugar certo para clientes com service role key, middlewares de auth e outros segredos — nunca para `createServerFn`, que precisa ser importável do lado cliente para gerar a ponte RPC (por isso `public-atleta.functions.ts` mora em `src/lib/`, não em `src/server/`, mesmo rodando só no servidor).
 
 ---
 
@@ -113,33 +115,33 @@ Hierarquia de privilégios: `suporte` > `admin` > `clube` > `atleta`.
 pelescout-nextgen/
 ├── public/                       # Assets estáticos, favicon, llms.txt
 ├── scripts/                      # Scripts utilitários (ex.: validação de cadastros admin)
-├── src/
-│   ├── components/               # Componentes React reutilizáveis
-│   │   ├── ui/                   # shadcn/ui (Button, Input, Dialog, etc.)
-│   │   ├── chat/                 # Chat (MessageList, MessageComposer, etc.)
-│   │   └── evaluation/           # Avaliação (RadarPreview, EvaluationCard, etc.)
-│   ├── hooks/                    # Custom React hooks
-│   ├── integrations/
-│   │   └── supabase/
-│   │       ├── client.ts         # Cliente Supabase (browser + SSR)
-│   │       ├── client.server.ts  # Cliente Supabase admin (service role)
-│   │       ├── auth-middleware.ts
-│   │       ├── auth-attacher.ts
-│   │       └── types.ts          # Tipos gerados do schema
-│   ├── lib/                      # Lógica de negócio
-│   │   ├── session.ts            # Sessão e roles
-│   │   ├── chat.ts               # Conversas, mensagens, mídia
-│   │   ├── avaliacoes.ts         # Avaliações e cálculo de notas
-│   │   ├── peneiras.db.ts        # CRUD de peneiras
-│   │   ├── peneiras.functions.ts # Server functions de peneiras
-│   │   ├── athlete-videos.ts     # Vídeos de atletas
-│   │   ├── inscricoes.ts         # Inscrições em peneiras
-│   │   ├── wearables.ts
-│   │   └── wearables.server.ts
-│   ├── routes/                   # Rotas file-based do TanStack Router
-│   │   ├── api/                  # Server routes (webhooks, APIs públicas)
-│   │   ├── __root.tsx            # Root layout (HTML shell, meta tags)
-│   │   ├── index.tsx             # Landing
+│
+├── src/                           ┐
+│   ├── components/                │  Componentes React reutilizáveis
+│   │   ├── ui/                    │    shadcn/ui (Button, Input, Dialog, etc.)
+│   │   ├── chat/                  │    Chat (MessageList, MessageComposer, etc.)
+│   │   └── evaluation/            │    Avaliação (RadarPreview, EvaluationCard, etc.)
+│   ├── hooks/                     │  Custom React hooks
+│   ├── integrations/              │
+│   │   └── supabase/              │
+│   │       ├── client.ts          │    Cliente Supabase do browser/SSR (anon key)
+│   │       ├── auth-attacher.ts   │    Middleware client-side: anexa Bearer token às server fns
+│   │       └── types.ts           │    Tipos gerados do schema (compartilhado com src/server/)
+│   ├── lib/                       │  Lógica de negócio isomórfica (roda no cliente e/ou servidor)
+│   │   ├── session.tsx            │    SessionProvider + useSession() (roles, sessão)
+│   │   ├── legal.ts               │    Versão vigente dos Termos/Privacidade
+│   │   ├── chat.ts                │    Conversas, mensagens, mídia
+│   │   ├── avaliacoes.ts          │    Avaliações e cálculo de notas
+│   │   ├── peneiras.db.ts         │    CRUD de peneiras
+│   │   ├── peneiras.functions.ts  │    Acesso a dados de peneiras (client Supabase, RLS)
+│   │   ├── public-atleta.functions.ts │ Server function (createServerFn) — importável do cliente
+│   │   ├── athlete-videos.ts      │    Vídeos de atletas
+│   │   ├── inscricoes.ts          │    Inscrições em peneiras
+│   │   └── wearables.ts           │    Cliente de wearables (chama src/routes/api/wearables/*)
+│   ├── routes/                    │  FRONTEND — rotas file-based do TanStack Router
+│   │   ├── api/                   │    Server routes (webhooks, APIs públicas — rodam só no servidor)
+│   │   ├── __root.tsx             │    Root layout (HTML shell, SessionProvider, meta tags)
+│   │   ├── index.tsx              │    Landing
 │   │   ├── login.tsx
 │   │   ├── cadastro.tsx
 │   │   ├── dashboard.tsx
@@ -156,12 +158,18 @@ pelescout-nextgen/
 │   │   ├── suporte.tsx
 │   │   ├── registro-admin.tsx
 │   │   └── registro-clube.tsx
-│   ├── router.tsx                # Configuração do TanStack Router
-│   ├── routeTree.gen.ts          # Gerado automaticamente (não edite)
-│   └── styles.css                # Tailwind v4 + design tokens
-├── supabase/
-│   ├── migrations/               # Migrações SQL
-│   └── functions/                # Edge Functions
+│   ├── server/                    │  BACKEND puro — bloqueado para import em código cliente
+│   │   ├── supabase-admin.server.ts │  Cliente Supabase com service role (bypassa RLS)
+│   │   ├── auth-middleware.ts     │    Middleware de auth para server functions (valida Bearer token)
+│   │   └── wearables.server.ts    │    Segredos/HMAC e lógica de sync de wearables
+│   ├── router.tsx                 │  Configuração do TanStack Router
+│   ├── routeTree.gen.ts           │  Gerado automaticamente (não edite)
+│   └── styles.css                 │  Tailwind v4 + design tokens
+│                                  ┘
+├── supabase/                      ┐  BACKEND — Supabase
+│   ├── migrations/                │    Migrações SQL (schema, RLS, triggers)
+│   └── functions/                 │    Edge Functions (ex.: delete-user)
+│                                  ┘
 ├── .env                          # Variáveis de ambiente (não commitar)
 ├── package.json
 ├── vite.config.ts
@@ -170,15 +178,13 @@ pelescout-nextgen/
 └── tsconfig.json
 ```
 
+Resumindo em duas palavras: **frontend é `src/`** (rotas, componentes, hooks, lib isomórfica) e **backend é `supabase/` + `src/server/`** (banco, Edge Functions, e o punhado de código Node/servidor que roda dentro do próprio app). A linha entre os dois é reforçada pelo bundler: nada em `src/server/` pode ser importado por uma rota ou componente — só por `src/routes/api/*`.
+
 ---
 
 ## Configuração do Ambiente
 
-Copie `.env.example` para `.env` na raiz do projeto e preencha com os valores do seu projeto Supabase. **O `.env` nunca deve ser commitado** (já está no `.gitignore`).
-
-```bash
-cp .env.example .env
-```
+Crie um arquivo `.env` na raiz do projeto com os valores do seu projeto Supabase. **O `.env` nunca deve ser commitado** (já está no `.gitignore`).
 
 ```bash
 # Supabase (obrigatório)
@@ -194,7 +200,7 @@ SUPABASE_PROJECT_ID=<seu-project-id>
 
 ### Segredos (não são simples "chaves anon", nunca devem ser commitados)
 
-Estas variáveis são usadas por rotas server-only (`client.server.ts`, `wearables.server.ts`, edge function `delete-user`) e **não** devem entrar em `.env`/`wrangler.jsonc` versionados:
+Estas variáveis são usadas por código server-only (`src/server/supabase-admin.server.ts`, `src/server/wearables.server.ts`, edge function `delete-user`) e **não** devem entrar em `.env`/`wrangler.jsonc` versionados:
 
 | Variável | Onde é usada | Onde configurar |
 |----------|--------------|------------------|
@@ -269,7 +275,7 @@ O app usa TanStack Start com SSR e rotas de servidor (`src/routes/api/*`, `/site
 2. Framework preset: **Other** (a Vercel detecta o output do Nitro automaticamente após o build).
 3. Build command: deixe o padrão — a Vercel já roda o script `vercel-build` do `package.json` (`NITRO_PRESET=vercel vite build`) automaticamente quando ele existe.
 4. Output directory: irrelevante (o Nitro gera `.vercel/output/` direto, seguindo a Build Output API).
-5. Em Project Settings → Environment Variables, adicione as mesmas variáveis do `.env.example`: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_PROJECT_ID` e, se for usar wearables, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_FIT_CLIENT_ID`, `GOOGLE_FIT_CLIENT_SECRET`.
+5. Em Project Settings → Environment Variables, adicione as mesmas variáveis listadas em [Configuração do Ambiente](#configuração-do-ambiente): `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_PROJECT_ID` e, se for usar wearables, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_FIT_CLIENT_ID`, `GOOGLE_FIT_CLIENT_SECRET`.
 
 Para testar localmente antes de subir:
 

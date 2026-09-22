@@ -4,7 +4,7 @@ import {
   getRedirectUri,
   getUserIdFromBearer,
   signState,
-} from "@/lib/wearables.server";
+} from "@/server/wearables.server";
 
 export const Route = createFileRoute("/api/wearables/start")({
   server: {

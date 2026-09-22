@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createMockConnection, getUserIdFromBearer, syncConnection } from "@/lib/wearables.server";
+import { createMockConnection, getUserIdFromBearer, syncConnection } from "@/server/wearables.server";
 
 export const Route = createFileRoute("/api/wearables/mock/connect")({
   server: {
