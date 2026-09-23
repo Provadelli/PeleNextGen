@@ -1084,7 +1084,7 @@ export type Database = {
       admin_request_status: "pending" | "approved" | "rejected"
       app_role: "atleta" | "admin" | "clube" | "suporte"
       message_kind: "text" | "image" | "video" | "file"
-      pe_dominante: "Destro" | "Canhoto"
+      pe_dominante: "Destro" | "Canhoto" | "Ambidestro"
       posicao:
         | "Goleiro"
         | "Zagueiro"
@@ -1227,7 +1227,7 @@ export const Constants = {
       admin_request_status: ["pending", "approved", "rejected"],
       app_role: ["atleta", "admin", "clube", "suporte"],
       message_kind: ["text", "image", "video", "file"],
-      pe_dominante: ["Destro", "Canhoto"],
+      pe_dominante: ["Destro", "Canhoto", "Ambidestro"],
       posicao: [
         "Goleiro",
         "Zagueiro",

@@ -30,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/session";
 import { toast } from "sonner";
+import { traduzirErroAuth } from "@/lib/auth-errors";
 import {
   SKILL_KEYS,
   SKILL_LABELS,
@@ -95,6 +96,14 @@ function PerfilPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [savingPassword, setSavingPassword] = useState(false);
   const [sendingReset, setSendingReset] = useState(false);
+  // Segundos até poder reenviar o link — cada envio gasta cota de e-mail.
+  const [resetCooldown, setResetCooldown] = useState(0);
+
+  useEffect(() => {
+    if (resetCooldown <= 0) return;
+    const t = setTimeout(() => setResetCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resetCooldown]);
 
   // Athlete extended profile
   const [bio, setBio] = useState("");
@@ -320,16 +329,17 @@ function PerfilPage() {
   }
 
   async function enviarCodigoEmail() {
-    if (!user) return;
+    if (!user || sendingReset || resetCooldown > 0) return;
     setSendingReset(true);
     const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
       redirectTo: `${window.location.origin}/`,
     });
     setSendingReset(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(traduzirErroAuth(error));
       return;
     }
+    setResetCooldown(60);
     toast.success(`Enviamos um link de redefinição para ${user.email}.`);
   }
 
@@ -743,7 +753,7 @@ function PerfilPage() {
               <button
                 type="button"
                 onClick={enviarCodigoEmail}
-                disabled={sendingReset}
+                disabled={sendingReset || resetCooldown > 0}
                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline disabled:opacity-60"
               >
                 {sendingReset ? (
@@ -751,7 +761,9 @@ function PerfilPage() {
                 ) : (
                   <KeyRound className="h-3.5 w-3.5" />
                 )}
-                Não sei minha senha — enviar código por e-mail
+                {resetCooldown > 0
+                  ? `Link enviado — reenviar em ${resetCooldown}s`
+                  : "Não sei minha senha — enviar código por e-mail"}
               </button>
             )}
           </div>

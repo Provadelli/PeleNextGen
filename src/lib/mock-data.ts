@@ -68,7 +68,7 @@ export interface Candidato {
   cidade: string;
   altura: number; // cm
   peso: number; // kg
-  pe: "Destro" | "Canhoto";
+  pe: "Destro" | "Canhoto" | "Ambidestro";
   avatar: string;
   /** Dados de contato — visíveis para admin; bloqueados para clubes sem pagamento. */
   email: string;

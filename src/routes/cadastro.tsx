@@ -24,6 +24,7 @@ import { calcularIdade, formatarDataBR, fromISODate, toISODate, IDADE_MIN, IDADE
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { traduzirErroAuth } from "@/lib/auth-errors";
 import { z } from "zod";
 
 export const Route = createFileRoute("/cadastro")({
@@ -60,10 +61,31 @@ const schema = z.object({
   altura: z.coerce.number().min(120, "Altura em cm").max(230),
   peso: z.coerce.number().min(25, "Peso em kg").max(150),
   posicao: z.string().min(1, "Selecione a posição"),
-  pe: z.enum(["Destro", "Canhoto"]),
+  pe: z.enum(["Destro", "Canhoto", "Ambidestro"]),
 });
 
 const POSICOES = ["Goleiro", "Zagueiro", "Lateral", "Volante", "Meia", "Atacante"];
+
+/**
+ * Temporário: com `false`, o atleta é criado já confirmado pela edge function
+ * `register-atleta` e NENHUM e-mail de confirmação é enviado (evita o
+ * "email rate limit exceeded" do SMTP padrão do Supabase). Volte para `true`
+ * quando houver SMTP próprio configurado.
+ */
+const CONFIRMAR_EMAIL_ATLETA = false;
+
+/** Extrai a mensagem de erro do corpo da resposta de uma edge function. */
+async function mensagemDaFunction(err: unknown): Promise<string> {
+  const ctx = (err as { context?: Response }).context;
+  if (ctx && typeof ctx.json === "function") {
+    const body = await ctx.json().catch(() => null);
+    if (body?.error) return traduzirErroAuth({ message: body.error, code: body.code });
+  }
+  return traduzirErroAuth(err as { message?: string });
+}
+
+const PES = ["Destro", "Canhoto", "Ambidestro"] as const;
+type Pe = (typeof PES)[number];
 
 function maskCelular(v: string) {
   const d = v.replace(/\D/g, "").slice(0, 11);
@@ -83,7 +105,7 @@ function CadastroPage() {
     altura: "",
     peso: "",
     posicao: "",
-    pe: "Destro" as "Destro" | "Canhoto",
+    pe: "Destro" as Pe,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -123,6 +145,8 @@ function CadastroPage() {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
+    // Evita dois signUp (e dois e-mails) num duplo clique.
+    if (loading) return;
     const result = schema.safeParse(form);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
@@ -139,32 +163,56 @@ function CadastroPage() {
       return;
     }
     setLoading(true);
-    const { data: signUpData, error } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.senha,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-        data: {
-          nome: form.nome,
-          celular: form.celular,
-          data_nascimento: form.dataNascimento,
-          posicao: form.posicao,
-          altura: form.altura,
-          peso: form.peso,
-          pe: form.pe,
-          termos_aceitos_em: new Date().toISOString(),
-          termos_versao: TERMOS_VERSAO_ATUAL,
-        },
-      },
-    });
-    if (error) {
-      setLoading(false);
-      toast.error(error.message);
-      return;
+    const metadata = {
+      nome: form.nome,
+      celular: form.celular,
+      data_nascimento: form.dataNascimento,
+      posicao: form.posicao,
+      altura: form.altura,
+      peso: form.peso,
+      pe: form.pe,
+      termos_aceitos_em: new Date().toISOString(),
+      termos_versao: TERMOS_VERSAO_ATUAL,
+    };
+
+    let userId: string | undefined;
+    if (CONFIRMAR_EMAIL_ATLETA) {
+      const { data: signUpData, error } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.senha,
+        options: { emailRedirectTo: `${window.location.origin}/`, data: metadata },
+      });
+      if (error) {
+        setLoading(false);
+        toast.error(traduzirErroAuth(error));
+        return;
+      }
+      userId = signUpData.user?.id;
+    } else {
+      // Conta criada já confirmada no servidor (nenhum e-mail enviado) e
+      // login feito em seguida para o atleta cair direto no app.
+      const { error: fnErr } = await supabase.functions.invoke("register-atleta", {
+        body: { email: form.email, password: form.senha, metadata },
+      });
+      if (fnErr) {
+        setLoading(false);
+        toast.error(await mensagemDaFunction(fnErr));
+        return;
+      }
+      const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
+        email: form.email,
+        password: form.senha,
+      });
+      if (signInErr) {
+        setLoading(false);
+        toast.error(traduzirErroAuth(signInErr));
+        navigate({ to: "/login" });
+        return;
+      }
+      userId = signInData.user?.id;
     }
 
     // Upload da foto de perfil (se enviada e usuário já autenticado pós-signup)
-    const userId = signUpData.user?.id;
     if (fotoFile && userId) {
       const ext = fotoFile.name.split(".").pop() ?? "jpg";
       const path = `${userId}/avatar-${Date.now()}.${ext}`;
@@ -416,10 +464,10 @@ function CadastroPage() {
               <Field label="Pé preferencial" error={errors.pe} className="sm:col-span-2">
                 <RadioGroup
                   value={form.pe}
-                  onValueChange={(v) => update("pe", v as "Destro" | "Canhoto")}
-                  className="flex gap-3"
+                  onValueChange={(v) => update("pe", v as Pe)}
+                  className="grid grid-cols-1 gap-3 sm:grid-cols-3"
                 >
-                  {(["Destro", "Canhoto"] as const).map((opt) => (
+                  {PES.map((opt) => (
                     <label
                       key={opt}
                       htmlFor={`pe-${opt}`}

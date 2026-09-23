@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { type Role } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { traduzirErroAuth } from "@/lib/auth-errors";
 import { useTTS } from "@/hooks/use-tts";
 
 const PAGE_NARRATION =
@@ -162,7 +163,7 @@ function LoginPage() {
     });
     setLoading(false);
     if (error || !data.user) {
-      toast.error(error?.message ?? "E-mail ou senha incorretos.");
+      toast.error(traduzirErroAuth(error, "E-mail ou senha incorretos."));
       return;
     }
     const dest = await destinationFor(data.user.id, role);

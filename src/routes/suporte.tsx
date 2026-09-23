@@ -23,6 +23,7 @@ import { useSession } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
 import { getSignedUrl } from "@/lib/storage";
 import { toast } from "sonner";
+import { traduzirErroAuth } from "@/lib/auth-errors";
 
 export const Route = createFileRoute("/suporte")({
   head: () => ({
@@ -78,6 +79,8 @@ function SuportePage() {
   const [kindFilter, setKindFilter] = useState<KindFilter>("all");
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [previewRequest, setPreviewRequest] = useState<RequestRow | null>(null);
+  // Solicitação com ação em andamento — evita aprovar duas vezes (e reenviar o e-mail).
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -174,6 +177,16 @@ function SuportePage() {
   }, [isSuporte]);
 
   async function approveRequest(req: RequestRow) {
+    if (busyId) return;
+    setBusyId(`${req.kind}-${req.id}`);
+    try {
+      await doApproveRequest(req);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function doApproveRequest(req: RequestRow) {
     const rpc = req.kind === "admin" ? "approve_admin_request" : "approve_clube_request";
     const { error } = await supabase.rpc(rpc, { _request_id: req.id });
     if (error) {
@@ -190,7 +203,7 @@ function SuportePage() {
       options: { emailRedirectTo: `${window.location.origin}/login` },
     });
     if (resendErr) {
-      toast.error(`Aprovado, mas falha ao enviar o e-mail de confirmação: ${resendErr.message}`);
+      toast.error(`Aprovado, mas falha ao enviar o e-mail de confirmação: ${traduzirErroAuth(resendErr)}`);
       load();
       return;
     }
@@ -202,6 +215,7 @@ function SuportePage() {
   }
 
   async function rejectRequest(req: RequestRow) {
+    if (busyId) return;
     // Otimista: remove o card imediatamente
     setRequests((prev) => prev.filter((r) => !(r.id === req.id && r.kind === req.kind)));
     const rpc = req.kind === "admin" ? "reject_admin_request" : "reject_clube_request";
@@ -418,12 +432,17 @@ function SuportePage() {
                     </div>
                     {r.status === "pending" && (
                       <div className="flex gap-2">
-                        <Button size="sm" onClick={() => approveRequest(r)}>
+                        <Button
+                          size="sm"
+                          disabled={busyId === `${r.kind}-${r.id}`}
+                          onClick={() => approveRequest(r)}
+                        >
                           Aprovar
                         </Button>
                         <Button
                           size="sm"
                           variant="destructive"
+                          disabled={busyId === `${r.kind}-${r.id}`}
                           onClick={() => rejectRequest(r)}
                         >
                           Recusar
