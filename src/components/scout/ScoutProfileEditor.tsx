@@ -267,7 +267,7 @@ export function ScoutProfileEditor({
                 className={cn(
                   "rounded-full border px-3.5 py-1.5 text-xs font-bold transition-colors",
                   on
-                    ? "border-primary/40 bg-primary/15 text-primary"
+                    ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-bg2 text-muted-foreground hover:border-primary/30",
                 )}
               >

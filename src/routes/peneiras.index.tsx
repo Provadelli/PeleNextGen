@@ -180,14 +180,14 @@ function PeneirasPage() {
           ))}
       </section>
 
-      <div className="mb-4 flex flex-col gap-2.5 sm:flex-row sm:items-center">
+      <div className="mb-4 flex flex-col gap-2.5 rounded-2xl border border-border bg-card p-2.5 shadow-card sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" />
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Busque por cidade, clube ou estado..."
-            className="h-9 pl-9 text-sm placeholder:text-foreground/50"
+            className="h-9 border-transparent bg-bg2 pl-9 text-sm placeholder:text-foreground/50"
           />
         </div>
         <Popover>
@@ -218,7 +218,9 @@ function PeneirasPage() {
                     onClick={() => setFilter(f.value)}
                     className={
                       "flex items-center justify-between rounded-lg px-2.5 py-2 text-sm font-medium transition-colors " +
-                      (active ? "bg-primary/15 text-primary" : "text-foreground hover:bg-bg2")
+                      (active
+                        ? "bg-primary text-primary-foreground"
+                        : "text-foreground hover:bg-bg2")
                     }
                   >
                     {f.label}

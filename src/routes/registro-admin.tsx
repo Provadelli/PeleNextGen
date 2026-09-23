@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useRef, type FormEvent, type ChangeEvent } from "react";
-import { ArrowLeft, Shield, Mail, Lock, User, CheckCircle2, Phone, Calendar, Building2, IdCard, Upload, X } from "lucide-react";
+import { ArrowLeft, Shield, Mail, Lock, User, CheckCircle2, Phone, Calendar, Building2, IdCard, Upload, X, Clock } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,14 +59,6 @@ const schema = z
     path: ["confirmarSenha"],
   });
 
-function getExt(file: File) {
-  const fromName = file.name.split(".").pop()?.toLowerCase();
-  if (fromName && fromName.length <= 5) return fromName;
-  if (file.type === "image/png") return "png";
-  if (file.type === "image/webp") return "webp";
-  return "jpg";
-}
-
 function CadastroAdminPage() {
   const [form, setForm] = useState({
     nome: "",
@@ -113,67 +105,33 @@ function CadastroAdminPage() {
     }
 
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.senha,
-      options: {
-        emailRedirectTo: `${window.location.origin}/login`,
-        data: {
-          nome: form.nome,
-          termos_aceitos_em: new Date().toISOString(),
-          termos_versao: TERMOS_VERSAO_ATUAL,
-        },
-      },
-    });
-    if (error || !data.user) {
-      setLoading(false);
-      toast.error(error?.message ?? "Falha ao criar conta.");
-      return;
-    }
 
-    const userId = data.user.id;
+    const body = new FormData();
+    body.set("kind", "admin");
+    body.set("email", form.email);
+    body.set("password", form.senha);
+    body.set(
+      "metadata",
+      JSON.stringify({
+        nome: form.nome,
+        termos_aceitos_em: new Date().toISOString(),
+        termos_versao: TERMOS_VERSAO_ATUAL,
+      }),
+    );
+    body.set("celular", form.celular);
+    body.set("idade", form.idade);
+    body.set("clubeAtual", form.clubeAtual);
+    body.set("rgFrente", rgFrente!);
+    body.set("rgVerso", rgVerso!);
 
-    // Upload RG frente e verso
-    const frenteExt = getExt(rgFrente!);
-    const versoExt = getExt(rgVerso!);
-    const frentePath = `${userId}/rg-frente.${frenteExt}`;
-    const versoPath = `${userId}/rg-verso.${versoExt}`;
+    const { error } = await supabase.functions.invoke("register-pending-user", { body });
 
-    const [{ error: upFrenteErr }, { error: upVersoErr }] = await Promise.all([
-      supabase.storage
-        .from("admin-docs")
-        .upload(frentePath, rgFrente!, { upsert: true, contentType: rgFrente!.type }),
-      supabase.storage
-        .from("admin-docs")
-        .upload(versoPath, rgVerso!, { upsert: true, contentType: rgVerso!.type }),
-    ]);
-
-    if (upFrenteErr || upVersoErr) {
-      setLoading(false);
-      await supabase.auth.signOut();
-      toast.error("Falha ao enviar as imagens do RG. Tente novamente.");
-      return;
-    }
-
-    const { error: reqErr } = await supabase.from("admin_requests").insert({
-      user_id: userId,
-      status: "pending",
-      celular: form.celular,
-      idade: Number(form.idade),
-      clube_atual: form.clubeAtual,
-      rg_frente_path: frentePath,
-      rg_verso_path: versoPath,
-    } as never);
-
-    if (reqErr && reqErr.code !== "23505") {
-      setLoading(false);
-      await supabase.auth.signOut();
-      toast.error(reqErr.message);
-      return;
-    }
-
-    await supabase.auth.signOut();
     setLoading(false);
+    if (error) {
+      toast.error(error.message ?? "Falha ao enviar o cadastro.");
+      return;
+    }
+
     setSuccess(true);
   }
 
@@ -343,9 +301,17 @@ function CadastroAdminPage() {
             />
           </div>
 
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
-            <strong className="text-primary">Importante:</strong> O cadastro não concede acesso
-            imediato. Após o envio, o suporte validará seus dados e liberará o acesso.
+          <div className="flex items-start gap-3 rounded-xl border border-primary/25 bg-primary/5 p-3.5">
+            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+              <Clock className="h-3.5 w-3.5" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-primary">Aprovação necessária</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                O cadastro não concede acesso imediato. Após o envio, o suporte validará seus
+                dados e liberará o acesso.
+              </p>
+            </div>
           </div>
 
           <div className="flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3">
@@ -459,14 +425,14 @@ function FileField({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className={`flex h-24 w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed text-sm transition ${
+          className={`flex h-24 w-full flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed text-sm transition-colors ${
             error
-              ? "border-error text-error"
-              : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+              ? "border-error bg-error/5 text-error"
+              : "border-border bg-bg2/40 text-muted-foreground hover:border-primary hover:bg-primary/5 hover:text-primary"
           }`}
         >
           <Upload className="h-4 w-4" />
-          Enviar imagem
+          <span className="text-xs font-medium">Enviar imagem</span>
         </button>
       )}
       {error && <p className="text-xs text-error">{error}</p>}

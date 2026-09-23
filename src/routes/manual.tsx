@@ -128,7 +128,7 @@ function ManualPage() {
                       className={cn(
                         "group flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold transition-all",
                         active
-                          ? "bg-primary/15 text-primary ring-1 ring-primary/30"
+                          ? "bg-primary text-primary-foreground"
                           : "text-muted-foreground hover:bg-bg3/60 hover:text-foreground",
                       )}
                     >
@@ -136,7 +136,7 @@ function ManualPage() {
                         className={cn(
                           "h-3.5 w-3.5 shrink-0",
                           active
-                            ? "text-primary"
+                            ? "text-primary-foreground"
                             : "text-muted-foreground group-hover:text-foreground",
                         )}
                       />
@@ -191,7 +191,7 @@ function ManualPage() {
                   className={cn(
                     "shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all",
                     active
-                      ? "border-primary/40 bg-primary/15 text-primary"
+                      ? "border-primary bg-primary text-primary-foreground"
                       : "border-border bg-card text-muted-foreground",
                   )}
                 >

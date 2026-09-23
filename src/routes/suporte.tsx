@@ -159,6 +159,21 @@ function SuportePage() {
       toast.error(error.message);
       return;
     }
+
+    // Só agora o e-mail nativo de confirmação do Supabase é enviado —
+    // a conta foi criada sem confirmação (ver register-pending-user)
+    // justamente para não notificar o solicitante antes da aprovação.
+    const { error: resendErr } = await supabase.auth.resend({
+      type: "signup",
+      email: req.email,
+      options: { emailRedirectTo: `${window.location.origin}/login` },
+    });
+    if (resendErr) {
+      toast.error(`Aprovado, mas falha ao enviar o e-mail de confirmação: ${resendErr.message}`);
+      load();
+      return;
+    }
+
     toast.success(
       req.kind === "admin" ? "Acesso de administrador aprovado." : "Acesso de clube aprovado."
     );

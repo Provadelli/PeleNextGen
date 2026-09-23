@@ -42,7 +42,7 @@ export function TagSelector({
                 className={cn(
                   "rounded-full px-2.5 py-1 text-[11px] font-medium transition-all duration-200 active:scale-95",
                   selected
-                    ? "bg-success/20 text-success border border-success/40 shadow-sm"
+                    ? "bg-success text-white border border-success shadow-sm"
                     : "bg-border/30 text-muted-foreground border border-transparent hover:bg-border/60 hover:text-foreground"
                 )}
               >
@@ -68,7 +68,7 @@ export function TagSelector({
                 className={cn(
                   "rounded-full px-2.5 py-1 text-[11px] font-medium transition-all duration-200 active:scale-95",
                   selected
-                    ? "bg-destructive/20 text-destructive border border-destructive/40 shadow-sm"
+                    ? "bg-destructive text-destructive-foreground border border-destructive shadow-sm"
                     : "bg-border/30 text-muted-foreground border border-transparent hover:bg-border/60 hover:text-foreground"
                 )}
               >

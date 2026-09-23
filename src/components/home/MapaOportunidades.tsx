@@ -168,11 +168,14 @@ export function MapaOportunidades({ peneiras }: { peneiras: Peneira[] }) {
               <span className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-sm bg-foreground/10" /> Em breve
               </span>
+            </div>
+
+            <div className="mt-4 flex justify-center">
               <AuthLink
                 href="/peneiras"
-                className="font-bold text-primary underline-offset-4 hover:underline"
+                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border px-4 text-[10px] font-bold uppercase tracking-[0.18em] text-foreground transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary"
               >
-                Ver todas
+                Ver todas as peneiras
               </AuthLink>
             </div>
           </div>

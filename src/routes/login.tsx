@@ -370,28 +370,33 @@ function LoginPage() {
             Entrar com Google
           </Button>
 
-          <div className="mt-6 space-y-2 text-center text-sm text-muted-foreground">
-            <p>
-              Ainda não tem conta?{" "}
-              <Link to="/cadastro" className="font-semibold text-primary hover:text-gold-light">
-                Cadastre-se como atleta
-              </Link>
+          <div className="mt-6">
+            <p className="text-center text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
+              Ainda não tem conta? Escolha como cadastrar
             </p>
-            <p>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              <Link
+                to="/cadastro"
+                className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-card px-2 py-3 text-center transition-all hover:-translate-y-0.5 hover:border-primary"
+              >
+                <User className="h-4 w-4 text-primary" />
+                <span className="text-xs font-semibold leading-tight">Sou atleta</span>
+              </Link>
               <Link
                 to="/registro-admin"
-                className="font-semibold text-primary hover:text-gold-light"
+                className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-card px-2 py-3 text-center transition-all hover:-translate-y-0.5 hover:border-primary"
               >
-                Cadastro de administrador
+                <Shield className="h-4 w-4 text-primary" />
+                <span className="text-xs font-semibold leading-tight">Sou olheiro/admin</span>
               </Link>
-              {" · "}
               <Link
                 to="/registro-clube"
-                className="font-semibold text-primary hover:text-gold-light"
+                className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-card px-2 py-3 text-center transition-all hover:-translate-y-0.5 hover:border-primary"
               >
-                Cadastro de clube
+                <Building2 className="h-4 w-4 text-primary" />
+                <span className="text-xs font-semibold leading-tight">Sou um clube</span>
               </Link>
-            </p>
+            </div>
           </div>
 
           <p className="mt-4 text-center text-sm font-medium text-foreground">

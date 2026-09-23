@@ -134,7 +134,7 @@ export function FootProfile({ data, onChange }: FootProfileProps) {
                 className={cn(
                   "flex flex-col items-center justify-center gap-1.5 rounded-xl border p-3 transition-all duration-150 active:scale-95",
                   active
-                    ? "border-primary bg-primary/15 text-primary shadow-md"
+                    ? "border-primary bg-primary text-primary-foreground shadow-md"
                     : "border-border bg-bg2 text-muted-foreground hover:border-primary/40 hover:text-foreground"
                 )}
               >
@@ -198,7 +198,7 @@ export function FootProfile({ data, onChange }: FootProfileProps) {
                       className={cn(
                         "flex-1 h-7 rounded-md border text-[10px] font-bold transition-all duration-150 active:scale-95",
                         active
-                          ? "border-primary bg-primary/20 text-primary"
+                          ? "border-primary bg-primary text-primary-foreground"
                           : "border-border/60 bg-bg2 text-muted-foreground hover:border-primary/40"
                       )}
                     >

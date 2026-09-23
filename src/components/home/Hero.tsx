@@ -5,9 +5,11 @@ import { Reveal } from "./Reveal";
 import { AuthLink } from "./AuthLink";
 import { ProximaPeneiraCard } from "./ProximaPeneiraCard";
 import heroAtleta from "@/assets/home/hero-atleta.jpg";
+import campoAcao from "@/assets/home/time-acao.jpg";
 
 function HeroBackgroundMedia() {
   const [reduced, setReduced] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -26,6 +28,13 @@ function HeroBackgroundMedia() {
           aria-hidden="true"
           className="h-full w-full object-cover opacity-55"
         />
+      ) : videoFailed ? (
+        <img
+          src={campoAcao}
+          alt=""
+          aria-hidden="true"
+          className="h-full w-full object-cover opacity-55"
+        />
       ) : (
         <video
           src="/videos/hero-background.mp4"
@@ -35,6 +44,7 @@ function HeroBackgroundMedia() {
           muted
           playsInline
           preload="metadata"
+          onError={() => setVideoFailed(true)}
           className="h-full w-full object-cover opacity-55"
         />
       )}

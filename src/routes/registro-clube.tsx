@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { ArrowLeft, Building2, Mail, Lock, User, CheckCircle2, FileText } from "lucide-react";
+import { ArrowLeft, Building2, Mail, Lock, User, CheckCircle2, FileText, Clock } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,40 +88,30 @@ function CadastroClubePage() {
     }
 
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.senha,
-      options: {
-        emailRedirectTo: `${window.location.origin}/login`,
-        data: {
-          nome: form.nome,
-          nome_clube: form.nomeClube,
-          cnpj: form.cnpj,
-          termos_aceitos_em: new Date().toISOString(),
-          termos_versao: TERMOS_VERSAO_ATUAL,
-        },
-      },
-    });
+
+    const body = new FormData();
+    body.set("kind", "clube");
+    body.set("email", form.email);
+    body.set("password", form.senha);
+    body.set(
+      "metadata",
+      JSON.stringify({
+        nome: form.nome,
+        nome_clube: form.nomeClube,
+        cnpj: form.cnpj,
+        termos_aceitos_em: new Date().toISOString(),
+        termos_versao: TERMOS_VERSAO_ATUAL,
+      }),
+    );
+
+    const { error } = await supabase.functions.invoke("register-pending-user", { body });
+
+    setLoading(false);
     if (error) {
-      setLoading(false);
-      toast.error(error.message);
+      toast.error(error.message ?? "Falha ao enviar o cadastro.");
       return;
     }
 
-    // Cria solicitação de acesso de clube (status pendente).
-    if (data.user) {
-      const { error: reqErr } = await supabase
-        .from("clube_requests")
-        .insert({ user_id: data.user.id, status: "pending" });
-      if (reqErr && reqErr.code !== "23505") {
-        console.error(reqErr);
-      }
-    }
-
-    // Encerra a sessão criada automaticamente para impedir acesso antes da aprovação.
-    await supabase.auth.signOut();
-
-    setLoading(false);
     setSuccess(true);
   }
 
@@ -245,9 +235,17 @@ function CadastroClubePage() {
             </div>
           </Field>
 
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
-            <strong className="text-primary">Importante:</strong> O cadastro não concede acesso
-            imediato. Após o envio, o suporte validará seus dados e liberará o acesso.
+          <div className="flex items-start gap-3 rounded-xl border border-primary/25 bg-primary/5 p-3.5">
+            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+              <Clock className="h-3.5 w-3.5" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-primary">Aprovação necessária</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                O cadastro não concede acesso imediato. Após o envio, o suporte validará seus
+                dados e liberará o acesso.
+              </p>
+            </div>
           </div>
 
           <div className="flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3">

@@ -154,9 +154,17 @@ export function PeneirasSection({
 
   return (
     <section id="peneiras" className="mx-auto max-w-[1400px] scroll-mt-16 px-6 py-24 lg:px-10 lg:py-32">
-      <Reveal className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <Reveal className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
         <div className="max-w-xl">
-          <Eyebrow>Peneiras disponíveis</Eyebrow>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <Eyebrow>Peneiras disponíveis</Eyebrow>
+            <AuthLink
+              href="/peneiras"
+              className="inline-flex h-9 items-center gap-2 rounded-full border border-border px-4 text-xs font-bold uppercase tracking-[0.16em] transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary lg:hidden"
+            >
+              Ver todas <ArrowUpRight className="h-4 w-4" />
+            </AuthLink>
+          </div>
           <h2 className="mt-6 font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.02em] lg:text-5xl">
             Encontre sua próxima oportunidade.
           </h2>
@@ -168,7 +176,7 @@ export function PeneirasSection({
         </div>
         <AuthLink
           href="/peneiras"
-          className="inline-flex h-11 items-center gap-2 self-start rounded-full border border-border px-5 text-xs font-bold uppercase tracking-[0.16em] transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary"
+          className="hidden h-11 shrink-0 items-center gap-2 self-start rounded-full border border-border px-5 text-xs font-bold uppercase tracking-[0.16em] transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary lg:inline-flex"
         >
           Ver todas <ArrowUpRight className="h-4 w-4" />
         </AuthLink>
