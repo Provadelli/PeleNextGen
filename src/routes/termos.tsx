@@ -25,7 +25,7 @@ function TermosPage() {
 
       <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
         <h1 className="font-display text-3xl font-extrabold sm:text-4xl">Termos de Uso</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Última atualização: 19 de setembro de 2026</p>
+        <p className="mt-2 text-sm text-muted-foreground">Última atualização: 23 de setembro de 2026</p>
 
         <div className="mt-8 space-y-8 text-sm leading-relaxed text-foreground/90 sm:text-base">
           <section>

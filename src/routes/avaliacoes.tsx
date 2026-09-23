@@ -33,7 +33,12 @@ import { RadarPreview } from "@/components/evaluation/RadarPreview";
 import { TagSelector } from "@/components/evaluation/TagSelector";
 import { ScoutComment } from "@/components/evaluation/ScoutComment";
 import { AutoSummary } from "@/components/evaluation/AutoSummary";
-import { OverallRating } from "@/components/evaluation/OverallRating";
+import {
+  OverallRating,
+  calcularMediaExibida,
+  classificar,
+  NOTA_MIN_APROVACAO,
+} from "@/components/evaluation/OverallRating";
 import { EvaluationCard } from "@/components/evaluation/EvaluationCard";
 import {
   FootProfile,
@@ -290,6 +295,19 @@ function AvaliacoesPageInner() {
   const [submitting, setSubmitting] = useState(false);
   async function salvar() {
     if (!selected || submitting) return;
+
+    const media = calcularMediaExibida(scores, footBonus);
+    if (media <= 0) {
+      toast.error("Dê as notas antes de salvar a avaliação.");
+      return;
+    }
+    // O olheiro pode esquecer de decidir: sem escolha manual, a decisão sai da
+    // mesma classificação exibida no card "Nota Geral" (Promissor/Elite aprova).
+    const classificacao = classificar(media).label;
+    const decisaoAuto: Decision = media >= NOTA_MIN_APROVACAO ? "aprovado" : "reprovado";
+    const decisaoFinal: Decision = decisaoSel ?? decisaoAuto;
+    const automatica = !decisaoSel;
+
     setSubmitting(true);
     try {
       const isCandidato = peneiraId !== ALL_ATLETAS;
@@ -302,10 +320,18 @@ function AvaliacoesPageInner() {
         tagsPositivas: positiveTags,
         tagsNegativas: negativeTags,
         comentario,
-        decisao: decisaoSel ?? null,
+        decisao: decisaoFinal,
       });
+      setDecisoes((d) => ({ ...d, [selected.id]: decisaoFinal }));
+      const rotulo: Record<Decision, string> = {
+        aprovado: "Aprovado",
+        reprovado: "Reprovado",
+        reavaliar: "Reavaliar",
+      };
       toast.success(`Avaliação salva para ${selected.nome}`, {
-        description: `Nota geral: ${result.notaGeral.toFixed(1)} · E-mail enviado ao atleta.`,
+        description: automatica
+          ? `Decisão automática: ${rotulo[decisaoFinal]} (${classificacao}, nota ${media.toFixed(1)}).`
+          : `Decisão: ${rotulo[decisaoFinal]} · Nota geral: ${result.notaGeral.toFixed(1)}.`,
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao salvar avaliação");
@@ -486,6 +512,12 @@ function AvaliacoesPageInner() {
                 <RotateCcw className="mr-1.5 h-4 w-4" /> Reavaliar
               </Button>
             </div>
+            {!decisaoSel && (
+              <p className="-mt-1 text-[11px] text-muted-foreground">
+                Se nenhuma opção for escolhida, a decisão será automática pela nota (Promissor ou
+                Elite = aprovado).
+              </p>
+            )}
 
             <div className="space-y-1.5">
               <QuickScoreSelector

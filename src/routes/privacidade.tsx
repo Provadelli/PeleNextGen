@@ -25,7 +25,7 @@ function PrivacidadePage() {
 
       <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
         <h1 className="font-display text-3xl font-extrabold sm:text-4xl">Política de Privacidade</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Última atualização: 19 de setembro de 2026</p>
+        <p className="mt-2 text-sm text-muted-foreground">Última atualização: 23 de setembro de 2026</p>
 
         <div className="mt-8 space-y-8 text-sm leading-relaxed text-foreground/90 sm:text-base">
           <section>
@@ -41,16 +41,18 @@ function PrivacidadePage() {
             <h2 className="font-display text-xl font-bold text-foreground">2. Dados que coletamos</h2>
             <ul className="mt-2 list-disc space-y-2 pl-5">
               <li>
-                <strong>Conta e perfil:</strong> nome, e-mail, foto, posição, cidade/estado, data de
-                nascimento, altura, peso, histórico de clubes e vídeos que você envia.
+                <strong>Conta e perfil:</strong> nome, e-mail, celular, foto, posição, cidade/estado,
+                data de nascimento, altura, peso, pé preferencial, histórico de clubes e vídeos que você
+                envia.
               </li>
               <li>
                 <strong>Login social (Google):</strong> se você entra com sua Conta Google, recebemos seu
                 nome, e-mail e foto de perfil públicos, fornecidos pelo próprio Google.
               </li>
               <li>
-                <strong>Avaliações:</strong> notas técnicas, físicas, táticas e comentários registrados
-                por olheiros credenciados durante peneiras.
+                <strong>Avaliações:</strong> notas técnicas, físicas, táticas, comentários e a decisão
+                (aprovado ou reprovado) registrados por olheiros credenciados. Quando o olheiro não marca
+                a decisão, ela é definida automaticamente pela nota geral da avaliação.
               </li>
               <li>
                 <strong>Dados de dispositivos vestíveis (opcional):</strong> se você conectar um
@@ -71,12 +73,20 @@ function PrivacidadePage() {
             <ul className="mt-2 list-disc space-y-2 pl-5">
               <li>Organizar peneiras e permitir sua inscrição;</li>
               <li>Exibir seu perfil esportivo para olheiros e clubes que você autorizar;</li>
+              <li>
+                Disponibilizar seus dados de contato (e-mail e celular) a clubes quando você for
+                aprovado em uma avaliação, conforme a seção 5;
+              </li>
               <li>Registrar e mostrar sua evolução técnica ao longo do tempo;</li>
               <li>Viabilizar o chat entre atletas, olheiros e clubes;</li>
               <li>Sincronizar métricas de atividade física quando você conecta um wearable;</li>
               <li>Melhorar a segurança e o funcionamento da plataforma.</li>
             </ul>
-            <p className="mt-2">Não vendemos seus dados pessoais a terceiros.</p>
+            <p className="mt-2">
+              Não vendemos seus dados pessoais a terceiros. A taxa cobrada dos clubes remunera o serviço
+              da plataforma de intermediação — seus dados de contato só são liberados a clubes
+              cadastrados e verificados, para a finalidade descrita na seção 5.
+            </p>
           </section>
 
           <section>
@@ -146,6 +156,42 @@ function PrivacidadePage() {
               quando exigido por lei, ordem judicial ou para proteger direitos, segurança e propriedade da
               plataforma e de seus usuários.
             </p>
+
+            <div className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-4">
+              <h3 className="font-display text-base font-bold text-foreground">
+                5.1. Dados de contato de atletas aprovados
+              </h3>
+              <p className="mt-2">
+                Ao se cadastrar como atleta, você está ciente e concorda que, se for{' '}
+                <strong>aprovado por um olheiro</strong> em uma avaliação, seu perfil esportivo (nome,
+                foto, posição, cidade, idade, nota e habilidades) passa a ser listado para{' '}
+                <strong>clubes cadastrados e aprovados pela plataforma</strong>. Após o pagamento da
+                taxa de desbloqueio pelo clube, ele passa a ter acesso aos seus{' '}
+                <strong>dados de contato: e-mail e celular</strong>, e poderá também iniciar uma
+                conversa com você pelo chat.
+              </p>
+              <ul className="mt-2 list-disc space-y-1 pl-5">
+                <li>
+                  <strong>Finalidade:</strong> exclusivamente contato para oportunidades esportivas
+                  (testes, convites e propostas). O clube não pode usar esses dados para publicidade
+                  nem repassá-los a terceiros.
+                </li>
+                <li>
+                  <strong>Base legal:</strong> execução do serviço contratado ao aceitar estes termos
+                  (art. 7º, V, da LGPD) e, para menores de 18 anos, consentimento do responsável legal
+                  (art. 14 da LGPD).
+                </li>
+                <li>
+                  <strong>Registro:</strong> guardamos quais clubes desbloquearam seu contato e quando.
+                  Você pode solicitar essa lista a qualquer momento.
+                </li>
+                <li>
+                  <strong>Seu controle:</strong> você pode pedir a remoção da sua listagem para clubes
+                  ou a exclusão dos seus dados pelos canais da seção 10. Clubes que já desbloquearam seu
+                  contato serão notificados para descartá-lo.
+                </li>
+              </ul>
+            </div>
           </section>
 
           <section>

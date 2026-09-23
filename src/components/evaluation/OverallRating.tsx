@@ -25,12 +25,22 @@ const CLASSIFICATIONS: { min: number; data: Classification }[] = [
   { min: 0, data: { label: "Abaixo do nível", color: "text-destructive", bg: "bg-destructive/15 border-destructive/30" } },
 ];
 
-export function OverallRating({ scores, bonus = 0 }: OverallRatingProps) {
+/** Média exibida no card "Nota Geral" (0–5, com bônus bilateral). 0 = sem notas. */
+export function calcularMediaExibida(scores: OverallRatingProps["scores"], bonus = 0): number {
   const base = (scores.tecnica + scores.tatica + scores.fisica + scores.mental + scores.intensidade) / 5;
-  const avg = base > 0 ? Math.max(0, Math.min(5, base + bonus)) : 0;
-  const classification = useMemo(() => {
-    return CLASSIFICATIONS.find((c) => avg >= c.min)?.data ?? CLASSIFICATIONS[3].data;
-  }, [avg]);
+  return base > 0 ? Math.max(0, Math.min(5, base + bonus)) : 0;
+}
+
+export function classificar(avg: number): Classification {
+  return CLASSIFICATIONS.find((c) => avg >= c.min)?.data ?? CLASSIFICATIONS[3].data;
+}
+
+/** Nota mínima para aprovação automática: a partir de "Promissor". */
+export const NOTA_MIN_APROVACAO = 3.5;
+
+export function OverallRating({ scores, bonus = 0 }: OverallRatingProps) {
+  const avg = calcularMediaExibida(scores, bonus);
+  const classification = useMemo(() => classificar(avg), [avg]);
 
   return (
     <div className={cn("rounded-2xl border p-4 text-center shadow-card transition-all", classification.bg)}>
