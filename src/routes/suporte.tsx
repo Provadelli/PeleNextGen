@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Shield, Building2, User as UserIcon, Trash2, Filter, Users, Phone, Calendar, IdCard, ExternalLink } from "lucide-react";
+import { CheckCircle2, Shield, Building2, User as UserIcon, Trash2, Filter, Users, Phone, Calendar, IdCard, ExternalLink, Inbox, RefreshCw, AlertTriangle } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -65,22 +65,28 @@ interface RequestRow {
 }
 
 type RoleFilter = "all" | "atleta" | "admin" | "clube";
+type StatusFilter = "pending" | "approved" | "all";
+type KindFilter = "all" | "admin" | "clube";
 
 function SuportePage() {
   const { user, ready } = useSession();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [requests, setRequests] = useState<RequestRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
+  const [kindFilter, setKindFilter] = useState<KindFilter>("all");
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [previewRequest, setPreviewRequest] = useState<RequestRow | null>(null);
 
   async function load() {
     setLoading(true);
+    setLoadError(null);
     const [
-      { data: profiles },
-      { data: roles },
-      { data: adminReqs },
-      { data: clubeReqs },
+      { data: profiles, error: profilesErr },
+      { data: roles, error: rolesErr },
+      { data: adminReqs, error: adminErr },
+      { data: clubeReqs, error: clubeErr },
     ] = await Promise.all([
       supabase
         .from("profiles")
@@ -96,6 +102,15 @@ function SuportePage() {
         .select("id, user_id, status, created_at")
         .order("created_at", { ascending: false }),
     ]);
+
+    // Antes os erros eram ignorados e a lista simplesmente ficava vazia —
+    // agora aparecem na tela para o suporte saber que algo falhou.
+    const firstErr = profilesErr ?? rolesErr ?? adminErr ?? clubeErr;
+    if (firstErr) {
+      console.error("[suporte] falha ao carregar dados", firstErr);
+      setLoadError(firstErr.message);
+      toast.error(`Falha ao carregar solicitações: ${firstErr.message}`);
+    }
 
     const rolesByUser = new Map<string, Role[]>();
     (roles ?? []).forEach((r) => {
@@ -142,16 +157,21 @@ function SuportePage() {
         };
       };
 
-    setRequests([
-      ...((adminReqs as never[] | null) ?? []).map(toRow("admin")),
-      ...(clubeReqs ?? []).map(toRow("clube")),
-    ]);
+    setRequests(
+      [
+        ...((adminReqs as never[] | null) ?? []).map(toRow("admin")),
+        ...(clubeReqs ?? []).map(toRow("clube")),
+      ].sort((a, b) => b.created_at.localeCompare(a.created_at)),
+    );
     setLoading(false);
   }
 
+  // Acesso depende de a conta TER o papel suporte, não do papel escolhido no login.
+  const isSuporte = !!user?.roles.includes("suporte");
+
   useEffect(() => {
-    if (user?.role === "suporte") load();
-  }, [user?.role]);
+    if (isSuporte) load();
+  }, [isSuporte]);
 
   async function approveRequest(req: RequestRow) {
     const rpc = req.kind === "admin" ? "approve_admin_request" : "approve_clube_request";
@@ -245,14 +265,14 @@ function SuportePage() {
 
   if (!ready) return <AppLayout><div className="py-24 text-center text-muted-foreground">Carregando…</div></AppLayout>;
 
-  if (!user || user.role !== "suporte") {
+  if (!user || !isSuporte) {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <Shield className="h-12 w-12 text-muted-foreground" />
           <h1 className="mt-4 font-display text-2xl font-bold">Acesso restrito</h1>
           <p className="mt-2 text-muted-foreground">
-            Apenas administradores podem acessar este painel.
+            Apenas a equipe de suporte pode acessar este painel.
           </p>
           <Button asChild className="mt-6" variant="outline">
             <Link to="/login">Ir para login</Link>
@@ -263,21 +283,46 @@ function SuportePage() {
   }
 
   const pendingCount = requests.filter((r) => r.status === "pending").length;
+  const approvedCount = requests.filter((r) => r.status === "approved").length;
+  const visibleRequests = requests.filter(
+    (r) =>
+      (statusFilter === "all" || r.status === statusFilter) &&
+      (kindFilter === "all" || r.kind === kindFilter),
+  );
 
   return (
     <AppLayout>
-      <div className="mb-8">
-        <h1 className="font-display text-3xl font-extrabold">Painel de Suporte</h1>
-        <p className="mt-2 text-muted-foreground">
-          Aprove novos cadastros e gerencie os papéis (atleta, clube, admin) de cada usuário.
-        </p>
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-3xl font-extrabold">Painel de Suporte</h1>
+          <p className="mt-2 text-muted-foreground">
+            Aprove novos cadastros e gerencie os papéis (atleta, clube, admin) de cada usuário.
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => load()} disabled={loading}>
+          <RefreshCw className={"mr-1.5 h-3.5 w-3.5" + (loading ? " animate-spin" : "")} />
+          Atualizar
+        </Button>
       </div>
 
-      <Tabs defaultValue="aprovacoes" className="w-full">
+      {loadError && (
+        <div
+          role="alert"
+          className="mb-6 flex items-start gap-3 rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-sm"
+        >
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+          <div>
+            <p className="font-semibold text-destructive">Não foi possível carregar todos os dados.</p>
+            <p className="mt-0.5 text-muted-foreground">{loadError}</p>
+          </div>
+        </div>
+      )}
+
+      <Tabs defaultValue="solicitacoes" className="w-full">
         <TabsList className="mb-6 h-auto flex-wrap gap-1 bg-card p-1 shadow-card">
-          <TabsTrigger value="aprovacoes" className="gap-2 px-4 py-2">
-            <Shield className="h-3.5 w-3.5" />
-            Aprovações
+          <TabsTrigger value="solicitacoes" className="gap-2 px-4 py-2">
+            <Inbox className="h-3.5 w-3.5" />
+            Solicitações
             {pendingCount > 0 && (
               <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
                 {pendingCount}
@@ -290,70 +335,110 @@ function SuportePage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="aprovacoes">
+        <TabsContent value="solicitacoes">
+          <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-3 shadow-card">
+            <div role="group" aria-label="Filtrar por status" className="flex flex-wrap gap-1">
+              {(
+                [
+                  ["pending", `Pendentes (${pendingCount})`],
+                  ["approved", `Aprovadas (${approvedCount})`],
+                  ["all", `Todas (${requests.length})`],
+                ] as const
+              ).map(([value, label]) => (
+                <Button
+                  key={value}
+                  size="sm"
+                  variant={statusFilter === value ? "default" : "ghost"}
+                  aria-pressed={statusFilter === value}
+                  onClick={() => setStatusFilter(value)}
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
+            <Select value={kindFilter} onValueChange={(v) => setKindFilter(v as KindFilter)}>
+              <SelectTrigger
+                aria-label="Filtrar por tipo de solicitação"
+                className="ml-auto h-9 min-w-[170px] rounded-xl"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os tipos</SelectItem>
+                <SelectItem value="admin">Olheiros / Admin</SelectItem>
+                <SelectItem value="clube">Clubes</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {loading ? (
             <p className="text-muted-foreground">Carregando solicitações…</p>
-          ) : pendingCount === 0 ? (
+          ) : visibleRequests.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center text-muted-foreground">
-              Nenhuma solicitação pendente no momento.
+              {statusFilter === "pending"
+                ? "Nenhuma solicitação pendente no momento."
+                : "Nenhuma solicitação encontrada."}
             </div>
           ) : (
-            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5">
-              <h2 className="font-display text-xl font-bold text-primary">
-                Solicitações de acesso pendentes
-              </h2>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Apenas você (suporte) pode aprovar ou rejeitar novos administradores e clubes.
-              </p>
-              <div className="mt-4 space-y-2">
-                {requests
-                  .filter((r) => r.status === "pending")
-                  .map((r) => (
-                    <div
-                      key={`${r.kind}-${r.id}`}
-                      className="rounded-xl border border-border bg-card p-3"
-                    >
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={
-                                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider " +
-                                (r.kind === "admin"
-                                  ? "bg-primary/15 text-primary"
-                                  : "bg-blue-500/15 text-blue-400")
-                              }
-                            >
-                              {r.kind === "admin" ? <Shield className="h-3 w-3" /> : <Building2 className="h-3 w-3" />}
-                              {r.kind === "admin" ? "Admin" : "Clube"}
-                            </span>
-                            <p className="truncate font-semibold">{r.nome}</p>
-                          </div>
-                          <p className="truncate text-xs text-muted-foreground">{r.email}</p>
-                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                            Solicitado em{" "}
-                            {new Date(r.created_at).toLocaleDateString("pt-BR")}
-                          </p>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={() => approveRequest(r)}>
-                            Aprovar
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => rejectRequest(r)}
-                          >
-                            Recusar
-                          </Button>
-                        </div>
+            <div className="space-y-2">
+              {visibleRequests.map((r) => (
+                <div
+                  key={`${r.kind}-${r.id}`}
+                  className={
+                    "rounded-xl border bg-card p-3 " +
+                    (r.status === "pending" ? "border-primary/30" : "border-border")
+                  }
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={
+                            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider " +
+                            (r.kind === "admin"
+                              ? "bg-primary/15 text-primary"
+                              : "bg-blue-500/15 text-blue-400")
+                          }
+                        >
+                          {r.kind === "admin" ? <Shield className="h-3 w-3" /> : <Building2 className="h-3 w-3" />}
+                          {r.kind === "admin" ? "Admin" : "Clube"}
+                        </span>
+                        {r.status === "approved" && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-success">
+                            <CheckCircle2 className="h-3 w-3" /> Aprovada
+                          </span>
+                        )}
+                        <p className="truncate font-semibold">{r.nome}</p>
                       </div>
-                      {r.kind === "admin" && (r.celular || r.idade || r.clube_atual || r.rg_frente_path || r.rg_verso_path) && (
-                        <AdminRequestDetails req={r} onPreview={() => setPreviewRequest(r)} />
-                      )}
+                      <p className="truncate text-xs text-muted-foreground">{r.email}</p>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        Solicitado em{" "}
+                        {new Date(r.created_at).toLocaleDateString("pt-BR")}
+                      </p>
                     </div>
-                  ))}
-              </div>
+                    {r.status === "pending" && (
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => approveRequest(r)}>
+                          Aprovar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => rejectRequest(r)}
+                        >
+                          Recusar
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  {r.kind === "admin" && (r.celular || r.idade || r.clube_atual || r.rg_frente_path || r.rg_verso_path) && (
+                    <AdminRequestDetails
+                      req={r}
+                      onPreview={r.status === "pending" ? () => setPreviewRequest(r) : undefined}
+                    />
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </TabsContent>

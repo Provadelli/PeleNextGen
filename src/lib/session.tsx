@@ -9,6 +9,8 @@ export interface SessionUser {
   email: string;
   avatarUrl?: string | null;
   role: Role;
+  /** Todos os papéis que a conta possui (o `role` acima é o papel ativo). */
+  roles: Role[];
   /** Apenas quando role === "clube". Lista de candidatoIds com contato desbloqueado. */
   contatosDesbloqueados?: string[];
 }
@@ -66,12 +68,14 @@ async function loadSessionUser(userId: string): Promise<SessionUser | null> {
     typeof window !== "undefined"
       ? (sessionStorage.getItem("png-selected-role") as Role | null)
       : null;
-  const role: Role =
-    selected && roleSet.has(selected)
+  // Suporte sempre entra como suporte: o login não oferece essa opção (a conta
+  // entra selecionando "admin"), então respeitar a seleção faria uma conta
+  // suporte+admin cair como "admin" e ver "Acesso restrito" em /suporte.
+  const role: Role = roleSet.has("suporte")
+    ? "suporte"
+    : selected && roleSet.has(selected)
       ? selected
-      : roleSet.has("suporte")
-        ? "suporte"
-        : roleSet.has("admin")
+      : roleSet.has("admin")
           ? "admin"
           : roleSet.has("clube")
             ? "clube"
@@ -92,6 +96,7 @@ async function loadSessionUser(userId: string): Promise<SessionUser | null> {
     email: profile.email,
     avatarUrl: (profile as { avatar_url?: string | null }).avatar_url ?? null,
     role,
+    roles: [...roleSet],
     contatosDesbloqueados,
   };
 }
@@ -109,20 +114,27 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+    let loadedUid: string | null = null;
 
     // CRITICAL: set up listener BEFORE getSession to avoid missing events.
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
       const uid = session?.user?.id;
       if (!uid) {
+        loadedUid = null;
         setUser(null);
         setReady(true);
         return;
       }
+      // Usuário novo (ex.: acabou de fazer login): marca como "carregando" até o
+      // perfil chegar, senão as páginas protegidas veem user=null com ready=true
+      // e mostram "Acesso restrito" logo após o login.
+      if (uid !== loadedUid) setReady(false);
       // Defer Supabase calls to avoid deadlocks inside the callback.
       setTimeout(() => {
         loadSessionUser(uid).then((u) => {
           if (mounted) {
+            loadedUid = uid;
             setUser(u);
             setReady(true);
           }
@@ -141,6 +153,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       }
       loadSessionUser(uid).then((u) => {
         if (mounted) {
+          loadedUid = uid;
           setUser(u);
           setReady(true);
         }
