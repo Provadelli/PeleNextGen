@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Shield, Building2, User as UserIcon, Trash2, Filter, Users, Phone, Calendar, IdCard, ExternalLink } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -261,164 +262,195 @@ function SuportePage() {
     );
   }
 
+  const pendingCount = requests.filter((r) => r.status === "pending").length;
+
   return (
     <AppLayout>
       <div className="mb-8">
         <h1 className="font-display text-3xl font-extrabold">Painel de Suporte</h1>
         <p className="mt-2 text-muted-foreground">
-          Gerencie os papéis (atleta, clube, admin) de cada usuário cadastrado.
+          Aprove novos cadastros e gerencie os papéis (atleta, clube, admin) de cada usuário.
         </p>
       </div>
 
-      {!loading && requests.filter((r) => r.status === "pending").length > 0 && (
-        <div className="mb-8 rounded-2xl border border-primary/30 bg-primary/5 p-5">
-          <h2 className="font-display text-xl font-bold text-primary">
-            Solicitações de acesso pendentes
-          </h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Apenas você (admin) pode aprovar ou rejeitar novos administradores e clubes.
-          </p>
-          <div className="mt-4 space-y-2">
-            {requests
-              .filter((r) => r.status === "pending")
-              .map((r) => (
-                <div
-                  key={`${r.kind}-${r.id}`}
-                  className="rounded-xl border border-border bg-card p-3"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={
-                            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider " +
-                            (r.kind === "admin"
-                              ? "bg-primary/15 text-primary"
-                              : "bg-blue-500/15 text-blue-400")
-                          }
-                        >
-                          {r.kind === "admin" ? <Shield className="h-3 w-3" /> : <Building2 className="h-3 w-3" />}
-                          {r.kind === "admin" ? "Admin" : "Clube"}
-                        </span>
-                        <p className="truncate font-semibold">{r.nome}</p>
+      <Tabs defaultValue="aprovacoes" className="w-full">
+        <TabsList className="mb-6 h-auto flex-wrap gap-1 bg-card p-1 shadow-card">
+          <TabsTrigger value="aprovacoes" className="gap-2 px-4 py-2">
+            <Shield className="h-3.5 w-3.5" />
+            Aprovações
+            {pendingCount > 0 && (
+              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+                {pendingCount}
+              </span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="usuarios" className="gap-2 px-4 py-2">
+            <Users className="h-3.5 w-3.5" />
+            Usuários
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="aprovacoes">
+          {loading ? (
+            <p className="text-muted-foreground">Carregando solicitações…</p>
+          ) : pendingCount === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center text-muted-foreground">
+              Nenhuma solicitação pendente no momento.
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5">
+              <h2 className="font-display text-xl font-bold text-primary">
+                Solicitações de acesso pendentes
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Apenas você (suporte) pode aprovar ou rejeitar novos administradores e clubes.
+              </p>
+              <div className="mt-4 space-y-2">
+                {requests
+                  .filter((r) => r.status === "pending")
+                  .map((r) => (
+                    <div
+                      key={`${r.kind}-${r.id}`}
+                      className="rounded-xl border border-border bg-card p-3"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={
+                                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider " +
+                                (r.kind === "admin"
+                                  ? "bg-primary/15 text-primary"
+                                  : "bg-blue-500/15 text-blue-400")
+                              }
+                            >
+                              {r.kind === "admin" ? <Shield className="h-3 w-3" /> : <Building2 className="h-3 w-3" />}
+                              {r.kind === "admin" ? "Admin" : "Clube"}
+                            </span>
+                            <p className="truncate font-semibold">{r.nome}</p>
+                          </div>
+                          <p className="truncate text-xs text-muted-foreground">{r.email}</p>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                            Solicitado em{" "}
+                            {new Date(r.created_at).toLocaleDateString("pt-BR")}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={() => approveRequest(r)}>
+                            Aprovar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => rejectRequest(r)}
+                          >
+                            Recusar
+                          </Button>
+                        </div>
                       </div>
-                      <p className="truncate text-xs text-muted-foreground">{r.email}</p>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Solicitado em{" "}
-                        {new Date(r.created_at).toLocaleDateString("pt-BR")}
-                      </p>
+                      {r.kind === "admin" && (r.celular || r.idade || r.clube_atual || r.rg_frente_path || r.rg_verso_path) && (
+                        <AdminRequestDetails req={r} onPreview={() => setPreviewRequest(r)} />
+                      )}
                     </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={() => approveRequest(r)}>
-                        Aprovar
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => rejectRequest(r)}
-                      >
-                        Recusar
-                      </Button>
-                    </div>
-                  </div>
-                  {r.kind === "admin" && (r.celular || r.idade || r.clube_atual || r.rg_frente_path || r.rg_verso_path) && (
-                    <AdminRequestDetails req={r} onPreview={() => setPreviewRequest(r)} />
-                  )}
-                </div>
-              ))}
+                  ))}
+              </div>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="usuarios">
+          <div
+            role="region"
+            aria-label="Filtrar usuários"
+            className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-3 shadow-card"
+          >
+            <div className="flex items-center gap-2 text-foreground">
+              <span
+                aria-hidden="true"
+                className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 text-primary"
+              >
+                <Filter className="h-4 w-4" />
+              </span>
+              <label
+                htmlFor="role-filter"
+                className="text-sm font-bold uppercase tracking-wider"
+              >
+                Filtrar por papel
+              </label>
+            </div>
+
+            <Select
+              value={roleFilter}
+              onValueChange={(v) => setRoleFilter(v as RoleFilter)}
+            >
+              <SelectTrigger
+                id="role-filter"
+                aria-label="Selecionar papel para filtrar a lista de usuários"
+                className="h-11 min-w-[180px] rounded-xl border-2 text-base font-semibold focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
+                <SelectValue placeholder="Selecione…" />
+              </SelectTrigger>
+              <SelectContent className="text-base">
+                <SelectItem value="all" className="py-2.5">
+                  <span className="inline-flex items-center gap-2">
+                    <Users className="h-4 w-4" aria-hidden="true" />
+                    Todos os usuários
+                  </span>
+                </SelectItem>
+                <SelectItem value="atleta" className="py-2.5">
+                  <span className="inline-flex items-center gap-2">
+                    <UserIcon className="h-4 w-4" aria-hidden="true" />
+                    Atletas
+                  </span>
+                </SelectItem>
+                <SelectItem value="admin" className="py-2.5">
+                  <span className="inline-flex items-center gap-2">
+                    <Shield className="h-4 w-4" aria-hidden="true" />
+                    Administradores
+                  </span>
+                </SelectItem>
+                <SelectItem value="clube" className="py-2.5">
+                  <span className="inline-flex items-center gap-2">
+                    <Building2 className="h-4 w-4" aria-hidden="true" />
+                    Clubes
+                  </span>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
+            <p
+              aria-live="polite"
+              className="ml-auto rounded-full bg-muted px-3 py-1 text-sm font-semibold text-foreground"
+            >
+              {filteredUsers.length}{" "}
+              <span className="text-muted-foreground">
+                {filteredUsers.length === 1 ? "usuário" : "usuários"}
+              </span>
+            </p>
           </div>
-        </div>
-      )}
 
-      <div
-        role="region"
-        aria-label="Filtrar usuários"
-        className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-3 shadow-card"
-      >
-        <div className="flex items-center gap-2 text-foreground">
-          <span
-            aria-hidden="true"
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 text-primary"
-          >
-            <Filter className="h-4 w-4" />
-          </span>
-          <label
-            htmlFor="role-filter"
-            className="text-sm font-bold uppercase tracking-wider"
-          >
-            Filtrar por papel
-          </label>
-        </div>
+          {loading ? (
+            <p className="text-muted-foreground">Carregando usuários…</p>
+          ) : filteredUsers.length === 0 ? (
+            <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
+              Nenhum usuário encontrado.
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredUsers.map((u) => (
+                <UserCard
+                  key={u.id}
+                  user={u}
+                  onAdd={(r) => addRole(u.id, r)}
+                  onRemove={(r) => removeRole(u.id, r)}
+                  onDelete={() => deleteUser(u.id, u.nome)}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
 
-        <Select
-          value={roleFilter}
-          onValueChange={(v) => setRoleFilter(v as RoleFilter)}
-        >
-          <SelectTrigger
-            id="role-filter"
-            aria-label="Selecionar papel para filtrar a lista de usuários"
-            className="h-11 min-w-[180px] rounded-xl border-2 text-base font-semibold focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-          >
-            <SelectValue placeholder="Selecione…" />
-          </SelectTrigger>
-          <SelectContent className="text-base">
-            <SelectItem value="all" className="py-2.5">
-              <span className="inline-flex items-center gap-2">
-                <Users className="h-4 w-4" aria-hidden="true" />
-                Todos os usuários
-              </span>
-            </SelectItem>
-            <SelectItem value="atleta" className="py-2.5">
-              <span className="inline-flex items-center gap-2">
-                <UserIcon className="h-4 w-4" aria-hidden="true" />
-                Atletas
-              </span>
-            </SelectItem>
-            <SelectItem value="admin" className="py-2.5">
-              <span className="inline-flex items-center gap-2">
-                <Shield className="h-4 w-4" aria-hidden="true" />
-                Administradores
-              </span>
-            </SelectItem>
-            <SelectItem value="clube" className="py-2.5">
-              <span className="inline-flex items-center gap-2">
-                <Building2 className="h-4 w-4" aria-hidden="true" />
-                Clubes
-              </span>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-
-        <p
-          aria-live="polite"
-          className="ml-auto rounded-full bg-muted px-3 py-1 text-sm font-semibold text-foreground"
-        >
-          {filteredUsers.length}{" "}
-          <span className="text-muted-foreground">
-            {filteredUsers.length === 1 ? "usuário" : "usuários"}
-          </span>
-        </p>
-      </div>
-
-      {loading ? (
-        <p className="text-muted-foreground">Carregando usuários…</p>
-      ) : filteredUsers.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
-          Nenhum usuário encontrado.
-        </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredUsers.map((u) => (
-            <UserCard
-              key={u.id}
-              user={u}
-              onAdd={(r) => addRole(u.id, r)}
-              onRemove={(r) => removeRole(u.id, r)}
-              onDelete={() => deleteUser(u.id, u.nome)}
-            />
-          ))}
-        </div>
-      )}
       <RgPreviewModal
         req={previewRequest}
         open={!!previewRequest}
