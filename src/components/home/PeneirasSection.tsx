@@ -4,6 +4,7 @@ import type { Peneira } from "@/lib/mock-data";
 import { Eyebrow, Reveal } from "./Reveal";
 import { AuthLink } from "./AuthLink";
 import { useTilt } from "@/hooks/use-tilt";
+import { cn } from "@/lib/utils";
 
 const FALLBACK =
   "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=1200&q=80";
@@ -16,7 +17,7 @@ function fmt(iso: string) {
 }
 
 const selectCls =
-  "h-11 min-w-[9rem] rounded-full border border-border bg-transparent px-4 text-xs font-semibold uppercase tracking-[0.12em] text-foreground outline-none transition-colors focus:border-primary";
+  "h-11 min-w-[7rem] sm:min-w-[9rem] rounded-full border border-border bg-transparent px-4 text-xs font-semibold uppercase tracking-[0.12em] text-foreground outline-none transition-colors focus:border-primary";
 
 function Card({ p, delay }: { p: Peneira; delay: number }) {
   const { ref, tiltProps } = useTilt<HTMLDivElement>(4);
@@ -182,8 +183,8 @@ export function PeneirasSection({
         </AuthLink>
       </Reveal>
 
-      <Reveal className="mt-10 flex flex-wrap items-center gap-3 rounded-full border border-border bg-bg2/50 p-3">
-        <div className="relative flex-1 min-w-[12rem]">
+      <Reveal className="mt-10 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-bg2/50 p-3 sm:rounded-full">
+        <div className="relative w-full sm:min-w-[12rem] sm:flex-1">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={busca}
@@ -197,7 +198,7 @@ export function PeneirasSection({
           aria-label="Filtrar por estado"
           value={uf}
           onChange={(e) => setUf(e.target.value)}
-          className={selectCls}
+          className={cn(selectCls, "flex-1 sm:flex-initial")}
         >
           <option value="todos">Todos os estados</option>
           {ufs.map((u) => (
@@ -210,7 +211,7 @@ export function PeneirasSection({
           aria-label="Filtrar por categoria"
           value={cat}
           onChange={(e) => setCat(e.target.value)}
-          className={selectCls}
+          className={cn(selectCls, "flex-1 sm:flex-initial")}
         >
           <option value="todas">Todas as idades</option>
           {cats.map((c) => (
@@ -223,7 +224,7 @@ export function PeneirasSection({
           aria-label="Filtrar por data"
           value={quando}
           onChange={(e) => setQuando(e.target.value)}
-          className={selectCls}
+          className={cn(selectCls, "flex-1 sm:flex-initial")}
         >
           <option value="todas">Qualquer data</option>
           <option value="30">Próximos 30 dias</option>

@@ -205,7 +205,13 @@ function LoginPage() {
           alt=""
           className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/70 to-blue-dark/60" />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(160deg, oklch(0.13 0.02 75 / 0.92) 0%, oklch(0.19 0.03 80 / 0.78) 45%, oklch(0.16 0.05 258 / 0.55) 100%)",
+          }}
+        />
         <div className="absolute inset-0 flex flex-col justify-between p-12">
           <Logo />
           <div>

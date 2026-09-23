@@ -190,18 +190,20 @@ export function CalendlyCarousel({
   }[tier];
 
   return (
+    /* eslint-disable jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex -- padrão de acessibilidade recomendado pela WAI-ARIA Authoring Practices para carrosséis (region focável com navegação por teclado) */
     <div
       ref={containerRef}
       role="region"
       aria-roledescription="carousel"
-      aria-label="Customer stories"
+      aria-label="Marcos da nossa história"
       tabIndex={0}
       onKeyDown={handleKeyDown}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      /* eslint-enable jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex */
       className={cn(
         "relative w-full max-w-[1240px] mx-auto flex flex-col items-center select-none outline-none py-4 overflow-hidden",
-        className
+        className,
       )}
       {...props}
     >
@@ -427,7 +429,7 @@ export function CalendlyCarousel({
               }}
               className={cn(
                 "rounded-[28px] sm:rounded-[32px] bg-card text-card-foreground shadow-[0_10px_30px_rgba(95,109,119,0.08),0_4px_12px_rgba(95,109,119,0.06)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6),0_4px_12px_rgba(0,0,0,0.4)] overflow-visible",
-                !isActive && "cursor-pointer"
+                !isActive && "cursor-pointer",
               )}
             >
               {offset === -1 && (
@@ -522,10 +524,7 @@ export function CalendlyCarousel({
                   initial={false}
                   animate={{ opacity: isActive ? 0 : 1 }}
                   transition={{ duration: 0.22, ease: "easeOut" }}
-                  className={cn(
-                    "absolute inset-0 p-2",
-                    isActive && "pointer-events-none"
-                  )}
+                  className={cn("absolute inset-0 p-2", isActive && "pointer-events-none")}
                 >
                   <div className="size-full rounded-[20px] sm:rounded-[24px] overflow-hidden bg-muted relative">
                     <img
@@ -557,7 +556,7 @@ export function CalendlyCarousel({
                     transition={TRANSITION_SPRING}
                     className={cn(
                       "size-full flex flex-col md:flex-row p-4 sm:p-5 md:p-6 lg:p-7 gap-3 sm:gap-4 md:gap-6",
-                      !isActive && "pointer-events-none"
+                      !isActive && "pointer-events-none",
                     )}
                   >
                     <div className="flex-1 min-w-0 flex flex-col items-center md:items-start text-center md:text-left justify-between py-1 gap-2 sm:gap-3">
@@ -583,13 +582,11 @@ export function CalendlyCarousel({
 
                       <div className="flex min-w-0 w-full max-w-full overflow-hidden items-center md:items-start justify-center md:justify-start">
                         <div className="flex flex-col items-center md:items-start min-w-0 max-w-full">
-                          <span className="w-fit inline-flex items-center justify-center rounded-[4px] font-medium py-1 px-2.5 text-[11px] sm:text-xs bg-secondary text-secondary-foreground shrink-0 select-none">
-                            <span className="whitespace-nowrap font-semibold">
-                              {item.author}
-                            </span>
+                          <span className="w-fit inline-flex items-center justify-center rounded-[4px] font-medium py-1 px-2.5 text-[11px] sm:text-xs bg-muted text-muted-foreground shrink-0 select-none">
+                            <span className="whitespace-nowrap font-semibold">{item.author}</span>
                           </span>
 
-                          <div className="shrink-0 flex items-center justify-center md:justify-start px-3 h-[6px] -my-[1px] text-secondary relative z-10">
+                          <div className="shrink-0 flex items-center justify-center md:justify-start px-3 h-[6px] -my-[1px] text-muted relative z-10">
                             <svg
                               className="block shrink-0 fill-current overflow-visible"
                               preserveAspectRatio="none"
@@ -601,11 +598,8 @@ export function CalendlyCarousel({
                             </svg>
                           </div>
 
-                          <span className="w-fit inline-flex items-center justify-center rounded-[4px] font-medium py-1 px-2.5 text-[10px] sm:text-xs bg-secondary text-muted-foreground max-w-full select-none">
-                            <span
-                              title={item.role}
-                              className="truncate"
-                            >
+                          <span className="w-fit inline-flex items-center justify-center rounded-[4px] font-medium py-1 px-2.5 text-[10px] sm:text-xs bg-muted text-muted-foreground max-w-full select-none">
+                            <span title={item.role} className="truncate">
                               {item.role}
                             </span>
                           </span>
@@ -630,11 +624,7 @@ export function CalendlyCarousel({
         })}
       </div>
 
-      <div
-        role="tablist"
-        aria-label="Use cases"
-        className="flex items-center gap-1.5 mt-5"
-      >
+      <div role="tablist" aria-label="Marcos" className="flex items-center gap-1.5 mt-5">
         {items.map((item, idx) => {
           const isSelected = idx === activeIndex;
 
@@ -648,13 +638,13 @@ export function CalendlyCarousel({
               aria-controls="carousel-view-panel"
               onClick={handleSelectTab}
               aria-selected={isSelected}
-              aria-label={`Use case ${idx + 1}`}
+              aria-label={`Marco ${idx + 1}`}
               tabIndex={isSelected ? 0 : -1}
               className={cn(
                 "h-[8px] rounded-[3px] overflow-hidden border-0 p-0 cursor-pointer transition-[width] duration-300 ease-out outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 isSelected
                   ? "w-[80px] bg-secondary"
-                  : "w-[8px] bg-secondary hover:bg-muted-foreground/30"
+                  : "w-[8px] bg-secondary hover:bg-muted-foreground/30",
               )}
             >
               {isSelected && (

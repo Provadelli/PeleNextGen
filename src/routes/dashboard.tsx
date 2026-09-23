@@ -46,7 +46,7 @@ function AccessibleTooltip({
     <div
       role="tooltip"
       aria-live="polite"
-      className="rounded-xl border-2 border-primary/70 bg-[#0a1426] px-4 py-3 shadow-2xl ring-1 ring-black/40"
+      className="rounded-xl border-2 border-primary/70 bg-popover px-4 py-3 shadow-2xl ring-1 ring-black/10 dark:ring-black/40"
       style={{ minWidth: 180 }}
     >
       {label !== undefined && (
@@ -58,15 +58,15 @@ function AccessibleTooltip({
           const swatch = entry.color ?? entry.payload?.fill ?? "#d4af37";
           return (
             <li key={i} className="flex items-center justify-between gap-4">
-              <span className="flex items-center gap-2 text-sm font-medium text-white">
+              <span className="flex items-center gap-2 text-sm font-medium text-popover-foreground">
                 <span
                   aria-hidden="true"
-                  className="inline-block h-3 w-3 rounded-full ring-2 ring-white/20"
+                  className="inline-block h-3 w-3 rounded-full ring-2 ring-foreground/10"
                   style={{ background: swatch }}
                 />
                 {name}
               </span>
-              <span className="text-base font-bold tabular-nums text-white">
+              <span className="text-base font-bold tabular-nums text-popover-foreground">
                 {entry.value}
                 {valueSuffix}
               </span>
@@ -290,12 +290,12 @@ const KPI = memo(function KPI({
   delta: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-gold">
+    <div className="group relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card transition-all duration-300 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-primary/60 before:to-transparent hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-gold">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           {label}
         </p>
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15 text-primary">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15 text-primary transition-transform duration-300 group-hover:scale-110">
           <Icon className="h-4.5 w-4.5" />
         </div>
       </div>
@@ -318,7 +318,10 @@ const ChartCard = memo(function ChartCard({
 }) {
   return (
     <div
-      className={"rounded-2xl border border-border bg-card p-6 shadow-card " + (className ?? "")}
+      className={
+        "relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-card before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-primary/60 before:to-transparent " +
+        (className ?? "")
+      }
     >
       <div className="mb-4">
         <h2 className="font-display text-lg font-bold">{title}</h2>

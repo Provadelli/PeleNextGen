@@ -71,6 +71,7 @@
  * Modo claro (:root) e modo escuro (.dark) com acentos dourados e azul.
  */
 :root {
+  color-scheme: light;
   --radius: 0.75rem;
 
   /* Brand tokens (claros) */
@@ -139,6 +140,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   /* Brand tokens (escuros) */
   --gold: oklch(0.78 0.14 85);
   --gold-light: oklch(0.86 0.13 90);
@@ -177,8 +179,8 @@
   --destructive: var(--error);
   --destructive-foreground: oklch(0.98 0 0);
 
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 10%);
+  --border: oklch(1 0 0 / 14%);
+  --input: oklch(1 0 0 / 16%);
   --ring: var(--gold);
 
   --sidebar: var(--bg2);
@@ -187,7 +189,7 @@
   --sidebar-primary-foreground: oklch(0.18 0.04 258);
   --sidebar-accent: var(--bg3);
   --sidebar-accent-foreground: var(--foreground);
-  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-border: oklch(1 0 0 / 14%);
   --sidebar-ring: var(--gold);
 
   --gradient-hero: linear-gradient(135deg, oklch(0.18 0.04 258) 0%, oklch(0.26 0.06 256) 100%);
@@ -212,6 +214,7 @@
     color: var(--color-foreground);
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
+    animation: app-shell-fade-in 0.45s ease-out;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -281,6 +284,11 @@
   to { transform: translateX(-50%); }
 }
 
+@keyframes app-shell-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @keyframes loader-bar-slide {
   0% { transform: translateX(-120%); }
   100% { transform: translateX(420%); }
@@ -293,4 +301,10 @@
 @media (prefers-reduced-motion: reduce) {
   .marquee-track { animation: none; }
   .loader-bar { animation: none; }
+  body { animation: none; }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }

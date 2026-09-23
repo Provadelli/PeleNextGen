@@ -84,6 +84,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const role: Role | null = user?.role ?? null;
   const items = role ? NAV.filter((i) => i.roles.includes(role)) : [];
 
+  const activeTo = items
+    .filter(
+      (i) => location.pathname === i.to || location.pathname.startsWith(i.to + "/"),
+    )
+    .sort((a, b) => b.to.length - a.to.length)[0]?.to;
+
   const handleLogout = async () => {
     await clearSession();
     navigate({ to: "/login" });
@@ -136,9 +142,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             ) : (
               items.map((item) => {
                 const Icon = item.icon;
-                const active =
-                  location.pathname === item.to ||
-                  (item.to !== "/" && location.pathname.startsWith(item.to));
+                const active = item.to === activeTo;
                 return (
                   <Link
                     key={item.to}
