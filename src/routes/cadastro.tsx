@@ -243,7 +243,9 @@ function CadastroPage() {
           >
             <ArrowLeft className="h-4 w-4" /> Voltar para login
           </Link>
-          <Logo />
+          <Link to="/" aria-label="Ir para a página inicial" className="inline-block w-fit transition-opacity hover:opacity-80">
+            <Logo />
+          </Link>
         </div>
 
         <div className="rounded-3xl border border-border bg-card p-6 shadow-card sm:p-10">

@@ -67,6 +67,7 @@ export function ComoFunciona() {
 
         <Reveal
           delay={200}
+          stagger
           className="mt-16 grid gap-6 border-t border-border pt-10 sm:grid-cols-3"
         >
           {[

@@ -1,6 +1,6 @@
 import imgGrupo from "@/assets/home/time-grupo.jpg";
-import imgAcao from "@/assets/home/time-acao.jpg";
-import imgNoturno from "@/assets/home/time-noturno.jpg";
+import imgDesenvolvimento from "@/assets/home/desenvolvimento.jpeg";
+import imgExpansao from "@/assets/home/expansao.jpeg";
 import imgCamisa from "@/assets/home/time-camisa.jpg";
 import imgLegadoHoje from "@/assets/home/legado-hoje.jpg";
 import { Eyebrow, Reveal } from "./Reveal";
@@ -22,8 +22,8 @@ const MARCOS = [
     texto:
       "Treinamento estruturado por categoria, avaliação técnica constante e acompanhamento individual de cada atleta.",
     citacao: "Cada atleta, um plano.",
-    img: imgAcao,
-    alt: "Atleta disputando lance durante uma partida",
+    img: imgDesenvolvimento,
+    alt: "Atletas em treino técnico com escada de agilidade e cones no campo",
   },
   {
     ano: "Expansão",
@@ -31,8 +31,8 @@ const MARCOS = [
     texto:
       "Peneiras em diferentes estados ampliam o alcance e levam a avaliação para onde o talento está.",
     citacao: "O talento não escolhe CEP.",
-    img: imgNoturno,
-    alt: "Partida noturna em estádio cheio",
+    img: imgExpansao,
+    alt: "Disputa de bola em partida noturna com estádio lotado",
   },
   {
     ano: "Presente",

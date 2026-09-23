@@ -20,6 +20,7 @@ import { PageLoader } from "@/components/home/PageLoader";
 import { fetchPeneirasFromDb } from "@/lib/peneiras.db";
 import type { Peneira } from "@/lib/mock-data";
 import { SECTIONS, SECTION_IDS, scrollToSection } from "@/lib/home-sections";
+import { smoothScrollTo } from "@/components/SmoothScroll";
 
 // TODO: trocar por uma imagem de compartilhamento própria (1200x630) quando disponível.
 const HOME_OG_IMAGE = "https://pelenextgen.vercel.app/favicon.png";
@@ -76,6 +77,7 @@ function Landing() {
   const [loading, setLoading] = useState(true);
   const [menu, setMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const active = useScrollSpy(SECTION_IDS);
 
   useEffect(() => {
@@ -85,8 +87,15 @@ function Landing() {
   }, []);
 
   useEffect(() => {
+    // Header some ao descer e volta ao subir (mais tela para o conteúdo).
+    let last = window.scrollY;
     function onScroll() {
-      setScrolled(window.scrollY > 40);
+      const y = window.scrollY;
+      setScrolled(y > 40);
+      if (Math.abs(y - last) > 6) {
+        setHidden(y > last && y > 480);
+        last = y;
+      }
     }
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -100,17 +109,29 @@ function Landing() {
       <PageLoader />
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-40 transition-colors duration-300",
+          "fixed inset-x-0 top-0 z-40 transition-[background-color,border-color,box-shadow,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
           scrolled
-            ? "border-b border-border bg-background/85 backdrop-blur"
+            ? "border-b border-border bg-background/80 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.45)] backdrop-blur-xl"
             : "border-b border-transparent bg-transparent",
+          hidden && !menu && "-translate-y-full",
         )}
       >
         <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-10">
-          <Logo
-            variant={scrolled ? "auto" : "onDark"}
-            className="shrink-0 [&_img]:h-10 sm:[&_img]:h-12"
-          />
+          <Link
+            to="/"
+            aria-label="Pelé Next Gen — voltar ao início"
+            onClick={() => {
+              setMenu(false);
+              smoothScrollTo(0);
+              window.history.replaceState(null, "", "/");
+            }}
+            className="shrink-0 transition-transform duration-300 hover:scale-[1.04] active:scale-95"
+          >
+            <Logo
+              variant={scrolled ? "auto" : "onDark"}
+              className="[&_img]:h-10 sm:[&_img]:h-12"
+            />
+          </Link>
 
           <nav className="hidden items-center gap-6 lg:flex">
             {SECTIONS.map((s) => (

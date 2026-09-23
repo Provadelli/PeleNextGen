@@ -3,8 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowUp, Mail } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { SECTIONS, scrollToSection } from "@/lib/home-sections";
-
-const MARQUEE = ["Peneiras", "Talento", "Oportunidade", "Avaliação", "Futuro"];
+import { smoothScrollTo } from "@/components/SmoothScroll";
 
 /** Link do footer com sublinhado dourado que cresce no hover. */
 function FooterLink({ children }: { children: ReactNode }) {
@@ -29,36 +28,21 @@ function Coluna({ titulo, children }: { titulo: string; children: ReactNode }) {
 
 export function Footer() {
   const voltarAoTopo = () => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+    smoothScrollTo(0);
   };
 
   return (
-    <footer className="relative overflow-hidden bg-ink text-ink-foreground">
-      {/* Letreiro contínuo: a identidade da plataforma em movimento. */}
-      <div
-        aria-hidden="true"
-        className="overflow-hidden border-y border-white/10 bg-primary py-3 text-primary-foreground"
-      >
-        <div className="marquee-track flex w-max gap-10 whitespace-nowrap font-display text-sm font-extrabold uppercase tracking-[0.3em] motion-reduce:animate-none">
-          {[0, 1].map((k) => (
-            <div key={k} className="flex gap-10">
-              {Array.from({ length: 4 }).flatMap((_, r) =>
-                MARQUEE.map((w) => (
-                  <span key={`${k}-${r}-${w}`} className="flex items-center gap-10">
-                    {w}
-                    <span className="text-primary-foreground/50">✦</span>
-                  </span>
-                )),
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
+    <footer className="relative overflow-hidden border-t border-primary/20 bg-ink text-ink-foreground">
       <div className="relative mx-auto grid max-w-[1400px] gap-12 px-6 py-20 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] lg:px-10">
         <div className="max-w-xs sm:col-span-2 lg:col-span-1">
-          <Logo variant="onDark" className="[&_img]:h-14" />
+          <Link
+            to="/"
+            aria-label="Pelé Next Gen — página inicial"
+            onClick={() => window.location.pathname === "/" && smoothScrollTo(0)}
+            className="inline-block transition-opacity hover:opacity-80"
+          >
+            <Logo variant="onDark" className="[&_img]:h-14" />
+          </Link>
           <p className="mt-5 text-sm leading-relaxed text-ink-foreground/60">
             A plataforma de peneiras que leva a oportunidade até o talento — avaliação profissional
             e um histórico real da sua evolução no futebol.

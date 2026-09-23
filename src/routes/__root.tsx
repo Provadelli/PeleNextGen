@@ -4,6 +4,7 @@ import { ThemeProvider, THEME_INIT_SCRIPT } from "@/lib/theme";
 import { SessionProvider } from "@/lib/session";
 import { NotFound } from "@/components/NotFound";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
+import { SmoothScroll } from "@/components/SmoothScroll";
 
 import appCss from "../styles.css?url";
 
@@ -74,6 +75,7 @@ function RootComponent() {
   return (
     <ThemeProvider>
       <SessionProvider>
+        <SmoothScroll />
         <Outlet />
         <CookieConsentBanner />
       </SessionProvider>

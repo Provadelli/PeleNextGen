@@ -1,4 +1,4 @@
-import { useCallback, type ReactNode } from "react";
+import { useCallback, type MouseEventHandler, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -28,11 +28,15 @@ export function AuthLink({
   className,
   children,
   ariaLabel,
+  onMouseMove,
+  onMouseLeave,
 }: {
   href: string;
   className?: string;
   children: ReactNode;
   ariaLabel?: string;
+  onMouseMove?: MouseEventHandler<HTMLAnchorElement>;
+  onMouseLeave?: MouseEventHandler<HTMLAnchorElement>;
 }) {
   const go = useAuthNav();
 
@@ -41,6 +45,8 @@ export function AuthLink({
       href={href}
       aria-label={ariaLabel}
       className={className}
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
       onClick={(e) => {
         e.preventDefault();
         void go(href);

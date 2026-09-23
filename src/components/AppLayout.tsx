@@ -99,7 +99,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen w-full">
       {/* Mobile top bar */}
       <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-bg2/90 px-4 backdrop-blur lg:hidden">
-        <Logo />
+        <Link to="/" aria-label="Ir para a página inicial" className="transition-opacity hover:opacity-80">
+          <Logo />
+        </Link>
         <div className="flex items-center gap-2">
           <ThemeToggle />
           {user && <NotificationsBell />}
@@ -122,10 +124,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         )}
       >
         <div className="hidden h-28 items-center border-b border-border px-6 lg:flex">
-          <Logo />
+          <Link to="/" aria-label="Ir para a página inicial" className="transition-opacity hover:opacity-80">
+            <Logo />
+          </Link>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 pt-20 lg:pt-4">
+        <div data-lenis-prevent className="flex-1 overflow-y-auto p-4 pt-20 lg:pt-4">
           <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
             {role ? ROLE_AREA[role] : "\u00A0"}
           </p>
@@ -215,7 +219,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
-        <div key={location.pathname} className="page-enter px-4 pb-12 pt-20 sm:px-6 lg:px-10 lg:pt-4">
+        <div key={location.pathname} className="page-enter app-reveal px-4 pb-12 pt-20 sm:px-6 lg:px-10 lg:pt-4">
           {children}
         </div>
       </main>

@@ -216,7 +216,9 @@ function LoginPage() {
         />
         <div className="absolute inset-0 flex flex-col justify-between p-12">
           <HeroFade from="left" delay={0.3}>
-            <Logo />
+            <Link to="/" aria-label="Ir para a página inicial" className="inline-block w-fit transition-opacity hover:opacity-80">
+              <Logo />
+            </Link>
           </HeroFade>
           <div>
             {/* Mesma sequência do MinimalistHero: faixa dourada cresce → título sobe → texto. */}
@@ -287,7 +289,9 @@ function LoginPage() {
           </div>
 
           <div className="lg:hidden">
-            <Logo className="mb-8" />
+            <Link to="/" aria-label="Ir para a página inicial" className="inline-block w-fit transition-opacity hover:opacity-80">
+              <Logo className="mb-8" />
+            </Link>
           </div>
 
           <h1 className="font-display text-3xl font-extrabold">Bem-vindo de volta</h1>

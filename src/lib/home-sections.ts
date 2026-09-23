@@ -1,4 +1,5 @@
 import type { MouseEvent as ReactMouseEvent } from "react";
+import { smoothScrollTo } from "@/components/SmoothScroll";
 
 export const SECTIONS = [
   { id: "proposito", label: "Propósito" },
@@ -18,8 +19,6 @@ export function scrollToSection(e: ReactMouseEvent<HTMLAnchorElement>, id: strin
   const el = document.getElementById(id);
   if (!el) return;
   e.preventDefault();
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
-  window.scrollTo({ top, behavior: reduced ? "auto" : "smooth" });
+  smoothScrollTo(el, HEADER_OFFSET);
   window.history.replaceState(null, "", `#${id}`);
 }

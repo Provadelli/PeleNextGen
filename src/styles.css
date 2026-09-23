@@ -275,6 +275,7 @@
   color: var(--foreground);
 }
 
+/* Faixa contínua (logos dos parceiros). */
 @utility marquee-track {
   animation: marquee-scroll 38s linear infinite;
 }
@@ -433,3 +434,94 @@
   to { transform: scaleX(1); }
 }
 .story-progress { animation-name: story-progress; animation-timing-function: linear; animation-fill-mode: both; }
+
+/* ===== Rolagem suave (components/SmoothScroll.tsx — Lenis) ===== */
+/* O Lenis põe a classe `lenis` no <html> enquanto está ativo. */
+html.lenis { scroll-behavior: auto !important; }
+html.lenis body { overscroll-behavior: none; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* Barra de progresso de rolagem, dourada, no topo. Só CSS (scroll-driven). */
+.scroll-progress { display: none; }
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    display: block;
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 60;
+    height: 2px;
+    pointer-events: none;
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light));
+    box-shadow: 0 0 12px color-mix(in oklab, var(--gold) 60%, transparent);
+    animation: scroll-progress-grow linear both;
+    animation-timeline: scroll(root);
+  }
+}
+@keyframes scroll-progress-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Páginas internas: cada bloco do conteúdo entra ao rolar (AppLayout). */
+@supports (animation-timeline: view()) {
+  /* 2º nível: o 1º costuma ser o wrapper único da página. */
+  .app-reveal > * > * {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 45%;
+  }
+}
+
+/* Reveal "mask": o texto sobe de trás de uma máscara. */
+.reveal-mask { clip-path: inset(0 0 100% 0); }
+.reveal-mask[data-shown="true"] { clip-path: inset(0 0 0 0); }
+
+/* Sublinhado dourado que cresce quando a seção entra (Eyebrow). */
+.eyebrow-line { transform-origin: left; transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.25s; }
+[data-shown="false"] .eyebrow-line { transform: scaleX(0); }
+
+/* Mapa: ponto pulsante nos estados com peneiras. */
+@keyframes map-ping {
+  0% { r: 4; opacity: 0.9; }
+  100% { r: 22; opacity: 0; }
+}
+.map-ping { animation: map-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress, .app-reveal > * > *, .map-ping { animation: none !important; }
+  .reveal-mask { clip-path: none; }
+  .eyebrow-line, [data-shown="false"] .eyebrow-line { transform: none; transition: none; }
+}
+
+/* Reveal com `stagger`: filhos diretos entram em cascata. Usa animation (fill
+   backwards) para não sobrescrever as transições de hover dos próprios filhos. */
+@keyframes stagger-in {
+  from { opacity: 0; transform: translateY(28px) scale(0.98); filter: blur(3px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+.reveal-stagger[data-shown="false"] > * { opacity: 0; }
+.reveal-stagger[data-shown="true"] > * {
+  animation: stagger-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + var(--stagger-i, 0) * 90ms);
+}
+.reveal-stagger > :nth-child(2) { --stagger-i: 1; }
+.reveal-stagger > :nth-child(3) { --stagger-i: 2; }
+.reveal-stagger > :nth-child(4) { --stagger-i: 3; }
+.reveal-stagger > :nth-child(5) { --stagger-i: 4; }
+.reveal-stagger > :nth-child(6) { --stagger-i: 5; }
+.reveal-stagger > :nth-child(7) { --stagger-i: 6; }
+.reveal-stagger > :nth-child(8) { --stagger-i: 7; }
+.reveal-stagger > :nth-child(n + 9) { --stagger-i: 8; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal-stagger[data-shown] > * { opacity: 1; animation: none; }
+}
+
+/* Vitrine da Academia: progresso vertical + cursor com a marca. */
+@keyframes story-progress-y {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+.story-progress-y { animation-name: story-progress-y; animation-timing-function: linear; animation-fill-mode: both; }
+.logo-cursor-on [data-logo-cursor],
+.logo-cursor-on [data-logo-cursor] * { cursor: none; }

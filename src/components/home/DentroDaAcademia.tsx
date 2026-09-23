@@ -4,7 +4,7 @@ import imgNoturno from "@/assets/home/time-noturno.jpg";
 import imgGrupo from "@/assets/home/time-grupo.jpg";
 import imgLegadoHoje from "@/assets/home/legado-hoje.jpg";
 import { Eyebrow, Reveal } from "./Reveal";
-import { StoryCarousel, type StoryItem } from "./StoryCarousel";
+import { AcademiaShowcase, type ShowcaseItem } from "./AcademiaShowcase";
 
 const SLIDES = [
   {
@@ -44,38 +44,40 @@ const SLIDES = [
   },
 ];
 
-const ACADEMIA_ITEMS: StoryItem[] = SLIDES.map((s) => ({
+const ACADEMIA_ITEMS: ShowcaseItem[] = SLIDES.map((s) => ({
   img: s.img,
   alt: s.titulo,
-  kicker: s.tag,
+  tag: s.tag,
   titulo: s.titulo,
   texto: s.texto,
 }));
 
 export function DentroDaAcademia() {
   return (
-    <section id="academia" className="scroll-mt-16">
+    <section id="academia" className="surface-paper relative isolate scroll-mt-16 overflow-hidden">
+      {/* Brilhos dourados de fundo. */}
+      <div className="pointer-events-none absolute -right-40 top-10 -z-10 h-[34rem] w-[34rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--gold)_22%,transparent),transparent_65%)] blur-2xl" />
+      <div className="pointer-events-none absolute -left-52 bottom-0 -z-10 h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--gold-light)_18%,transparent),transparent_65%)] blur-2xl" />
+
       <div className="mx-auto max-w-[1400px] px-6 pt-24 lg:px-10 lg:pt-32">
-        <Reveal className="max-w-2xl">
-          <Eyebrow>Dentro da academia</Eyebrow>
-          <h2 className="mt-6 font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.02em] lg:text-5xl">
-            O que acontece entre a inscrição e o contrato.
-          </h2>
-          <p className="mt-5 max-w-lg text-sm leading-relaxed text-muted-foreground">
+        <Reveal className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <Eyebrow>Dentro da academia</Eyebrow>
+            <h2 className="mt-6 font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.02em] lg:text-5xl">
+              O que acontece entre a inscrição e o{" "}
+              <span className="text-gradient-gold">contrato</span>.
+            </h2>
+          </div>
+          <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
             Navegue pelas etapas da rotina de formação — do treino individual ao momento em que o
             clube entra em contato.
           </p>
         </Reveal>
       </div>
 
-      <div className="mx-auto max-w-[1400px] px-6 pb-24 pt-12 lg:px-10 lg:pb-32">
-        <Reveal delay={120}>
-          <StoryCarousel
-            items={ACADEMIA_ITEMS}
-            nav="tabs"
-            imageSide="right"
-            label="Etapas da rotina de formação"
-          />
+      <div className="mx-auto max-w-[1400px] px-6 pb-24 pt-12 lg:px-10 lg:pb-32 lg:pt-16">
+        <Reveal delay={120} variant="scale">
+          <AcademiaShowcase items={ACADEMIA_ITEMS} label="Etapas da rotina de formação" />
         </Reveal>
       </div>
     </section>
