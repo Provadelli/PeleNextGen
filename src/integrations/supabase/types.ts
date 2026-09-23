@@ -946,12 +946,13 @@ export type Database = {
         Returns: {
           avatar_url: string
           cidade: string
+          fonte: string | null
           id: string
           is_validated: boolean
           nome: string
           posicao: string
           rank: number
-          score: number
+          score: number | null
         }[]
       }
       get_athlete_skill_history: {

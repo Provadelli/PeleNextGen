@@ -38,23 +38,22 @@ export const Route = createFileRoute("/api/contatos/unlock")({
           return new Response("Apenas clubes podem desbloquear contatos", { status: 403 });
         }
 
-        // O alvo precisa existir: um candidato de peneira OU um atleta aprovado por
-        // avaliação direta (nesse caso o id é o próprio user_id do atleta — ver
-        // list_atletas_aprovados).
+        // O alvo precisa existir: um candidato de peneira OU qualquer atleta da
+        // plataforma (nesse caso o id é o próprio user_id do atleta — usado pelo
+        // ranking e por list_atletas_aprovados).
         const { data: cand } = await admin
           .from("candidatos")
           .select("id")
           .eq("id", parsed.candidatoId)
           .maybeSingle();
         if (!cand) {
-          const { data: aval } = await admin
-            .from("avaliacoes")
-            .select("id")
-            .eq("atleta_user_id", parsed.candidatoId)
-            .eq("decisao", "aprovado")
-            .limit(1)
+          const { data: atleta } = await admin
+            .from("user_roles")
+            .select("user_id")
+            .eq("user_id", parsed.candidatoId)
+            .eq("role", "atleta")
             .maybeSingle();
-          if (!aval) return new Response("Atleta não encontrado", { status: 404 });
+          if (!atleta) return new Response("Atleta não encontrado", { status: 404 });
         }
 
         // Confirmação de pagamento (a ser ligada ao provedor de pagamentos).

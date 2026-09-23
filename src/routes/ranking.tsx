@@ -1,10 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Trophy, ShieldCheck, Filter } from "lucide-react";
+import { Trophy, ShieldCheck, Filter, Lock, Mail, Phone } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { AthleteAvatar } from "@/components/AthleteAvatar";
 import { supabase } from "@/integrations/supabase/client";
 import { BR_STATES } from "@/lib/br-states";
+import { useSession } from "@/lib/session";
+import { useRequireAuth } from "@/hooks/use-require-auth";
+import { PRECO_CONTATO_BRL } from "@/lib/mock-data";
+import { Button } from "@/components/ui/button";
+import { UnlockContatoDialog, type UnlockTarget } from "@/components/UnlockContatoDialog";
 
 const POSICOES = ["Goleiro", "Zagueiro", "Lateral", "Volante", "Meia", "Atacante"];
 const SKILLS = [
@@ -25,7 +30,12 @@ interface Row {
   cidade: string | null;
   score: number | null;
   is_validated: boolean;
+  /** De onde veio o score: "habilidades", "avaliacao" ou null (sem dados). */
+  fonte: string | null;
 }
+
+/** Limite alto o bastante para listar todos os atletas da plataforma. */
+const RANKING_LIMIT = 1000;
 
 export const Route = createFileRoute("/ranking")({
   head: () => ({
@@ -41,11 +51,44 @@ export const Route = createFileRoute("/ranking")({
 });
 
 function RankingPage() {
+  useRequireAuth();
   const [posicao, setPosicao] = useState("");
   const [cidade, setCidade] = useState("");
   const [skill, setSkill] = useState("");
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useSession();
+  const isClube = user?.role === "clube";
+  const [contatos, setContatos] = useState<Map<string, { email: string; celular: string }>>(
+    new Map(),
+  );
+  const [unlockTarget, setUnlockTarget] = useState<UnlockTarget | null>(null);
+
+  // Clube: o RLS de profiles só devolve e-mail/celular dos atletas já desbloqueados,
+  // então a consulta abaixo já responde "quais contatos este clube liberou".
+  useEffect(() => {
+    if (!isClube || rows.length === 0) {
+      setContatos(new Map());
+      return;
+    }
+    let cancelled = false;
+    supabase
+      .from("profiles")
+      .select("id, email, celular")
+      .in(
+        "id",
+        rows.map((r) => r.id),
+      )
+      .then(({ data }) => {
+        if (cancelled) return;
+        setContatos(
+          new Map((data ?? []).map((p) => [p.id, { email: p.email ?? "", celular: p.celular ?? "" }])),
+        );
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isClube, rows, user?.contatosDesbloqueados?.length]);
 
   useEffect(() => {
     (async () => {
@@ -54,7 +97,7 @@ function RankingPage() {
         _posicao: posicao || undefined,
         _cidade: cidade || undefined,
         _skill: skill || undefined,
-        _limit: 50,
+        _limit: RANKING_LIMIT,
       });
       setRows((data ?? []) as Row[]);
       setLoading(false);
@@ -70,7 +113,10 @@ function RankingPage() {
             Ranking de atletas
           </h1>
           <p className="text-sm text-muted-foreground">
-            Classificação por habilidades — filtre por posição, cidade e skill específica.
+            Todos os atletas da plataforma, classificados pelas habilidades ou pela nota da última
+            avaliação — filtre por posição, cidade e skill específica.
+            {isClube &&
+              ` Para ver e-mail e celular de um atleta, libere o contato por R$ ${PRECO_CONTATO_BRL.toFixed(2).replace(".", ",")}.`}
           </p>
         </header>
 
@@ -115,7 +161,7 @@ function RankingPage() {
           {loading ? (
             <p className="p-8 text-center text-sm text-muted-foreground">Carregando ranking…</p>
           ) : rows.length === 0 ? (
-            <p className="p-8 text-center text-sm text-muted-foreground">Nenhum atleta com dados suficientes ainda.</p>
+            <p className="p-8 text-center text-sm text-muted-foreground">Nenhum atleta encontrado com esses filtros.</p>
           ) : (
             <ul className="divide-y divide-border">
               {rows.map((r) => (
@@ -141,10 +187,36 @@ function RankingPage() {
                     <p className="truncate text-xs text-muted-foreground">
                       {r.posicao ?? "—"} {r.cidade ? `• ${r.cidade}` : ""}
                     </p>
+                    {isClube && contatos.has(r.id) && (
+                      <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-foreground">
+                        <span className="inline-flex items-center gap-1">
+                          <Mail className="h-3 w-3 text-primary" />
+                          {contatos.get(r.id)?.email || "—"}
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                          <Phone className="h-3 w-3 text-primary" />
+                          {contatos.get(r.id)?.celular || "—"}
+                        </span>
+                      </p>
+                    )}
                   </div>
-                  <div className="text-right">
+                  {isClube && !contatos.has(r.id) && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="shrink-0"
+                      onClick={() => setUnlockTarget({ id: r.id, nome: r.nome })}
+                    >
+                      <Lock className="mr-1.5 h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Liberar contato</span>
+                      <span className="sm:hidden">Liberar</span>
+                    </Button>
+                  )}
+                  <div className="w-16 shrink-0 text-right">
                     <p className="text-lg font-bold text-primary">{r.score ?? "—"}</p>
-                    <p className="text-[10px] uppercase text-muted-foreground">pontos</p>
+                    <p className="text-[10px] uppercase text-muted-foreground">
+                      {r.fonte === "avaliacao" ? "avaliação" : r.fonte ? "pontos" : "sem nota"}
+                    </p>
                   </div>
                 </li>
               ))}
@@ -152,6 +224,8 @@ function RankingPage() {
           )}
         </div>
       </div>
+
+      <UnlockContatoDialog target={unlockTarget} onClose={() => setUnlockTarget(null)} />
     </AppLayout>
   );
 }

@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { ArrowLeft, Mail, Lock, Shield, User, Building2, Volume2, VolumeX, Loader2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { HeroFade } from "@/components/ui/minimalist-hero";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 import { Button } from "@/components/ui/button";
@@ -204,7 +205,7 @@ function LoginPage() {
         <img
           src="https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=1400&q=80"
           alt=""
-          className="h-full w-full object-cover"
+          className="hero-anim-bg h-full w-full object-cover"
         />
         <div
           className="absolute inset-0"
@@ -214,12 +215,25 @@ function LoginPage() {
           }}
         />
         <div className="absolute inset-0 flex flex-col justify-between p-12">
-          <Logo />
+          <HeroFade from="left" delay={0.3}>
+            <Logo />
+          </HeroFade>
           <div>
-            <h2 className="max-w-md font-display text-4xl font-extrabold leading-tight">
+            {/* Mesma sequência do MinimalistHero: faixa dourada cresce → título sobe → texto. */}
+            <div
+              aria-hidden="true"
+              className="hero-anim-circle mb-6 h-1 w-24 origin-left rounded-full bg-primary"
+            />
+            <h2
+              style={{ animationDelay: "0.6s" }}
+              className="hero-anim-rise max-w-md font-display text-4xl font-extrabold leading-tight"
+            >
               A nova geração do <span className="text-gradient-gold">futebol</span> começa aqui!
             </h2>
-            <p className="mt-4 max-w-md text-muted-foreground">
+            <p
+              style={{ animationDelay: "1.1s" }}
+              className="hero-anim-fade-up mt-4 max-w-md text-muted-foreground"
+            >
               Entre na plataforma para gerenciar peneiras, candidatos e avaliações em tempo real.
             </p>
           </div>
@@ -227,7 +241,7 @@ function LoginPage() {
       </div>
 
       <div className="flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-md">
+        <HeroFade delay={0.2} className="w-full max-w-md">
           <div className="mb-8 flex items-center justify-between gap-3">
             <Link
               to="/"
@@ -280,7 +294,16 @@ function LoginPage() {
           <p className="mt-2 text-sm text-muted-foreground">Entre na sua conta para continuar.</p>
 
 
-          <div className="mt-6 grid grid-cols-3 gap-2 rounded-xl border border-border bg-bg2 p-1">
+          <div className="relative mt-6 grid grid-cols-3 gap-2 rounded-xl border border-border bg-bg2 p-1">
+            {/* Pílula dourada que desliza até o tipo de conta escolhido. */}
+            <span
+              aria-hidden="true"
+              className="absolute inset-y-1 left-1 rounded-lg bg-primary shadow transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+              style={{
+                width: "calc((100% - 1.5rem) / 3)",
+                transform: `translateX(calc(${ROLE_ORDER.indexOf(role)} * (100% + 0.5rem)))`,
+              }}
+            />
             <RoleButton
               active={role === "atleta"}
               onClick={() => setRole("atleta")}
@@ -417,11 +440,13 @@ function LoginPage() {
             </Link>
             .
           </p>
-        </div>
+        </HeroFade>
       </div>
     </div>
   );
 }
+
+const ROLE_ORDER: Role[] = ["atleta", "clube", "admin"];
 
 function RoleButton({
   active,
@@ -438,14 +463,16 @@ function RoleButton({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={
-        "flex items-center justify-center gap-2 rounded-lg px-2 py-2.5 text-sm font-semibold transition-colors " +
-        (active
-          ? "bg-primary text-primary-foreground shadow"
-          : "text-muted-foreground hover:text-foreground")
+        "relative z-10 flex items-center justify-center gap-2 rounded-lg px-2 py-2.5 text-sm font-semibold transition-colors duration-300 " +
+        (active ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground")
       }
     >
-      {icon}
+      {/* O ícone "salta" quando o tipo de conta fica ativo (key força a animação). */}
+      <span key={active ? "on" : "off"} className={active ? "hero-anim-pop" : undefined}>
+        {icon}
+      </span>
       {label}
     </button>
   );

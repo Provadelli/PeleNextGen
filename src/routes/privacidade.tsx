@@ -74,8 +74,8 @@ function PrivacidadePage() {
               <li>Organizar peneiras e permitir sua inscrição;</li>
               <li>Exibir seu perfil esportivo para olheiros e clubes que você autorizar;</li>
               <li>
-                Disponibilizar seus dados de contato (e-mail e celular) a clubes quando você for
-                aprovado em uma avaliação, conforme a seção 5;
+                Exibir seu perfil esportivo no ranking de atletas e disponibilizar seus dados de
+                contato (e-mail e celular) a clubes que pagarem pelo desbloqueio, conforme a seção 5;
               </li>
               <li>Registrar e mostrar sua evolução técnica ao longo do tempo;</li>
               <li>Viabilizar o chat entre atletas, olheiros e clubes;</li>
@@ -159,14 +159,15 @@ function PrivacidadePage() {
 
             <div className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-4">
               <h3 className="font-display text-base font-bold text-foreground">
-                5.1. Dados de contato de atletas aprovados
+                5.1. Ranking e dados de contato dos atletas
               </h3>
               <p className="mt-2">
-                Ao se cadastrar como atleta, você está ciente e concorda que, se for{' '}
-                <strong>aprovado por um olheiro</strong> em uma avaliação, seu perfil esportivo (nome,
-                foto, posição, cidade, idade, nota e habilidades) passa a ser listado para{' '}
-                <strong>clubes cadastrados e aprovados pela plataforma</strong>. Após o pagamento da
-                taxa de desbloqueio pelo clube, ele passa a ter acesso aos seus{' '}
+                Ao se cadastrar como atleta, você está ciente e concorda que seu perfil esportivo
+                (nome, foto, posição, cidade, pontuação e habilidades) aparece no{' '}
+                <strong>ranking de atletas</strong> da plataforma, visível para usuários logados, e
+                que atletas <strong>aprovados por um olheiro</strong> também são destacados na lista
+                de aprovados dos clubes. <strong>Clubes cadastrados e aprovados pela plataforma</strong>{' '}
+                podem, após o pagamento da taxa de desbloqueio, ter acesso aos seus{' '}
                 <strong>dados de contato: e-mail e celular</strong>, e poderá também iniciar uma
                 conversa com você pelo chat.
               </p>

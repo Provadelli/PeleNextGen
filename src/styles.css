@@ -308,3 +308,47 @@
     animation: none !important;
   }
 }
+
+/* ===== Efeito MinimalistHero (animações de entrada do login) — ver components/ui/minimalist-hero.tsx =====
+   Em CSS puro: dispara no primeiro paint, sem depender da hidratação do React. */
+@keyframes hero-circle-in {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes hero-bg-in {
+  from { opacity: 0; transform: scale(1.08); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes hero-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes hero-fade-right {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.hero-anim-circle { animation: hero-circle-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both; }
+.hero-anim-rise { animation: hero-rise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both; }
+@keyframes hero-pop {
+  0% { transform: scale(0.6) rotate(-12deg); }
+  60% { transform: scale(1.25) rotate(4deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.hero-anim-pop { display: inline-flex; animation: hero-pop 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-anim-bg { animation: hero-bg-in 1.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-anim-fade-up { animation: hero-fade-up 0.6s ease-out both; }
+.hero-anim-fade-right { animation: hero-fade-right 0.5s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-anim-circle,
+  .hero-anim-rise,
+  .hero-anim-bg,
+  .hero-anim-pop,
+  .hero-anim-fade-up,
+  .hero-anim-fade-right {
+    animation: none;
+  }
+}
