@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { AuthLink } from "./AuthLink";
+import { VerTodasLink } from "./VerTodasLink";
 
 import { ArrowUpRight, CalendarDays, Clock, MapPin, Users } from "lucide-react";
 import type { Peneira } from "@/lib/mock-data";
@@ -160,12 +161,7 @@ export function ProximaPeneiraCard({
               Ver oportunidade
               <ArrowUpRight className="h-4 w-4" />
             </AuthLink>
-            <AuthLink
-              href="/peneiras"
-              className="inline-flex h-11 flex-1 items-center justify-center rounded-full border border-white/30 px-5 text-[11px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:border-primary hover:text-primary sm:flex-none sm:text-xs"
-            >
-              Ver todas
-            </AuthLink>
+            <VerTodasLink onDark className="flex-1 sm:flex-none" />
 
           </div>
         </div>

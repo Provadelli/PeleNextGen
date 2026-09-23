@@ -215,7 +215,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
-        <div className="px-4 pb-12 pt-20 sm:px-6 lg:px-10 lg:pt-4">{children}</div>
+        <div key={location.pathname} className="page-enter px-4 pb-12 pt-20 sm:px-6 lg:px-10 lg:pt-4">
+          {children}
+        </div>
       </main>
     </div>
   );

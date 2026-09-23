@@ -169,7 +169,7 @@ function PeneirasPage() {
           ) : (
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {nearby.map(({ p, km }) => (
-                <div key={p.id} className="relative">
+                <div key={p.id} className="reveal-on-scroll relative">
                   <span className="absolute right-2 top-2 z-10 rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-bold text-primary-foreground shadow">
                     {Math.round(km)} km
                   </span>
@@ -254,7 +254,7 @@ function PeneirasPage() {
           {list.map((p, idx) => (
             <div
               key={p.id}
-              className="relative animate-fade-in"
+              className="reveal-on-scroll relative animate-fade-in"
               style={{ animationDelay: `${Math.min(idx * 40, 300)}ms` }}
             >
               <PeneiraCard peneira={p} />

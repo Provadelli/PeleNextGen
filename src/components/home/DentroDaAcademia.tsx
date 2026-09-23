@@ -4,6 +4,7 @@ import imgNoturno from "@/assets/home/time-noturno.jpg";
 import imgGrupo from "@/assets/home/time-grupo.jpg";
 import imgLegadoHoje from "@/assets/home/legado-hoje.jpg";
 import { Eyebrow, Reveal } from "./Reveal";
+import { StoryCarousel, type StoryItem } from "./StoryCarousel";
 
 const SLIDES = [
   {
@@ -43,6 +44,14 @@ const SLIDES = [
   },
 ];
 
+const ACADEMIA_ITEMS: StoryItem[] = SLIDES.map((s) => ({
+  img: s.img,
+  alt: s.titulo,
+  kicker: s.tag,
+  titulo: s.titulo,
+  texto: s.texto,
+}));
+
 export function DentroDaAcademia() {
   return (
     <section id="academia" className="scroll-mt-16">
@@ -53,45 +62,21 @@ export function DentroDaAcademia() {
             O que acontece entre a inscrição e o contrato.
           </h2>
           <p className="mt-5 max-w-lg text-sm leading-relaxed text-muted-foreground">
-            Role para percorrer as etapas da rotina de formação — do treino individual ao momento em
-            que o clube entra em contato.
+            Navegue pelas etapas da rotina de formação — do treino individual ao momento em que o
+            clube entra em contato.
           </p>
         </Reveal>
       </div>
 
-      <div className="mt-12">
-        {SLIDES.map((s, idx) => (
-          <div
-            key={s.tag}
-            className="sticky top-0 flex h-screen items-center justify-center overflow-hidden px-4 md:px-0"
-            style={{ zIndex: idx + 1 }}
-          >
-            <div className="relative flex h-[70vh] w-full max-w-[1200px] items-end overflow-hidden rounded-3xl border border-border shadow-card sm:h-[560px]">
-              <img
-                src={s.img}
-                alt={s.titulo}
-                loading={idx === 0 ? "eager" : "lazy"}
-                width={1600}
-                height={1000}
-                className="absolute inset-0 h-full w-full object-cover saturate-[0.85] contrast-[1.05]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink/95 via-ink/50 to-transparent" />
-
-              <div className="relative z-10 p-8 sm:p-12 lg:p-14">
-                <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">
-                  {s.tag}
-                </span>
-                <h3 className="mt-4 max-w-lg font-display text-2xl font-extrabold leading-tight text-white lg:text-4xl">
-                  {s.titulo}
-                </h3>
-                <p className="mt-5 max-w-md text-sm leading-relaxed text-white/75">{s.texto}</p>
-                <p className="mt-8 text-[10px] font-bold uppercase tracking-[0.2em] text-white/50 tabular-nums">
-                  {String(idx + 1).padStart(2, "0")} / {String(SLIDES.length).padStart(2, "0")}
-                </p>
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="mx-auto max-w-[1400px] px-6 pb-24 pt-12 lg:px-10 lg:pb-32">
+        <Reveal delay={120}>
+          <StoryCarousel
+            items={ACADEMIA_ITEMS}
+            nav="tabs"
+            imageSide="right"
+            label="Etapas da rotina de formação"
+          />
+        </Reveal>
       </div>
     </section>
   );

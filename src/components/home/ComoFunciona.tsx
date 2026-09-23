@@ -49,7 +49,7 @@ export function ComoFunciona() {
               as="li"
               key={e.n}
               delay={i * 120}
-              className="group border-t border-border pt-6 transition-transform duration-500 hover:-translate-y-1"
+              className="group relative rounded-2xl border border-transparent border-t-border p-5 pt-6 transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/40 hover:bg-card hover:shadow-card lg:-mx-5"
             >
               <p className="font-display text-5xl font-extrabold tracking-[-0.04em] text-foreground/20 transition-colors duration-500 group-hover:text-primary lg:text-6xl">
                 {e.n}
@@ -83,8 +83,8 @@ export function ComoFunciona() {
               "O relatório continua no seu perfil e serve como base para as próximas avaliações.",
             ],
           ].map(([q, a]) => (
-            <div key={q}>
-              <p className="font-display text-base font-bold">{q}</p>
+            <div key={q} className="group">
+              <p className="font-display text-base font-bold transition-colors duration-300 group-hover:text-primary">{q}</p>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{a}</p>
             </div>
           ))}

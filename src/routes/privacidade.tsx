@@ -28,7 +28,7 @@ function PrivacidadePage() {
         <p className="mt-2 text-sm text-muted-foreground">Última atualização: 23 de setembro de 2026</p>
 
         <div className="mt-8 space-y-8 text-sm leading-relaxed text-foreground/90 sm:text-base">
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">1. Quem somos</h2>
             <p className="mt-2">
               O Pelé Next Gen ("nós", "nosso") é uma plataforma que conecta atletas, olheiros e clubes
@@ -37,7 +37,7 @@ function PrivacidadePage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">2. Dados que coletamos</h2>
             <ul className="mt-2 list-disc space-y-2 pl-5">
               <li>
@@ -67,7 +67,7 @@ function PrivacidadePage() {
             </ul>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">3. Como usamos seus dados</h2>
             <p className="mt-2">Usamos os dados coletados para:</p>
             <ul className="mt-2 list-disc space-y-2 pl-5">
@@ -89,7 +89,7 @@ function PrivacidadePage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">
               4. Uso de dados do Google (login e Google Fit)
             </h2>
@@ -146,7 +146,7 @@ function PrivacidadePage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">5. Compartilhamento</h2>
             <p className="mt-2">
               Clubes só têm acesso a vídeos, perfil completo e chat de um atleta depois de desbloquear o
@@ -195,7 +195,7 @@ function PrivacidadePage() {
             </div>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">
               6. Provedores de infraestrutura (subprocessadores)
             </h2>
@@ -221,7 +221,7 @@ function PrivacidadePage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">7. Retenção de dados</h2>
             <p className="mt-2">
               Mantemos seus dados de conta e perfil enquanto sua conta estiver ativa. Dados de atividade
@@ -232,7 +232,7 @@ function PrivacidadePage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 id="cookies" className="font-display text-xl font-bold text-foreground">8. Cookies e tecnologias similares</h2>
             <p className="mt-2">
               Usamos cookies e armazenamento local do navegador apenas para manter sua sessão autenticada e
@@ -241,7 +241,7 @@ function PrivacidadePage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">9. Privacidade de menores</h2>
             <p className="mt-2">
               Atletas menores de idade podem usar a plataforma para participar de peneiras, sob
@@ -252,7 +252,7 @@ function PrivacidadePage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">10. Seus direitos</h2>
             <p className="mt-2">
               Nos termos da Lei Geral de Proteção de Dados (LGPD), você pode acessar, corrigir, portar ou
@@ -262,7 +262,7 @@ function PrivacidadePage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">11. Segurança</h2>
             <p className="mt-2">
               Os dados são armazenados com controle de acesso por perfil (Row Level Security) e conexões
@@ -271,7 +271,7 @@ function PrivacidadePage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">12. Alterações a esta política</h2>
             <p className="mt-2">
               Podemos atualizar esta política periodicamente para refletir mudanças na plataforma ou na
@@ -280,7 +280,7 @@ function PrivacidadePage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">13. Contato</h2>
             <p className="mt-2">
               Dúvidas sobre esta política ou sobre seus dados podem ser enviadas para{" "}

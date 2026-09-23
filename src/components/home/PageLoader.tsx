@@ -38,6 +38,10 @@ export function PageLoader() {
 
   useEffect(() => {
     if (!done) return;
+    // Avisa quem espera a abertura (ex.: o título digitado do Hero) assim que o
+    // fade de saída começa — a flag cobre quem montar depois do evento.
+    (window as Window & { __pngLoaderDone?: boolean }).__pngLoaderDone = true;
+    window.dispatchEvent(new Event("png-loader-done"));
     const t = window.setTimeout(() => setGone(true), 600);
     return () => window.clearTimeout(t);
   }, [done]);

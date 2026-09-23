@@ -28,7 +28,7 @@ function TermosPage() {
         <p className="mt-2 text-sm text-muted-foreground">Última atualização: 23 de setembro de 2026</p>
 
         <div className="mt-8 space-y-8 text-sm leading-relaxed text-foreground/90 sm:text-base">
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">1. Aceitação</h2>
             <p className="mt-2">
               Ao criar uma conta ou usar o Pelé Next Gen, você concorda com estes Termos de Uso e com a{" "}
@@ -39,7 +39,7 @@ function TermosPage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">2. Quem pode usar</h2>
             <p className="mt-2">
               A plataforma é destinada a atletas, olheiros/administradores de peneiras e clubes. Cada
@@ -48,7 +48,7 @@ function TermosPage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">3. Sua conta</h2>
             <p className="mt-2">
               Você é responsável por manter a confidencialidade da sua senha e por todas as atividades
@@ -57,7 +57,7 @@ function TermosPage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">4. Conteúdo enviado</h2>
             <p className="mt-2">
               Vídeos, fotos e informações de perfil enviados por você continuam sendo seus. Ao publicá-los
@@ -66,7 +66,7 @@ function TermosPage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">
               5. Conexão com Google Fit e outros serviços
             </h2>
@@ -77,7 +77,7 @@ function TermosPage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">6. Conduta</h2>
             <p className="mt-2">
               É proibido usar a plataforma para assédio, discurso de ódio, fraude (incluindo informações
@@ -86,7 +86,7 @@ function TermosPage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">7. Pagamentos (clubes)</h2>
             <p className="mt-2">
               Clubes podem pagar para desbloquear o contato de atletas avaliados. Os valores e a forma de
@@ -94,7 +94,7 @@ function TermosPage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">8. Alterações</h2>
             <p className="mt-2">
               Podemos atualizar estes termos periodicamente. Mudanças relevantes serão comunicadas na
@@ -102,7 +102,7 @@ function TermosPage() {
             </p>
           </section>
 
-          <section>
+          <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">9. Contato</h2>
             <p className="mt-2">
               Dúvidas sobre estes termos podem ser enviadas para{" "}

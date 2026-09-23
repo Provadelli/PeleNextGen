@@ -5,9 +5,8 @@ import {
   type StatusPeneira,
   type Visibilidade,
 } from "@/lib/mock-data";
+import { coverById } from "@/lib/peneira-covers";
 
-const DEFAULT_IMAGE =
-  "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=1200&q=80";
 
 function gerarJogos(
   horaInicio: string,
@@ -52,7 +51,8 @@ export function rowToPeneira(row: any): Peneira {
     status: (row.status ?? "aberta") as StatusPeneira,
     visibilidade: (row.visibilidade ?? "publica") as Visibilidade,
     inviteToken: row.invite_token ?? undefined,
-    imagem: row.imagem || DEFAULT_IMAGE,
+    // Sem foto própria: uma das capas oficiais, estável por peneira (variedade visual).
+    imagem: row.imagem || coverById(row.id),
     descricao: row.descricao ?? "",
     organizador: row.organizador ?? "Pelé Next Gen",
     horario: row.hora_inicio,

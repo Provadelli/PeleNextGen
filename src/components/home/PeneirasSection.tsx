@@ -3,11 +3,10 @@ import { ArrowUpRight, MapPin, Search, Users } from "lucide-react";
 import type { Peneira } from "@/lib/mock-data";
 import { Eyebrow, Reveal } from "./Reveal";
 import { AuthLink } from "./AuthLink";
+import { VerTodasLink } from "./VerTodasLink";
 import { useTilt } from "@/hooks/use-tilt";
 import { cn } from "@/lib/utils";
-
-const FALLBACK =
-  "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=1200&q=80";
+import { coverByIndex } from "@/lib/peneira-covers";
 
 function fmt(iso: string) {
   return new Date(iso + "T00:00:00").toLocaleDateString("pt-BR", {
@@ -16,10 +15,12 @@ function fmt(iso: string) {
   });
 }
 
+// bg-background + color-scheme escuro: a lista nativa de opções deixa de abrir branca no tema escuro.
 const selectCls =
-  "h-11 min-w-[7rem] sm:min-w-[9rem] rounded-full border border-border bg-transparent px-4 text-xs font-semibold uppercase tracking-[0.12em] text-foreground outline-none transition-colors focus:border-primary";
+  "h-11 min-w-[7rem] sm:min-w-[9rem] cursor-pointer rounded-full border border-border bg-background px-4 text-xs font-semibold uppercase tracking-[0.12em] text-foreground outline-none transition-colors hover:border-primary/60 focus:border-primary dark:[color-scheme:dark]";
+const optionCls = "bg-background text-foreground";
 
-function Card({ p, delay }: { p: Peneira; delay: number }) {
+function Card({ p, delay, index }: { p: Peneira; delay: number; index: number }) {
   const { ref, tiltProps } = useTilt<HTMLDivElement>(4);
   const pct = p.vagas ? Math.min(100, Math.round((p.inscritos / p.vagas) * 100)) : 0;
 
@@ -32,7 +33,7 @@ function Card({ p, delay }: { p: Peneira; delay: number }) {
       >
         <div className="relative overflow-hidden">
           <img
-            src={p.imagem || FALLBACK}
+            src={coverByIndex(index)}
             alt={`Foto da peneira ${p.titulo}`}
             loading="lazy"
             width={1200}
@@ -150,7 +151,8 @@ export function PeneirasSection({
           p.organizador.toLowerCase().includes(t)
         );
       })
-      .slice(0, 6);
+      .sort((a, b) => a.data.localeCompare(b.data))
+      .slice(0, 3); // só as 3 próximas: visual mais limpo
   }, [abertas, uf, cat, quando, busca]);
 
   return (
@@ -159,12 +161,7 @@ export function PeneirasSection({
         <div className="max-w-xl">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <Eyebrow>Peneiras disponíveis</Eyebrow>
-            <AuthLink
-              href="/peneiras"
-              className="inline-flex h-9 items-center gap-2 rounded-full border border-border px-4 text-xs font-bold uppercase tracking-[0.16em] transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary lg:hidden"
-            >
-              Ver todas <ArrowUpRight className="h-4 w-4" />
-            </AuthLink>
+            <VerTodasLink className="lg:hidden" />
           </div>
           <h2 className="mt-6 font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.02em] lg:text-5xl">
             Encontre sua próxima oportunidade.
@@ -175,15 +172,10 @@ export function PeneirasSection({
             leva menos de dois minutos.
           </p>
         </div>
-        <AuthLink
-          href="/peneiras"
-          className="hidden h-11 shrink-0 items-center gap-2 self-start rounded-full border border-border px-5 text-xs font-bold uppercase tracking-[0.16em] transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary lg:inline-flex"
-        >
-          Ver todas <ArrowUpRight className="h-4 w-4" />
-        </AuthLink>
+        <VerTodasLink className="hidden self-end lg:inline-flex" />
       </Reveal>
 
-      <Reveal className="mt-10 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-bg2/50 p-3 sm:rounded-full">
+      <Reveal className="mt-10 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-3 shadow-card sm:rounded-full">
         <div className="relative w-full sm:min-w-[12rem] sm:flex-1">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
@@ -191,7 +183,7 @@ export function PeneirasSection({
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Cidade ou clube"
             aria-label="Buscar por cidade ou clube"
-            className="h-11 w-full rounded-full border border-border bg-transparent pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
+            className="h-11 w-full rounded-full border border-border bg-background pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
           />
         </div>
         <select
@@ -200,9 +192,9 @@ export function PeneirasSection({
           onChange={(e) => setUf(e.target.value)}
           className={cn(selectCls, "flex-1 sm:flex-initial")}
         >
-          <option value="todos">Todos os estados</option>
+          <option className={optionCls} value="todos">Todos os estados</option>
           {ufs.map((u) => (
-            <option key={u} value={u}>
+            <option key={u} className={optionCls} value={u}>
               {u}
             </option>
           ))}
@@ -213,9 +205,9 @@ export function PeneirasSection({
           onChange={(e) => setCat(e.target.value)}
           className={cn(selectCls, "flex-1 sm:flex-initial")}
         >
-          <option value="todas">Todas as idades</option>
+          <option className={optionCls} value="todas">Todas as idades</option>
           {cats.map((c) => (
-            <option key={c} value={c}>
+            <option key={c} className={optionCls} value={c}>
               {c}
             </option>
           ))}
@@ -226,9 +218,9 @@ export function PeneirasSection({
           onChange={(e) => setQuando(e.target.value)}
           className={cn(selectCls, "flex-1 sm:flex-initial")}
         >
-          <option value="todas">Qualquer data</option>
-          <option value="30">Próximos 30 dias</option>
-          <option value="90">Próximos 90 dias</option>
+          <option className={optionCls} value="todas">Qualquer data</option>
+          <option className={optionCls} value="30">Próximos 30 dias</option>
+          <option className={optionCls} value="90">Próximos 90 dias</option>
         </select>
       </Reveal>
 
@@ -245,7 +237,7 @@ export function PeneirasSection({
       ) : (
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {lista.map((p, i) => (
-            <Card key={p.id} p={p} delay={i * 80} />
+            <Card key={p.id} p={p} delay={i * 80} index={i} />
           ))}
         </div>
       )}

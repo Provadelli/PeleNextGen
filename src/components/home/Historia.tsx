@@ -4,7 +4,7 @@ import imgNoturno from "@/assets/home/time-noturno.jpg";
 import imgCamisa from "@/assets/home/time-camisa.jpg";
 import imgLegadoHoje from "@/assets/home/legado-hoje.jpg";
 import { Eyebrow, Reveal } from "./Reveal";
-import { CalendlyCarousel, type CarouselItem } from "@/components/ui/connected-carousel";
+import { StoryCarousel, type StoryItem } from "./StoryCarousel";
 
 const MARCOS = [
   {
@@ -54,15 +54,13 @@ const MARCOS = [
   },
 ];
 
-const LEGADO_ITEMS: CarouselItem[] = MARCOS.map((m) => ({
-  id: m.ano,
-  stat: m.ano,
-  quote: m.texto,
-  author: m.titulo,
-  role: m.citacao,
-  defaultImage: m.img,
-  selectedImage: m.img,
+const LEGADO_ITEMS: StoryItem[] = MARCOS.map((m) => ({
+  img: m.img,
   alt: m.alt,
+  kicker: m.ano,
+  titulo: m.titulo,
+  texto: m.texto,
+  destaque: m.citacao,
 }));
 
 export function Historia() {
@@ -77,7 +75,12 @@ export function Historia() {
         </Reveal>
 
         <Reveal delay={120} className="mt-14">
-          <CalendlyCarousel items={LEGADO_ITEMS} autoPlayInterval={3500} pauseOnHover />
+          <StoryCarousel
+            items={LEGADO_ITEMS}
+            nav="timeline"
+            imageSide="left"
+            label="Linha do tempo do legado"
+          />
         </Reveal>
       </div>
     </section>

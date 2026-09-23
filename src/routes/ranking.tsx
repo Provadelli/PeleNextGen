@@ -165,7 +165,7 @@ function RankingPage() {
           ) : (
             <ul className="divide-y divide-border">
               {rows.map((r) => (
-                <li key={r.id} className="flex items-center gap-4 px-4 py-3">
+                <li key={r.id} className="reveal-on-scroll flex items-center gap-4 px-4 py-3 transition-colors hover:bg-bg3/40">
                   <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                     r.rank === 1 ? "bg-yellow-500/20 text-yellow-500" :
                     r.rank === 2 ? "bg-slate-400/20 text-slate-300" :

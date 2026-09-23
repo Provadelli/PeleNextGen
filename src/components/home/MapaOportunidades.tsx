@@ -3,6 +3,7 @@ import type { Peneira } from "@/lib/mock-data";
 import { BR_STATE_PATHS, BR_VIEWBOX } from "@/lib/br-map-paths";
 import { Eyebrow, Reveal } from "./Reveal";
 import { AuthLink } from "./AuthLink";
+import { VerTodasLink } from "./VerTodasLink";
 
 const [, , VB_W, VB_H] = BR_VIEWBOX.split(" ").map(Number);
 
@@ -171,12 +172,7 @@ export function MapaOportunidades({ peneiras }: { peneiras: Peneira[] }) {
             </div>
 
             <div className="mt-4 flex justify-center">
-              <AuthLink
-                href="/peneiras"
-                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border px-4 text-[10px] font-bold uppercase tracking-[0.18em] text-foreground transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary"
-              >
-                Ver todas as peneiras
-              </AuthLink>
+              <VerTodasLink>Ver todas as peneiras</VerTodasLink>
             </div>
           </div>
         </Reveal>
