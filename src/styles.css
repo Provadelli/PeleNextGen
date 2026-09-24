@@ -547,8 +547,8 @@ html.lenis body { overscroll-behavior: none; }
 .logo-cursor-on [data-logo-cursor] * { cursor: none; }
 
 /* ===== Troca de páginas nas áreas logadas (AppLayout + defaultViewTransition) =====
-   Menu lateral e barra do topo não participam: ficam parados enquanto o conteúdo
-   sai rápido e o novo entra suave. Sem o cross-fade da página inteira, que fazia
+  Menu lateral e barra do topo não participam: ficam parados enquanto o conteúdo
+  sai rápido e o novo entra suave. Sem o cross-fade da página inteira, que fazia
    o menu "piscar" e somava animações. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
