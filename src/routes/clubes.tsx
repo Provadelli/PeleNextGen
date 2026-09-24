@@ -28,19 +28,25 @@ import { UnlockContatoDialog } from "@/components/UnlockContatoDialog";
 export const Route = createFileRoute("/clubes")({
   head: () => ({
     meta: [
-      { title: "Clubes — Atletas aprovados — Pelé Next Gen" },
+      { title: "Clubes — Atletas avaliados — Pelé Next Gen" },
       {
         name: "description",
         content:
-          "Acesse a lista de atletas aprovados nas peneiras Pelé Next Gen e desbloqueie contatos.",
+          "Acesse a lista de atletas avaliados pelos olheiros Pelé Next Gen e desbloqueie contatos.",
       },
     ],
   }),
   component: ClubesPage,
 });
 
-interface AtletaAprovado {
+type Decisao = "aprovado" | "reavaliar" | "reprovado" | "avaliado";
+
+interface AtletaAvaliado {
   candidatoId: string;
+  /** Todos os ids pelos quais o contato pode ter sido liberado (atleta + candidaturas). */
+  idsDesbloqueio: string[];
+  decisao: Decisao;
+  avaliadoEm: string | null;
   userId: string | null;
   nome: string;
   posicao: string;
@@ -65,14 +71,36 @@ const SKILL_OPTIONS: { key: string; label: string }[] = [
   { key: "posicionamento", label: "Posicionamento" },
 ];
 
+const DECISAO_INFO: Record<Decisao, { label: string; plural: string; badge: string }> = {
+  aprovado: { label: "Aprovado", plural: "Aprovados", badge: "bg-success/15 text-success" },
+  reavaliar: { label: "Reavaliar", plural: "Reavaliar", badge: "bg-primary/15 text-primary" },
+  reprovado: { label: "Reprovado", plural: "Reprovados", badge: "bg-destructive/15 text-destructive" },
+  avaliado: { label: "Avaliado", plural: "Avaliados", badge: "bg-foreground/10 text-muted-foreground" },
+};
+const DECISAO_ORDEM: Decisao[] = ["aprovado", "reavaliar", "avaliado", "reprovado"];
+
+function normalizarDecisao(d: unknown): Decisao {
+  return d === "aprovado" || d === "reavaliar" || d === "reprovado" ? d : "avaliado";
+}
+
+function formatarData(iso: string | null) {
+  if (!iso) return null;
+  return new Date(iso).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 const POSICAO_OPTIONS = ["", "Goleiro", "Zagueiro", "Lateral", "Volante", "Meia", "Atacante"];
 
 function ClubesPage() {
   const { user, ready } = useSession();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
-  const [target, setTarget] = useState<AtletaAprovado | null>(null);
-  const [aprovados, setAprovados] = useState<AtletaAprovado[]>([]);
+  const [target, setTarget] = useState<AtletaAvaliado | null>(null);
+  const [aprovados, setAprovados] = useState<AtletaAvaliado[]>([]);
+  const [aba, setAba] = useState<"todos" | Decisao>("todos");
   const [loading, setLoading] = useState(true);
   const [startingChat, setStartingChat] = useState<string | null>(null);
   // filtros avançados
@@ -99,11 +127,23 @@ function ClubesPage() {
     (async () => {
       setLoading(true);
 
-      const { data, error } = await supabase.rpc("list_atletas_aprovados");
+      // Todos os avaliados pelo olheiro. Se a migration ainda não foi aplicada
+      // (função inexistente), cai na lista antiga de aprovados.
+      let rows: Array<Record<string, unknown>> | null = null;
+      let error: { message: string } | null = null;
+      const novo = await supabase.rpc("list_atletas_avaliados");
+      if (novo.error && (novo.error.code === "PGRST202" || novo.error.code === "42883")) {
+        const antigo = await supabase.rpc("list_atletas_aprovados");
+        rows = (antigo.data ?? []).map((r) => ({ ...r, decisao: "aprovado" }));
+        error = antigo.error;
+      } else {
+        rows = novo.data as Array<Record<string, unknown>> | null;
+        error = novo.error;
+      }
       if (cancelled) return;
 
       if (error) {
-        toast.error("Erro ao carregar atletas aprovados", {
+        toast.error("Erro ao carregar atletas avaliados", {
           description: error.message,
         });
         setAprovados([]);
@@ -111,22 +151,30 @@ function ClubesPage() {
         return;
       }
 
-      const baseList: AtletaAprovado[] = (data ?? []).map((r) => ({
-        candidatoId: r.candidato_id as string,
-        userId: r.user_id as string | null,
-        nome: r.nome as string,
-        posicao: (r.posicao ?? "Meia") as string,
-        cidade: (r.cidade ?? "—") as string,
-        dataNascimento: (r.data_nascimento as string) ?? "2000-01-01",
-        avatar: (r.avatar_url as string | null) ?? null,
-        email: "",
-        celular: "",
-        notaGeral: r.nota_geral != null ? Number(r.nota_geral) : null,
-        peneiraTitulo: (r.peneira_titulo as string | null) ?? null,
-        skills: {},
-        skillsValidated: null,
-        isValidated: false,
-      }));
+      const baseList: AtletaAvaliado[] = (rows ?? []).map((r) => {
+        const candidatoId = r.candidato_id as string;
+        const userId = (r.user_id as string | null) ?? null;
+        const ids = Array.isArray(r.ids_desbloqueio) ? (r.ids_desbloqueio as string[]) : [];
+        return {
+          candidatoId,
+          idsDesbloqueio: Array.from(new Set([candidatoId, ...(userId ? [userId] : []), ...ids])),
+          decisao: normalizarDecisao(r.decisao),
+          avaliadoEm: (r.avaliado_em as string | null) ?? null,
+          userId,
+          nome: r.nome as string,
+          posicao: (r.posicao as string | null) ?? "Meia",
+          cidade: (r.cidade as string | null) ?? "—",
+          dataNascimento: (r.data_nascimento as string | null) ?? "2000-01-01",
+          avatar: (r.avatar_url as string | null) ?? null,
+          email: "",
+          celular: "",
+          notaGeral: r.nota_geral != null ? Number(r.nota_geral) : null,
+          peneiraTitulo: (r.peneira_titulo as string | null) ?? null,
+          skills: {},
+          skillsValidated: null,
+          isValidated: false,
+        };
+      });
 
       const unlockedIds = new Set(user?.contatosDesbloqueados ?? []);
       const allUserIds = baseList.filter((a) => a.userId).map((a) => a.userId as string);
@@ -142,7 +190,7 @@ function ClubesPage() {
           if (!a.userId) continue;
           const p = profMap.get(a.userId);
           if (!p) continue;
-          if (unlockedIds.has(a.candidatoId)) {
+          if (a.idsDesbloqueio.some((id) => unlockedIds.has(id))) {
             a.email = p.email ?? "";
             a.celular = p.celular ?? "";
           }
@@ -154,7 +202,13 @@ function ClubesPage() {
         }
       }
 
-      const merged = baseList.sort((a, b) => (b.notaGeral ?? -1) - (a.notaGeral ?? -1));
+      // Aprovados primeiro; dentro de cada decisão, maior nota e depois mais recente.
+      const merged = baseList.sort(
+        (a, b) =>
+          DECISAO_ORDEM.indexOf(a.decisao) - DECISAO_ORDEM.indexOf(b.decisao) ||
+          (b.notaGeral ?? -1) - (a.notaGeral ?? -1) ||
+          (b.avaliadoEm ?? "").localeCompare(a.avaliadoEm ?? ""),
+      );
 
       if (!cancelled) {
         setAprovados(merged);
@@ -172,6 +226,7 @@ function ClubesPage() {
     const iMax = idadeMax ? parseInt(idadeMax, 10) : null;
     const cidadeT = filtroCidade.trim().toLowerCase();
     return aprovados.filter((c) => {
+      if (aba !== "todos" && c.decisao !== aba) return false;
       if (
         t &&
         !(
@@ -198,6 +253,7 @@ function ClubesPage() {
     });
   }, [
     q,
+    aba,
     aprovados,
     filtroPosicao,
     filtroCidade,
@@ -227,6 +283,12 @@ function ClubesPage() {
   }
 
   const desbloqueados = new Set(user?.contatosDesbloqueados ?? []);
+  const isLiberado = (c: AtletaAvaliado) => c.idsDesbloqueio.some((id) => desbloqueados.has(id));
+  const liberadosCount = aprovados.filter(isLiberado).length;
+  const contagem = aprovados.reduce<Record<Decisao, number>>(
+    (acc, c) => ({ ...acc, [c.decisao]: acc[c.decisao] + 1 }),
+    { aprovado: 0, reavaliar: 0, reprovado: 0, avaliado: 0 },
+  );
 
   if (ready && !canListAprovados) {
     return (
@@ -235,7 +297,7 @@ function ClubesPage() {
           <Building2 className="mx-auto h-12 w-12 text-primary" />
           <h2 className="mt-3 font-display text-2xl font-bold">Área exclusiva para clubes</h2>
           <p className="mt-2 text-muted-foreground">
-            Faça login como clube para acessar atletas aprovados.
+            Faça login como clube para acessar os atletas avaliados.
           </p>
           <Button asChild className="mt-4">
             <Link to="/login">Ir para login</Link>
@@ -245,11 +307,11 @@ function ClubesPage() {
     );
   }
 
-  function abrirPagamento(c: AtletaAprovado) {
+  function abrirPagamento(c: AtletaAvaliado) {
     setTarget(c);
   }
 
-  async function handleEnviarMensagem(c: AtletaAprovado) {
+  async function handleEnviarMensagem(c: AtletaAvaliado) {
     if (!c.userId) return;
     setStartingChat(c.candidatoId);
     try {
@@ -268,9 +330,10 @@ function ClubesPage() {
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
           Área do clube
         </p>
-        <h1 className="mt-1 font-display text-3xl font-extrabold sm:text-4xl">Atletas aprovados</h1>
+        <h1 className="mt-1 font-display text-3xl font-extrabold sm:text-4xl">Atletas avaliados</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">
-          Veja todos os atletas aprovados pelos olheiros. Para visualizar e-mail e celular, libere o
+          Veja todos os atletas avaliados pelos olheiros, com a decisão de cada avaliação. Para
+          visualizar e-mail e celular, libere o
           contato pagando{" "}
           <strong className="text-primary">
             R$ {PRECO_CONTATO_BRL.toFixed(2).replace(".", ",")}
@@ -305,8 +368,43 @@ function ClubesPage() {
             )}
           </Button>
           <div className="flex items-center gap-2 rounded-xl border border-border bg-bg2 px-3 py-2 text-sm text-muted-foreground">
-            <CheckCircle2 className="h-4 w-4 text-success" />
-            {desbloqueados.size} de {aprovados.length} liberados
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
+            {liberadosCount} de {aprovados.length} liberados
+          </div>
+        </div>
+
+        {/* Abas por decisão da última avaliação. */}
+        <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+          <div role="tablist" aria-label="Filtrar por decisão" className="flex w-max gap-2">
+            {(["todos", ...DECISAO_ORDEM] as const).map((k) => {
+              const n = k === "todos" ? aprovados.length : contagem[k];
+              const on = aba === k;
+              return (
+                <button
+                  key={k}
+                  type="button"
+                  role="tab"
+                  aria-selected={on}
+                  onClick={() => setAba(k)}
+                  className={
+                    "inline-flex h-9 items-center gap-2 rounded-full border px-4 text-xs font-bold uppercase tracking-[0.12em] transition-all duration-300 " +
+                    (on
+                      ? "border-primary bg-primary text-primary-foreground shadow-gold"
+                      : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground")
+                  }
+                >
+                  {k === "todos" ? "Todos" : DECISAO_INFO[k].plural}
+                  <span
+                    className={
+                      "rounded-full px-1.5 py-0.5 text-[10px] tabular-nums " +
+                      (on ? "bg-primary-foreground/15" : "bg-foreground/10")
+                    }
+                  >
+                    {n}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -426,15 +524,22 @@ function ClubesPage() {
         </div>
       ) : list.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
-          <p className="font-display text-lg font-bold">Nenhum atleta aprovado por enquanto</p>
+          <p className="font-display text-lg font-bold">
+            {aprovados.length === 0
+              ? "Nenhum atleta avaliado por enquanto"
+              : "Nenhum atleta com esses filtros"}
+          </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Assim que os olheiros aprovarem atletas em peneiras, eles aparecerão aqui.
+            {aprovados.length === 0
+              ? "Assim que os olheiros avaliarem atletas, eles aparecerão aqui."
+              : "Tente outra aba ou limpe os filtros."}
           </p>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {list.map((c, i) => {
-            const liberado = desbloqueados.has(c.candidatoId);
+            const liberado = isLiberado(c);
+            const info = DECISAO_INFO[c.decisao];
             return (
               <Reveal
                 key={c.candidatoId}
@@ -468,15 +573,21 @@ function ClubesPage() {
                     <p className="text-xs text-muted-foreground">
                       {c.posicao} · {calcularIdade(c.dataNascimento)} anos · {c.cidade}
                     </p>
-                    <span className="mt-1.5 inline-flex rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-success">
-                      Aprovado
+                    <span
+                      className={`mt-1.5 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${info.badge}`}
+                    >
+                      {info.label}
                     </span>
                   </div>
                 </div>
 
-                {c.peneiraTitulo && (
+                {(c.peneiraTitulo || c.avaliadoEm) && (
                   <p className="mt-3 truncate text-xs text-muted-foreground">
-                    Aprovado em: <span className="text-foreground">{c.peneiraTitulo}</span>
+                    Avaliado em:{" "}
+                    <span className="text-foreground">
+                      {c.peneiraTitulo ?? formatarData(c.avaliadoEm)}
+                    </span>
+                    {c.peneiraTitulo && c.avaliadoEm && ` · ${formatarData(c.avaliadoEm)}`}
                   </p>
                 )}
 

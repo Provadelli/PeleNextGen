@@ -54,7 +54,7 @@ const ACADEMIA_ITEMS: ShowcaseItem[] = SLIDES.map((s) => ({
 
 export function DentroDaAcademia() {
   return (
-    <section id="academia" className="surface-paper relative isolate scroll-mt-16 overflow-hidden">
+    <section id="academia" className="surface-cream relative isolate scroll-mt-16 overflow-hidden">
       {/* Brilhos dourados de fundo. */}
       <div className="pointer-events-none absolute -right-40 top-10 -z-10 h-[34rem] w-[34rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--gold)_22%,transparent),transparent_65%)] blur-2xl" />
       <div className="pointer-events-none absolute -left-52 bottom-0 -z-10 h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--gold-light)_18%,transparent),transparent_65%)] blur-2xl" />

@@ -197,6 +197,14 @@ function Landing() {
                 {s.label}
               </a>
             ))}
+            {/* No celular o "Entrar" do topo fica escondido: acesso pelo menu. */}
+            <Link
+              to="/login"
+              onClick={() => setMenu(false)}
+              className="mt-2 rounded-lg border border-primary/40 px-3 py-2.5 text-center text-xs font-bold uppercase tracking-[0.16em] text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground active:scale-95 sm:hidden"
+            >
+              Entrar
+            </Link>
           </nav>
         )}
       </header>

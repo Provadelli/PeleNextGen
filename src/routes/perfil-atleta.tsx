@@ -230,7 +230,7 @@ function PerfilAtletaPage() {
                 </p>
 
                 {/* Quick stats */}
-                <div className="mt-5 grid w-full grid-cols-4 gap-2">
+                <div className="mt-5 grid w-full grid-cols-2 gap-2 sm:grid-cols-4">
                   <QuickStat
                     icon={Star}
                     label="Idade"

@@ -40,6 +40,7 @@ function EstadoCard({
       onMouseLeave={onLeave}
       onFocus={onEnter}
       onBlur={onLeave}
+      onClick={onEnter}
       aria-label={`${nome}: ${n} peneira${n > 1 ? "s" : ""} ativa${n > 1 ? "s" : ""}`}
       className={cn(
         "group/uf relative overflow-hidden rounded-2xl border p-4 text-left backdrop-blur-md transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
@@ -181,6 +182,8 @@ export function MapaOportunidades({ peneiras }: { peneiras: Peneira[] }) {
                     d={s.d}
                     onMouseEnter={() => setAtivoUf(s.uf)}
                     onMouseLeave={() => setAtivoUf(null)}
+                    // Toque no celular (sem hover real): fixa o destaque no estado tocado.
+                    onClick={() => setAtivoUf(s.uf)}
                     className={cn(
                       "[transform-box:fill-box] [transform-origin:center] motion-reduce:transition-none",
                       ativo && "cursor-pointer",
@@ -253,7 +256,8 @@ export function MapaOportunidades({ peneiras }: { peneiras: Peneira[] }) {
               <div
                 className="pointer-events-none absolute z-10 w-max -translate-x-1/2 -translate-y-[calc(100%+14px)] animate-in fade-in zoom-in-95 rounded-2xl border border-primary/40 bg-background/80 px-4 py-2.5 shadow-[0_20px_40px_-20px_rgba(0,0,0,0.5)] backdrop-blur-xl duration-200"
                 style={{
-                  left: `${(estadoAtivo.cx / VB_W) * 100}%`,
+                  // Preso entre 15% e 85% para não ser cortado nas bordas no celular.
+                  left: `${Math.min(85, Math.max(15, (estadoAtivo.cx / VB_W) * 100))}%`,
                   top: `${(estadoAtivo.cy / VB_H) * 100 - 1}%`,
                 }}
               >

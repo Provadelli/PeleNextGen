@@ -51,7 +51,7 @@ export function ComoFunciona() {
               delay={i * 120}
               className="group relative rounded-2xl border border-transparent border-t-border p-5 pt-6 transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/40 hover:bg-card hover:shadow-card lg:-mx-5"
             >
-              <p className="font-display text-5xl font-extrabold tracking-[-0.04em] text-foreground/20 transition-colors duration-500 group-hover:text-primary lg:text-6xl">
+              <p className="font-display text-4xl font-extrabold tracking-[-0.04em] text-foreground/20 sm:text-5xl transition-colors duration-500 group-hover:text-primary lg:text-6xl">
                 {e.n}
               </p>
               <h3 className="mt-4 text-xs font-bold uppercase tracking-[0.24em] text-primary">

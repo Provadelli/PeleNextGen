@@ -176,7 +176,7 @@ function PublicAtletaPage() {
               <p className="mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
                 {atleta.posicao ?? "Atleta"}
               </p>
-              <div className="mt-5 grid w-full grid-cols-4 gap-2">
+              <div className="mt-5 grid w-full grid-cols-2 gap-2 sm:grid-cols-4">
                 <Stat icon={Star} label="Idade" value={idade != null ? `${idade}` : "—"} suffix={idade != null ? "anos" : undefined} />
                 <Stat icon={Ruler} label="Altura" value={atleta.altura ? (atleta.altura / 100).toFixed(2).replace(".", ",") : "—"} suffix={atleta.altura ? "m" : undefined} />
                 <Stat icon={Weight} label="Peso" value={atleta.peso ? `${atleta.peso}` : "—"} suffix={atleta.peso ? "kg" : undefined} />

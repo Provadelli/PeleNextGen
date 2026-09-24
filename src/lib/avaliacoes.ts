@@ -82,7 +82,7 @@ export async function salvarAvaliacao(
   // If candidate, reflect score and status on candidato row
   if (input.candidatoId) {
     const status = input.decisao ? STATUS_BY_DECISAO[input.decisao] : undefined;
-    await supabase
+    const { error: candErr } = await supabase
       .from("candidatos")
       .update(
         status
@@ -90,6 +90,13 @@ export async function salvarAvaliacao(
           : { nota_geral: notaGeral },
       )
       .eq("id", input.candidatoId);
+    // A avaliação já foi gravada; sem isso o status do candidato ficaria
+    // desatualizado em silêncio (e o atleta sumiria das listas do clube).
+    if (candErr) {
+      throw new Error(
+        `Avaliação salva, mas o status do candidato não foi atualizado: ${candErr.message}`,
+      );
+    }
   }
 
   // Envio de e-mail desativado por enquanto — apenas simulado.

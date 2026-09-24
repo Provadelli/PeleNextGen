@@ -78,6 +78,8 @@
   --gold: oklch(0.72 0.14 82);
   --gold-light: oklch(0.82 0.13 88);
   --gold-dark: oklch(0.58 0.13 78);
+  /* Off-white quente das superfícies claras (seção Academia). */
+  --cream: oklch(0.965 0.012 85);
   --blue: oklch(0.52 0.18 256);
   --blue-dark: oklch(0.38 0.16 258);
   --blue-light: oklch(0.62 0.17 252);
@@ -206,6 +208,12 @@
     background-color: var(--color-background);
   }
 
+  /* Proteção contra rolagem lateral no celular (brilhos/decorações fora da tela). */
+  html,
+  body {
+    overflow-x: clip;
+  }
+
   body {
     background:
       radial-gradient(ellipse at top, color-mix(in oklab, var(--blue) 10%, transparent), transparent 60%),
@@ -271,6 +279,18 @@
   --border: oklch(0.19 0.03 258 / 14%);
   --bg2: oklch(0.955 0.008 250);
   --bg3: oklch(0.925 0.012 250);
+  --primary: var(--gold-dark);
+  color: var(--foreground);
+}
+
+/* Off-white quente: superfície clara que conversa com o site escuro (Academia). */
+@utility surface-cream {
+  background: linear-gradient(180deg, oklch(0.935 0.014 85) 0%, oklch(0.915 0.018 80) 100%);
+  --foreground: oklch(0.19 0.03 258);
+  --muted-foreground: oklch(0.43 0.03 252);
+  --border: oklch(0.19 0.03 258 / 14%);
+  --bg2: oklch(0.905 0.016 82);
+  --bg3: oklch(0.88 0.02 80);
   --primary: var(--gold-dark);
   color: var(--foreground);
 }

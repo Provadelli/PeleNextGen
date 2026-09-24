@@ -165,8 +165,8 @@ function RankingPage() {
           ) : (
             <ul className="divide-y divide-border">
               {rows.map((r) => (
-                <li key={r.id} className="reveal-on-scroll flex items-center gap-4 px-4 py-3 transition-colors hover:bg-bg3/40">
-                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                <li key={r.id} className="reveal-on-scroll flex items-center gap-2.5 px-3 py-3 transition-colors hover:bg-bg3/40 sm:gap-4 sm:px-4">
+                  <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold sm:h-9 sm:w-9 sm:text-sm ${
                     r.rank === 1 ? "bg-yellow-500/20 text-yellow-500" :
                     r.rank === 2 ? "bg-slate-400/20 text-slate-300" :
                     r.rank === 3 ? "bg-amber-700/20 text-amber-500" :
@@ -174,7 +174,7 @@ function RankingPage() {
                   }`}>
                     {r.rank}
                   </span>
-                  <AthleteAvatar src={r.avatar_url ?? undefined} alt={r.nome} className="h-11 w-11 border border-border" />
+                  <AthleteAvatar src={r.avatar_url ?? undefined} alt={r.nome} className="h-9 w-9 shrink-0 border border-border sm:h-11 sm:w-11" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <Link to="/a/$atletaId" params={{ atletaId: r.id }} className="truncate text-sm font-semibold hover:text-primary">
@@ -212,8 +212,8 @@ function RankingPage() {
                       <span className="sm:hidden">Liberar</span>
                     </Button>
                   )}
-                  <div className="w-16 shrink-0 text-right">
-                    <p className="text-lg font-bold text-primary">{r.score ?? "—"}</p>
+                  <div className="w-11 shrink-0 text-right sm:w-16">
+                    <p className="text-base font-bold text-primary sm:text-lg">{r.score ?? "—"}</p>
                     <p className="text-[10px] uppercase text-muted-foreground">
                       {r.fonte === "avaliacao" ? "avaliação" : r.fonte ? "pontos" : "sem nota"}
                     </p>

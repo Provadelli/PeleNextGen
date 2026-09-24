@@ -78,7 +78,7 @@ export function Hero({ proxima, loading }: { proxima: Peneira | null; loading: b
 
           <TypewriterTitle
             parts={HERO_TITLE}
-            className="mt-7 max-w-[16ch] font-display text-[2.75rem] font-extrabold leading-[0.95] tracking-[-0.03em] text-white sm:text-6xl lg:text-[5.25rem]"
+            className="mt-7 max-w-[16ch] font-display text-[2.4rem] font-extrabold min-[400px]:text-[2.75rem] leading-[0.95] tracking-[-0.03em] text-white sm:text-6xl lg:text-[5.25rem]"
           />
 
           <Reveal immediate delay={240}>
@@ -110,14 +110,14 @@ export function Hero({ proxima, loading }: { proxima: Peneira | null; loading: b
           </Reveal>
 
           <Reveal immediate delay={480}>
-            <dl className="mt-10 grid max-w-md grid-cols-3 gap-6 border-t border-white/15 pt-6">
+            <dl className="mt-10 grid max-w-md grid-cols-3 gap-3 border-t sm:gap-6 border-white/15 pt-6">
               {[
                 ["Gratuito", "para o atleta"],
                 ["Olheiros", "credenciados"],
                 ["Relatório", "após a avaliação"],
               ].map(([a, b]) => (
                 <div key={a}>
-                  <dt className="font-display text-lg font-extrabold text-primary">{a}</dt>
+                  <dt className="font-display text-base font-extrabold text-primary sm:text-lg">{a}</dt>
                   <dd className="mt-1 text-xs text-white/60">{b}</dd>
                 </div>
               ))}

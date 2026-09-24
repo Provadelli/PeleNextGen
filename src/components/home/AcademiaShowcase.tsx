@@ -112,7 +112,7 @@ function LogoCursor({ areaRef }: { areaRef: RefObject<HTMLElement | null> }) {
       style={{ x: sx, y: sy }}
     >
       <motion.div
-        className="-ml-7 -mt-7 flex h-14 w-14 items-center justify-center rounded-full border border-primary/70 bg-white/90 shadow-[0_10px_30px_-8px_color-mix(in_oklab,var(--gold)_65%,transparent)] backdrop-blur-md"
+        className="-ml-7 -mt-7 flex h-14 w-14 items-center justify-center rounded-full border border-primary/70 bg-[var(--cream)]/95 shadow-[0_10px_30px_-8px_color-mix(in_oklab,var(--gold)_65%,transparent)] backdrop-blur-md"
         initial={false}
         animate={{
           opacity: visible ? 1 : 0,
@@ -349,7 +349,7 @@ export function AcademiaShowcase({
                   {on && (
                     <motion.span
                       layoutId="academia-active-bg"
-                      className="absolute inset-0 rounded-2xl border border-primary/25 bg-white shadow-[0_24px_60px_-28px_color-mix(in_oklab,var(--gold)_70%,transparent)]"
+                      className="absolute inset-0 rounded-2xl border border-primary/25 bg-[var(--cream)] shadow-[0_24px_60px_-28px_color-mix(in_oklab,var(--gold)_70%,transparent)]"
                       transition={{ type: "spring", stiffness: 260, damping: 30 }}
                     />
                   )}
@@ -398,7 +398,7 @@ export function AcademiaShowcase({
             onPointerDown={onPointerDown}
             onPointerUp={onPointerUp}
             onPointerCancel={() => (dragX.current = null)}
-            className="relative aspect-[4/3] overflow-hidden rounded-[2rem] bg-ink shadow-[0_40px_80px_-40px_rgba(0,0,0,0.55)] ring-1 ring-primary/30 sm:aspect-[16/10] lg:aspect-auto lg:h-[560px]"
+            className="relative aspect-[4/3] touch-pan-y overflow-hidden rounded-[2rem] bg-ink shadow-[0_40px_80px_-40px_rgba(0,0,0,0.55)] ring-1 ring-primary/30 sm:aspect-[16/10] lg:aspect-auto lg:h-[560px]"
           >
             <AnimatePresence initial={false} custom={dir}>
               <motion.img
@@ -503,7 +503,7 @@ export function AcademiaShowcase({
           <div
             data-logo-cursor
             aria-live={paused || reduced ? "polite" : "off"}
-            className="relative z-10 mx-3 -mt-14 rounded-3xl border border-primary/20 bg-white p-6 shadow-[0_30px_70px_-35px_rgba(0,0,0,0.45)] sm:mx-8 sm:p-8 lg:absolute lg:inset-x-8 lg:bottom-6 lg:mx-0 lg:mt-0"
+            className="relative z-10 mx-3 -mt-14 rounded-3xl border border-primary/20 bg-[var(--cream)] p-6 shadow-[0_30px_70px_-35px_rgba(0,0,0,0.45)] sm:mx-8 sm:p-8 lg:absolute lg:inset-x-8 lg:bottom-6 lg:mx-0 lg:mt-0"
           >
             <span className="absolute left-8 top-0 h-[3px] w-16 -translate-y-1/2 rounded-full bg-gradient-gold" />
             <div className="flex items-baseline justify-between gap-4">

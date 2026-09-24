@@ -868,7 +868,7 @@ function PerfilPage() {
 
             <fieldset className="space-y-3">
               <legend className="text-sm font-semibold">Estatísticas</legend>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 <StatInput
                   label="Jogos"
                   value={stats.jogos}

@@ -38,14 +38,14 @@ export function ProximaPeneiraCard({
 
   if (loading) {
     return (
-      <div className="h-[420px] w-full animate-pulse rounded-3xl bg-bg2 lg:h-[520px]" />
+      <div className="h-[420px] w-full animate-pulse rounded-3xl bg-bg2 lg:h-[560px]" />
     );
   }
 
   if (!peneira) {
     return (
-      <div className="flex h-[320px] w-full flex-col items-center justify-center rounded-3xl border border-border bg-bg2/60 p-10 text-center lg:h-[420px]">
-        <p className="font-display text-2xl font-bold">
+      <div className="flex min-h-[320px] w-full flex-col items-center justify-center rounded-3xl border border-border bg-bg2/60 p-6 text-center sm:p-10 lg:min-h-[420px]">
+        <p className="font-display text-xl font-bold sm:text-2xl">
           Nenhuma peneira agendada no momento.
         </p>
         <p className="mt-3 max-w-xs text-sm text-muted-foreground">
@@ -155,13 +155,13 @@ export function ProximaPeneiraCard({
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <AuthLink
               href={`/peneiras/${peneira.id}`}
-              className="group/btn relative inline-flex h-11 flex-1 items-center justify-center gap-2 overflow-hidden rounded-full bg-primary px-6 text-[11px] font-bold uppercase tracking-[0.14em] text-primary-foreground shadow-gold transition-transform duration-300 hover:-translate-y-0.5 active:scale-[0.98] sm:flex-none sm:text-xs"
+              className="group/btn relative inline-flex h-11 w-full items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full bg-primary px-6 text-[11px] font-bold uppercase tracking-[0.14em] min-[420px]:w-auto min-[420px]:flex-1 text-primary-foreground shadow-gold transition-transform duration-300 hover:-translate-y-0.5 active:scale-[0.98] sm:flex-none sm:text-xs"
             >
               <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/45 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
               Ver oportunidade
               <ArrowUpRight className="h-4 w-4" />
             </AuthLink>
-            <VerTodasLink onDark className="flex-1 sm:flex-none" />
+            <VerTodasLink onDark className="w-full whitespace-nowrap min-[420px]:w-auto min-[420px]:flex-1 sm:flex-none" />
 
           </div>
         </div>

@@ -17,7 +17,7 @@ function fmt(iso: string) {
 
 // bg-background + color-scheme escuro: a lista nativa de opções deixa de abrir branca no tema escuro.
 const selectCls =
-  "h-11 min-w-[7rem] sm:min-w-[9rem] cursor-pointer rounded-full border border-border bg-background px-4 text-xs font-semibold uppercase tracking-[0.12em] text-foreground outline-none transition-colors hover:border-primary/60 focus:border-primary dark:[color-scheme:dark]";
+  "h-11 min-w-[7rem] sm:min-w-[9rem] cursor-pointer rounded-full border border-border bg-background px-4 text-xs font-semibold tracking-normal text-foreground sm:uppercase sm:tracking-[0.12em] outline-none transition-colors hover:border-primary/60 focus:border-primary dark:[color-scheme:dark]";
 const optionCls = "bg-background text-foreground";
 
 function Card({ p, delay, index }: { p: Peneira; delay: number; index: number }) {
@@ -190,7 +190,7 @@ export function PeneirasSection({
           aria-label="Filtrar por estado"
           value={uf}
           onChange={(e) => setUf(e.target.value)}
-          className={cn(selectCls, "flex-1 sm:flex-initial")}
+          className={cn(selectCls, "basis-[calc(50%-0.375rem)] grow sm:basis-auto sm:grow-0")}
         >
           <option className={optionCls} value="todos">Todos os estados</option>
           {ufs.map((u) => (
@@ -203,7 +203,7 @@ export function PeneirasSection({
           aria-label="Filtrar por categoria"
           value={cat}
           onChange={(e) => setCat(e.target.value)}
-          className={cn(selectCls, "flex-1 sm:flex-initial")}
+          className={cn(selectCls, "basis-[calc(50%-0.375rem)] grow sm:basis-auto sm:grow-0")}
         >
           <option className={optionCls} value="todas">Todas as idades</option>
           {cats.map((c) => (
@@ -216,7 +216,7 @@ export function PeneirasSection({
           aria-label="Filtrar por data"
           value={quando}
           onChange={(e) => setQuando(e.target.value)}
-          className={cn(selectCls, "flex-1 sm:flex-initial")}
+          className={cn(selectCls, "basis-[calc(50%-0.375rem)] grow sm:basis-auto sm:grow-0")}
         >
           <option className={optionCls} value="todas">Qualquer data</option>
           <option className={optionCls} value="30">Próximos 30 dias</option>

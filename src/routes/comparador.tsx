@@ -185,7 +185,7 @@ function ComparadorPage() {
 
         {atletas.length > 0 && (
           <div className="overflow-x-auto rounded-2xl border border-border bg-bg2">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[520px] text-sm">
               <thead>
                 <tr className="border-b border-border">
                   <th className="p-3 text-left text-xs font-semibold uppercase text-muted-foreground">Atleta</th>

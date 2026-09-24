@@ -55,9 +55,9 @@ export function MaisQueUmaPeneira() {
           </Reveal>
 
           <Reveal delay={100}>
-            <h2 className="mt-6 font-display text-[2.6rem] font-extrabold leading-[0.98] tracking-[-0.03em] sm:text-6xl lg:text-7xl">
+            <h2 className="mt-6 font-display text-[2.2rem] font-extrabold leading-[0.98] min-[400px]:text-[2.6rem] tracking-[-0.03em] sm:text-6xl lg:text-7xl">
               Todo craque já foi um{" "}
-              <span className="relative whitespace-nowrap text-primary">
+              <span className="relative text-primary sm:whitespace-nowrap">
                 talento escondido
                 <span
                   aria-hidden="true"

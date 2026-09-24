@@ -1040,6 +1040,23 @@ export type Database = {
           user_id: string
         }[]
       }
+      list_atletas_avaliados: {
+        Args: never
+        Returns: {
+          avaliado_em: string
+          avatar_url: string
+          candidato_id: string
+          cidade: string
+          data_nascimento: string
+          decisao: string
+          ids_desbloqueio: string[]
+          nome: string
+          nota_geral: number
+          peneira_titulo: string
+          posicao: string
+          user_id: string
+        }[]
+      }
       reject_admin_request: {
         Args: { _request_id: string }
         Returns: undefined
