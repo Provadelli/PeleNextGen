@@ -545,3 +545,41 @@ html.lenis body { overscroll-behavior: none; }
 .story-progress-y { animation-name: story-progress-y; animation-timing-function: linear; animation-fill-mode: both; }
 .logo-cursor-on [data-logo-cursor],
 .logo-cursor-on [data-logo-cursor] * { cursor: none; }
+
+/* ===== Troca de páginas nas áreas logadas (AppLayout + defaultViewTransition) =====
+   Menu lateral e barra do topo não participam: ficam parados enquanto o conteúdo
+   sai rápido e o novo entra suave. Sem o cross-fade da página inteira, que fazia
+   o menu "piscar" e somava animações. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.22s;
+}
+::view-transition-group(app-sidebar),
+::view-transition-group(app-topbar),
+::view-transition-new(app-sidebar),
+::view-transition-new(app-topbar) {
+  animation: none;
+}
+::view-transition-old(app-sidebar),
+::view-transition-old(app-topbar) {
+  display: none;
+}
+::view-transition-group(app-content) {
+  animation: none;
+}
+::view-transition-old(app-content) {
+  animation: vt-content-out 0.16s cubic-bezier(0.4, 0, 1, 1) both;
+}
+::view-transition-new(app-content) {
+  animation: vt-content-in 0.42s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+}
+@keyframes vt-content-out {
+  to { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes vt-content-in {
+  from { opacity: 0; transform: translateY(10px); }
+}
+/* Com view transitions o page-enter duplicaria a entrada. */
+@supports (view-transition-name: none) {
+  .page-enter { animation: none; }
+}

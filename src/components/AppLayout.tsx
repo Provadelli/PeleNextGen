@@ -98,7 +98,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen w-full">
       {/* Mobile top bar */}
-      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-bg2/90 px-4 backdrop-blur lg:hidden">
+      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-bg2/90 px-4 backdrop-blur [view-transition-name:app-topbar] lg:hidden">
         <Link to="/" aria-label="Ir para a página inicial" className="transition-opacity hover:opacity-80">
           <Logo />
         </Link>
@@ -119,7 +119,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-30 flex w-72 max-w-[85vw] flex-col border-r border-border bg-sidebar transition-transform lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-30 flex w-72 max-w-[85vw] flex-col border-r border-border bg-sidebar transition-transform [view-transition-name:app-sidebar] lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
@@ -219,7 +219,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
-        <div key={location.pathname} className="page-enter app-reveal px-4 pb-12 pt-20 sm:px-6 lg:px-10 lg:pt-4">
+        {/* Troca de página: menu e topo ficam parados; só este bloco faz a transição
+            (view transition "app-content" em styles.css; page-enter é o fallback). */}
+        <div
+          key={location.pathname}
+          className="page-enter app-reveal px-4 pb-12 pt-20 [view-transition-name:app-content] sm:px-6 lg:px-10 lg:pt-4"
+        >
           {children}
         </div>
       </main>
