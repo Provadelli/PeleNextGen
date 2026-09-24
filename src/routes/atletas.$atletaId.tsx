@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import {
   ArrowLeft,
@@ -373,7 +374,7 @@ function AthleteProfilePage() {
               </p>
 
               {/* Quick stats */}
-              <div className="mt-5 grid w-full grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className="mt-5 grid w-full grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-2">
                 <QuickStat
                   icon={Star}
                   label="Idade"
@@ -656,9 +657,15 @@ function QuickStat({
   suffix?: string;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-bg2 px-2 py-2.5">
-      <div className="flex items-baseline justify-center gap-1">
-        <span className="font-display text-lg font-extrabold sm:text-xl">
+    <div className="flex min-w-0 flex-col justify-center rounded-xl border border-border bg-bg2 px-1.5 py-2.5 text-center">
+      <div className="flex flex-wrap items-baseline justify-center gap-x-1">
+        {/* Valores longos (ex.: "Ambidestro") usam fonte menor para caber na caixa. */}
+        <span
+          className={cn(
+            "min-w-0 break-words font-display font-extrabold leading-tight",
+            value.length > 6 ? "text-base sm:text-lg" : "text-lg sm:text-xl",
+          )}
+        >
           {value}
         </span>
         {suffix && (

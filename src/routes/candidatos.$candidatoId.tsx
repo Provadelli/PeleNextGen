@@ -236,12 +236,12 @@ function Stat({
   value: string;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-bg2 p-3 text-center">
+    <div className="min-w-0 rounded-xl border border-border bg-bg2 px-2 py-3 text-center">
       <Icon className="mx-auto h-4 w-4 text-primary" />
       <p className="mt-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
         {label}
       </p>
-      <p className="text-sm font-bold">{value}</p>
+      <p className="text-xs font-bold leading-tight break-words sm:text-sm">{value}</p>
     </div>
   );
 }
