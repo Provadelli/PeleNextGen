@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, type FormEvent } from "react";
-import { ArrowLeft, Mail, Lock, Shield, User, Building2, Volume2, VolumeX, Loader2 } from "lucide-react";
+import { forwardRef, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { Mail, Lock, Shield, User, Building2, Volume2, VolumeX, Loader2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { HeroFade } from "@/components/ui/minimalist-hero";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -8,7 +8,10 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Label } from "@/components/ui/label";
+import { BackLink } from "@/components/auth/BackLink";
+import { AuthHeader } from "@/components/auth/AuthShell";
+import { FormField } from "@/components/auth/FormField";
+import { focusFirstError } from "@/components/auth/focus-first-error";
 import { type Role } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -50,7 +53,9 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const { speak, stop, isSpeaking, isLoading: ttsLoading } = useTTS();
+  const roleRefs = useRef<Partial<Record<Role, HTMLButtonElement | null>>>({});
 
   function toggleNarration() {
     if (isSpeaking || ttsLoading) {
@@ -58,6 +63,22 @@ function LoginPage() {
     } else {
       void speak(PAGE_NARRATION);
     }
+  }
+
+  /** Setas movem a seleção dentro do radiogroup de tipo de conta (padrão WAI-ARIA). */
+  function onRoleKeyDown(e: KeyboardEvent<HTMLButtonElement>) {
+    const delta =
+      e.key === "ArrowRight" || e.key === "ArrowDown"
+        ? 1
+        : e.key === "ArrowLeft" || e.key === "ArrowUp"
+          ? -1
+          : 0;
+    if (!delta) return;
+    e.preventDefault();
+    const idx = ROLE_ORDER.indexOf(role);
+    const next = ROLE_ORDER[(idx + delta + ROLE_ORDER.length) % ROLE_ORDER.length];
+    setRole(next);
+    roleRefs.current[next]?.focus();
   }
 
   useEffect(() => {
@@ -89,10 +110,7 @@ function LoginPage() {
    * cadastro de admin pendente/rejeitado). Quando `selectedRole` é omitido,
    * usa a sessão existente para redirecionar (auto-login na montagem).
    */
-  async function destinationFor(
-    userId: string,
-    selectedRole?: Role,
-  ): Promise<string | null> {
+  async function destinationFor(userId: string, selectedRole?: Role): Promise<string | null> {
     const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
     const roles = new Set((data ?? []).map((r) => r.role));
     const isSuporte = roles.has("suporte");
@@ -153,8 +171,13 @@ function LoginPage() {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    if (!email || !senha) {
-      toast.error("Preencha email e senha.");
+    const fieldErrors: Record<string, string> = {};
+    if (!email.trim()) fieldErrors.email = "Informe seu e-mail.";
+    else if (!/^\S+@\S+\.\S+$/.test(email.trim())) fieldErrors.email = "E-mail inválido.";
+    if (!senha) fieldErrors.senha = "Informe sua senha.";
+    setErrors(fieldErrors);
+    if (Object.keys(fieldErrors).length) {
+      focusFirstError(fieldErrors, ["email", "senha"]);
       return;
     }
     setLoading(true);
@@ -164,7 +187,10 @@ function LoginPage() {
     });
     setLoading(false);
     if (error || !data.user) {
-      toast.error(traduzirErroAuth(error, "E-mail ou senha incorretos."));
+      const msg = traduzirErroAuth(error, "E-mail ou senha incorretos.");
+      setErrors({ senha: msg });
+      toast.error(msg);
+      focusFirstError({ senha: msg }, ["senha"]);
       return;
     }
     const dest = await destinationFor(data.user.id, role);
@@ -216,7 +242,7 @@ function LoginPage() {
         />
         <div className="absolute inset-0 flex flex-col justify-between p-12">
           <HeroFade from="left" delay={0.3}>
-            <Link to="/" aria-label="Ir para a página inicial" className="inline-block w-fit transition-opacity hover:opacity-80">
+            <Link to="/" aria-label="Ir para a página inicial" className={logoLinkClass}>
               <Logo />
             </Link>
           </HeroFade>
@@ -226,12 +252,12 @@ function LoginPage() {
               aria-hidden="true"
               className="hero-anim-circle mb-6 h-1 w-24 origin-left rounded-full bg-primary"
             />
-            <h2
+            <p
               style={{ animationDelay: "0.6s" }}
               className="hero-anim-rise max-w-md font-display text-4xl font-extrabold leading-tight"
             >
               A nova geração do <span className="text-gradient-gold">futebol</span> começa aqui!
-            </h2>
+            </p>
             <p
               style={{ animationDelay: "1.1s" }}
               className="hero-anim-fade-up mt-4 max-w-md text-muted-foreground"
@@ -242,45 +268,38 @@ function LoginPage() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center px-6 py-12">
-        <HeroFade delay={0.2} className="w-full max-w-md">
-          <div className="mb-8 flex items-center justify-between gap-3">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="h-4 w-4" /> Voltar ao início
-            </Link>
+      <main
+        id="conteudo"
+        className="flex min-w-0 items-center justify-center px-4 py-8 sm:px-6 sm:py-12"
+      >
+        <HeroFade delay={0.2} className="w-full min-w-0 max-w-md">
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+            <BackLink to="/">Voltar ao início</BackLink>
             <div className="flex items-center gap-2">
               <ThemeToggle />
 
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={toggleNarration}
-              aria-label={isSpeaking ? "Parar leitura da página" : "Ouvir conteúdo da página"}
-              aria-pressed={isSpeaking}
-              disabled={ttsLoading}
-            >
-              {ttsLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : isSpeaking ? (
-                <VolumeX className="mr-2 h-4 w-4" />
-              ) : (
-                <Volume2 className="mr-2 h-4 w-4" />
-              )}
-              {isSpeaking ? "Parar" : "Ouvir página"}
-            </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={toggleNarration}
+                aria-label={isSpeaking ? "Parar leitura da página" : "Ouvir conteúdo da página"}
+                aria-pressed={isSpeaking}
+                disabled={ttsLoading}
+              >
+                {ttsLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : isSpeaking ? (
+                  <VolumeX className="mr-2 h-4 w-4" />
+                ) : (
+                  <Volume2 className="mr-2 h-4 w-4" />
+                )}
+                {isSpeaking ? "Parar" : "Ouvir página"}
+              </Button>
             </div>
           </div>
 
-
-          <div
-            role="status"
-            aria-live="polite"
-            className="sr-only"
-          >
+          <div role="status" aria-live="polite" className="sr-only">
             {ttsLoading
               ? "Carregando leitura da página."
               : isSpeaking
@@ -288,17 +307,19 @@ function LoginPage() {
                 : ""}
           </div>
 
-          <div className="lg:hidden">
-            <Link to="/" aria-label="Ir para a página inicial" className="inline-block w-fit transition-opacity hover:opacity-80">
-              <Logo className="mb-8" />
+          <div className="mb-8 lg:hidden">
+            <Link to="/" aria-label="Ir para a página inicial" className={logoLinkClass}>
+              <Logo />
             </Link>
           </div>
 
-          <h1 className="font-display text-3xl font-extrabold">Bem-vindo de volta</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Entre na sua conta para continuar.</p>
+          <AuthHeader title="Bem-vindo de volta" description="Entre na sua conta para continuar." />
 
-
-          <div className="relative mt-6 grid grid-cols-3 gap-2 rounded-xl border border-border bg-bg2 p-1">
+          <div
+            role="radiogroup"
+            aria-label="Tipo de conta"
+            className="relative grid grid-cols-3 gap-2 rounded-xl border border-border bg-bg2 p-1"
+          >
             {/* Pílula dourada que desliza até o tipo de conta escolhido. */}
             <span
               aria-hidden="true"
@@ -308,68 +329,68 @@ function LoginPage() {
                 transform: `translateX(calc(${ROLE_ORDER.indexOf(role)} * (100% + 0.5rem)))`,
               }}
             />
-            <RoleButton
-              active={role === "atleta"}
-              onClick={() => setRole("atleta")}
-              icon={<User className="h-4 w-4" />}
-              label="Atleta"
-            />
-            <RoleButton
-              active={role === "clube"}
-              onClick={() => setRole("clube")}
-              icon={<Building2 className="h-4 w-4" />}
-              label="Clube"
-            />
-            <RoleButton
-              active={role === "admin"}
-              onClick={() => setRole("admin")}
-              icon={<Shield className="h-4 w-4" />}
-              label="Admin"
-            />
+            {ROLE_ORDER.map((r) => (
+              <RoleButton
+                key={r}
+                ref={(el) => {
+                  roleRefs.current[r] = el;
+                }}
+                active={role === r}
+                onClick={() => setRole(r)}
+                onKeyDown={onRoleKeyDown}
+                icon={ROLE_META[r]?.icon}
+                label={ROLE_META[r]?.label ?? r}
+              />
+            ))}
           </div>
 
           <p className="mt-3 text-xs text-muted-foreground">
             Use suas credenciais — o tipo de conta é detectado automaticamente.
           </p>
 
-          <form onSubmit={submit} className="mt-6 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
-              <div className="relative">
-                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <form onSubmit={submit} noValidate className="mt-6 space-y-4">
+            <FormField label="E-mail" name="email" icon={Mail} error={errors.email}>
+              {(field) => (
                 <Input
-                  id="email"
+                  {...field}
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (errors.email) setErrors((er) => ({ ...er, email: "" }));
+                  }}
                   placeholder="seu@email.com"
-                  className="pl-10"
                   autoComplete="email"
+                  disabled={loading}
                 />
-              </div>
-            </div>
+              )}
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="senha">Senha</Label>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <FormField label="Senha" name="senha" icon={Lock} error={errors.senha}>
+              {(field) => (
                 <PasswordInput
-                  id="senha"
+                  {...field}
                   value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
+                  onChange={(e) => {
+                    setSenha(e.target.value);
+                    if (errors.senha) setErrors((er) => ({ ...er, senha: "" }));
+                  }}
                   placeholder="••••••••"
-                  className="pl-10"
                   autoComplete="current-password"
+                  disabled={loading}
                 />
-              </div>
-            </div>
+              )}
+            </FormField>
 
             <Button type="submit" className="w-full" size="lg" disabled={loading}>
               {loading ? "Entrando..." : "Entrar"}
             </Button>
           </form>
 
-          <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
+          <div
+            aria-hidden="true"
+            className="my-4 flex items-center gap-3 text-xs text-muted-foreground"
+          >
             <div className="h-px flex-1 bg-border" />
             ou
             <div className="h-px flex-1 bg-border" />
@@ -383,7 +404,8 @@ function LoginPage() {
             onClick={loginWithGoogle}
             disabled={loading}
           >
-            <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
+            {/* Cores oficiais da marca Google — exceção documentada em docs/design-system.md. */}
+            <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -404,80 +426,108 @@ function LoginPage() {
             Entrar com Google
           </Button>
 
-          <div className="mt-6">
-            <p className="text-center text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
+          <nav aria-labelledby="cadastro-titulo" className="mt-6">
+            <h2
+              id="cadastro-titulo"
+              className="text-center text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground"
+            >
               Ainda não tem conta? Escolha como cadastrar
-            </p>
-            <div className="mt-3 grid grid-cols-3 gap-2">
-              <Link
-                to="/cadastro"
-                className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-card px-2 py-3 text-center transition-all hover:-translate-y-0.5 hover:border-primary"
-              >
-                <User className="h-4 w-4 text-primary" />
-                <span className="text-xs font-semibold leading-tight">Sou atleta</span>
-              </Link>
-              <Link
-                to="/registro-admin"
-                className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-card px-2 py-3 text-center transition-all hover:-translate-y-0.5 hover:border-primary"
-              >
-                <Shield className="h-4 w-4 text-primary" />
-                <span className="text-xs font-semibold leading-tight">Sou olheiro/admin</span>
-              </Link>
-              <Link
-                to="/registro-clube"
-                className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-card px-2 py-3 text-center transition-all hover:-translate-y-0.5 hover:border-primary"
-              >
-                <Building2 className="h-4 w-4 text-primary" />
-                <span className="text-xs font-semibold leading-tight">Sou um clube</span>
-              </Link>
-            </div>
-          </div>
+            </h2>
+            <ul className="mt-3 grid grid-cols-1 gap-2 min-[420px]:grid-cols-3">
+              {SIGNUP_LINKS.map(({ to, label, icon: Icon }) => (
+                <li key={to}>
+                  <Link
+                    to={to}
+                    className="flex h-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-center transition-all hover:-translate-y-0.5 hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-0 active:scale-[0.98] min-[420px]:flex-col min-[420px]:gap-1.5 min-[420px]:px-2"
+                  >
+                    <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
+                    <span className="text-xs font-semibold leading-tight">{label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
           <p className="mt-4 text-center text-sm font-medium text-foreground">
             Ao continuar, você concorda com os{" "}
-            <Link to="/termos" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline hover:text-gold-light">
+            <Link
+              to="/termos"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={inlineLinkClass}
+            >
               Termos de Uso
             </Link>{" "}
             e a{" "}
-            <Link to="/privacidade" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline hover:text-gold-light">
+            <Link
+              to="/privacidade"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={inlineLinkClass}
+            >
               Política de Privacidade
             </Link>
-            .
+            <span className="sr-only"> (abrem em nova aba)</span>.
           </p>
         </HeroFade>
-      </div>
+      </main>
     </div>
   );
 }
 
 const ROLE_ORDER: Role[] = ["atleta", "clube", "admin"];
 
-function RoleButton({
-  active,
-  onClick,
-  icon,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  icon: React.ReactNode;
-  label: string;
-}) {
+const ROLE_META: Partial<Record<Role, { label: string; icon: React.ReactNode }>> = {
+  atleta: { label: "Atleta", icon: <User className="h-4 w-4" /> },
+  clube: { label: "Clube", icon: <Building2 className="h-4 w-4" /> },
+  admin: { label: "Admin", icon: <Shield className="h-4 w-4" /> },
+};
+
+const SIGNUP_LINKS = [
+  { to: "/cadastro", label: "Sou atleta", icon: User },
+  { to: "/registro-admin", label: "Sou olheiro/admin", icon: Shield },
+  { to: "/registro-clube", label: "Sou um clube", icon: Building2 },
+] as const;
+
+const logoLinkClass =
+  "inline-block w-fit rounded-md transition-opacity hover:opacity-80 active:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
+const inlineLinkClass =
+  "rounded-sm font-semibold text-primary underline transition-colors hover:text-gold-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
+const RoleButton = forwardRef<
+  HTMLButtonElement,
+  {
+    active: boolean;
+    onClick: () => void;
+    onKeyDown: (e: KeyboardEvent<HTMLButtonElement>) => void;
+    icon: React.ReactNode;
+    label: string;
+  }
+>(function RoleButton({ active, onClick, onKeyDown, icon, label }, ref) {
   return (
     <button
+      ref={ref}
       type="button"
+      role="radio"
+      aria-checked={active}
+      tabIndex={active ? 0 : -1}
       onClick={onClick}
-      aria-pressed={active}
+      onKeyDown={onKeyDown}
       className={
-        "relative z-10 flex items-center justify-center gap-2 rounded-lg px-2 py-2.5 text-sm font-semibold transition-colors duration-300 " +
+        "relative z-10 flex min-w-0 items-center justify-center gap-1.5 rounded-lg px-1 py-2.5 text-xs font-semibold transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] sm:gap-2 sm:px-2 sm:text-sm " +
         (active ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground")
       }
     >
       {/* O ícone "salta" quando o tipo de conta fica ativo (key força a animação). */}
-      <span key={active ? "on" : "off"} className={active ? "hero-anim-pop" : undefined}>
+      <span
+        key={active ? "on" : "off"}
+        aria-hidden="true"
+        className={"hidden min-[360px]:inline " + (active ? "hero-anim-pop" : "")}
+      >
         {icon}
       </span>
-      {label}
+      <span className="truncate">{label}</span>
     </button>
   );
-}
+});

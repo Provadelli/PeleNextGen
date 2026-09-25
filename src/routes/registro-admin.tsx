@@ -1,12 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useRef, type FormEvent, type ChangeEvent } from "react";
-import { ArrowLeft, Shield, Mail, Lock, User, CheckCircle2, Phone, Calendar, Building2, IdCard, Upload, X, Clock } from "lucide-react";
-import { Logo } from "@/components/Logo";
+import { useState, type FormEvent } from "react";
+import { Shield, Mail, Lock, User, Phone, Calendar, Building2, IdCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { AuthShell } from "@/components/auth/AuthShell";
+import { AuthSuccess } from "@/components/auth/AuthSuccess";
+import { ApprovalNotice } from "@/components/auth/ApprovalNotice";
+import { FileField } from "@/components/auth/FileField";
+import { FormField } from "@/components/auth/FormField";
+import { focusFirstError } from "@/components/auth/focus-first-error";
+import { TermsConsent } from "@/components/auth/TermsConsent";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -59,6 +63,20 @@ const schema = z
     path: ["confirmarSenha"],
   });
 
+/** Ordem visual dos campos — usada para focar o primeiro erro. */
+const ORDEM_CAMPOS = [
+  "nome",
+  "email",
+  "celular",
+  "idade",
+  "clubeAtual",
+  "senha",
+  "confirmarSenha",
+  "rgFrente",
+  "rgVerso",
+  "termos",
+];
+
 function CadastroAdminPage() {
   const [form, setForm] = useState({
     nome: "",
@@ -83,24 +101,27 @@ function CadastroAdminPage() {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
+    if (loading) return;
     const result = schema.safeParse({
       ...form,
       idade: form.idade ? Number(form.idade) : Number.NaN,
       rgFrente,
       rgVerso,
     });
+    const fieldErrors: Record<string, string> = {};
     if (!result.success) {
-      const fieldErrors: Record<string, string> = {};
       result.error.errors.forEach((err) => {
         const key = err.path[0] as string;
-        fieldErrors[key] = err.message;
+        if (!fieldErrors[key]) fieldErrors[key] = err.message;
       });
-      setErrors(fieldErrors);
-      toast.error("Corrija os campos destacados.");
-      return;
     }
     if (!aceitaTermos) {
-      toast.error("Você precisa aceitar os Termos de Uso e a Política de Privacidade.");
+      fieldErrors.termos = "Você precisa aceitar os Termos de Uso e a Política de Privacidade.";
+    }
+    if (Object.keys(fieldErrors).length) {
+      setErrors(fieldErrors);
+      toast.error("Corrija os campos destacados.");
+      focusFirstError(fieldErrors, ORDEM_CAMPOS);
       return;
     }
 
@@ -135,307 +156,189 @@ function CadastroAdminPage() {
     setSuccess(true);
   }
 
-  if (success) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-6">
-        <div className="w-full max-w-md text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-success/15 text-success">
-            <CheckCircle2 className="h-8 w-8" />
-          </div>
-          <h1 className="mt-6 font-display text-2xl font-extrabold">Cadastro enviado!</h1>
-          <p className="mt-3 text-muted-foreground">
-            Seu cadastro foi recebido com sucesso. Aguarde o suporte para liberação de acesso.
-          </p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Você receberá uma notificação quando seu acesso for ativado.
-          </p>
-          <Button asChild className="mt-6" variant="outline">
-            <Link to="/login">Voltar para login</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  if (success) return <AuthSuccess />;
+
+  const temErros = Object.values(errors).some(Boolean);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
-      <div className="w-full max-w-md">
-        <Link
-          to="/login"
-          className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+    <AuthShell
+      icon={Shield}
+      title="Cadastro de Administrador"
+      description="Preencha os dados para solicitar acesso administrativo."
+    >
+      <form onSubmit={submit} noValidate className="space-y-4">
+        <FormField label="Nome completo" name="nome" icon={User} error={errors.nome}>
+          {(field) => (
+            <Input
+              {...field}
+              value={form.nome}
+              onChange={(e) => update("nome", e.target.value)}
+              placeholder="Seu nome completo"
+              autoComplete="name"
+            />
+          )}
+        </FormField>
+
+        <FormField label="E-mail institucional" name="email" icon={Mail} error={errors.email}>
+          {(field) => (
+            <Input
+              {...field}
+              type="email"
+              value={form.email}
+              onChange={(e) => update("email", e.target.value)}
+              placeholder="admin@pelenextgen.com"
+              autoComplete="email"
+            />
+          )}
+        </FormField>
+
+        <FormField label="Celular" name="celular" icon={Phone} error={errors.celular}>
+          {(field) => (
+            <Input
+              {...field}
+              type="tel"
+              inputMode="tel"
+              value={form.celular}
+              onChange={(e) => update("celular", e.target.value)}
+              placeholder="(11) 99999-9999"
+              autoComplete="tel"
+            />
+          )}
+        </FormField>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-3">
+          <FormField label="Idade" name="idade" icon={Calendar} error={errors.idade}>
+            {(field) => (
+              <Input
+                {...field}
+                type="number"
+                inputMode="numeric"
+                min={18}
+                max={99}
+                value={form.idade}
+                onChange={(e) => update("idade", e.target.value)}
+                placeholder="30"
+              />
+            )}
+          </FormField>
+
+          <FormField label="Clube" name="clubeAtual" icon={Building2} error={errors.clubeAtual}>
+            {(field) => (
+              <Input
+                {...field}
+                value={form.clubeAtual}
+                onChange={(e) => update("clubeAtual", e.target.value)}
+                placeholder="Clube atual/anterior"
+              />
+            )}
+          </FormField>
+        </div>
+
+        <FormField
+          label="Senha"
+          name="senha"
+          icon={Lock}
+          error={errors.senha}
+          hint="Mínimo de 6 caracteres."
         >
-          <ArrowLeft className="h-4 w-4" /> Voltar ao login
-        </Link>
-
-        <Logo className="mb-6" />
-
-        <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
-            <Shield className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="font-display text-2xl font-extrabold">Cadastro de Administrador</h1>
-            <p className="text-xs text-muted-foreground">
-              Preencha os dados para solicitar acesso administrativo.
-            </p>
-          </div>
-        </div>
-
-        <form onSubmit={submit} className="space-y-4">
-          <Field label="Nome completo" error={errors.nome}>
-            <div className="relative">
-              <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={form.nome}
-                onChange={(e) => update("nome", e.target.value)}
-                placeholder="Seu nome completo"
-                className={`pl-10 ${errors.nome ? "border-error ring-error/40" : ""}`}
-              />
-            </div>
-          </Field>
-
-          <Field label="E-mail institucional" error={errors.email}>
-            <div className="relative">
-              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="email"
-                value={form.email}
-                onChange={(e) => update("email", e.target.value)}
-                placeholder="admin@pelenextgen.com"
-                className={`pl-10 ${errors.email ? "border-error ring-error/40" : ""}`}
-              />
-            </div>
-          </Field>
-
-          <Field label="Celular" error={errors.celular}>
-            <div className="relative">
-              <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="tel"
-                value={form.celular}
-                onChange={(e) => update("celular", e.target.value)}
-                placeholder="(11) 99999-9999"
-                className={`pl-10 ${errors.celular ? "border-error ring-error/40" : ""}`}
-              />
-            </div>
-          </Field>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Idade" error={errors.idade}>
-              <div className="relative">
-                <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="number"
-                  min={18}
-                  max={99}
-                  value={form.idade}
-                  onChange={(e) => update("idade", e.target.value)}
-                  placeholder="30"
-                  className={`pl-10 ${errors.idade ? "border-error ring-error/40" : ""}`}
-                />
-              </div>
-            </Field>
-
-            <Field label="Clube" error={errors.clubeAtual}>
-              <div className="relative">
-                <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={form.clubeAtual}
-                  onChange={(e) => update("clubeAtual", e.target.value)}
-                  placeholder="Clube atual/anterior"
-                  className={`pl-10 ${errors.clubeAtual ? "border-error ring-error/40" : ""}`}
-                />
-              </div>
-            </Field>
-          </div>
-
-          <Field label="Senha" error={errors.senha}>
-            <div className="relative">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <PasswordInput
-                value={form.senha}
-                onChange={(e) => update("senha", e.target.value)}
-                placeholder="••••••••"
-                className={`pl-10 ${errors.senha ? "border-error ring-error/40" : ""}`}
-              />
-            </div>
-          </Field>
-
-          <Field label="Confirmar senha" error={errors.confirmarSenha}>
-            <div className="relative">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <PasswordInput
-                value={form.confirmarSenha}
-                onChange={(e) => update("confirmarSenha", e.target.value)}
-                placeholder="••••••••"
-                className={`pl-10 ${errors.confirmarSenha ? "border-error ring-error/40" : ""}`}
-              />
-            </div>
-          </Field>
-
-          <div className="space-y-3 rounded-xl border border-border bg-card/40 p-3">
-            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <IdCard className="h-4 w-4 text-primary" />
-              Documento de identidade (RG)
-            </div>
-            <p className="-mt-1 text-xs text-muted-foreground">
-              Envie fotos legíveis da frente e do verso. JPG, PNG ou WEBP até 5 MB.
-            </p>
-            <FileField
-              label="RG — Frente"
-              file={rgFrente}
-              onChange={(f) => {
-                setRgFrente(f);
-                setErrors((e) => ({ ...e, rgFrente: "" }));
-              }}
-              error={errors.rgFrente}
+          {(field) => (
+            <PasswordInput
+              {...field}
+              value={form.senha}
+              onChange={(e) => update("senha", e.target.value)}
+              placeholder="••••••••"
+              autoComplete="new-password"
             />
-            <FileField
-              label="RG — Verso"
-              file={rgVerso}
-              onChange={(f) => {
-                setRgVerso(f);
-                setErrors((e) => ({ ...e, rgVerso: "" }));
-              }}
-              error={errors.rgVerso}
+          )}
+        </FormField>
+
+        <FormField
+          label="Confirmar senha"
+          name="confirmarSenha"
+          icon={Lock}
+          error={errors.confirmarSenha}
+        >
+          {(field) => (
+            <PasswordInput
+              {...field}
+              value={form.confirmarSenha}
+              onChange={(e) => update("confirmarSenha", e.target.value)}
+              placeholder="••••••••"
+              autoComplete="new-password"
             />
-          </div>
+          )}
+        </FormField>
 
-          <div className="flex items-start gap-3 rounded-xl border border-primary/25 bg-primary/5 p-3.5">
-            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
-              <Clock className="h-3.5 w-3.5" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-primary">Aprovação necessária</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                O cadastro não concede acesso imediato. Após o envio, o suporte validará seus
-                dados e liberará o acesso.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3">
-            <Checkbox
-              id="aceite-termos"
-              checked={aceitaTermos}
-              onCheckedChange={(v) => setAceitaTermos(v === true)}
-              className="mt-0.5"
-            />
-            <Label htmlFor="aceite-termos" className="text-sm font-normal leading-relaxed text-foreground">
-              Li e aceito os{" "}
-              <Link to="/termos" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline hover:text-gold-light">
-                Termos de Uso
-              </Link>{" "}
-              e a{" "}
-              <Link to="/privacidade" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline hover:text-gold-light">
-                Política de Privacidade
-              </Link>
-              .
-            </Label>
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full"
-            size="lg"
-            disabled={loading}
-            variant={Object.values(errors).some(Boolean) ? "error" : "default"}
+        <section
+          aria-labelledby="rg-titulo"
+          className="space-y-3 rounded-xl border border-border bg-card/40 p-3"
+        >
+          <h2
+            id="rg-titulo"
+            className="flex items-center gap-2 text-sm font-semibold text-foreground"
           >
-            {loading ? "Enviando..." : "Solicitar cadastro"}
-          </Button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          É um atleta?{" "}
-          <Link to="/cadastro" className="font-semibold text-primary hover:text-gold-light">
-            Cadastre-se aqui
-          </Link>
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function Field({
-  label,
-  error,
-  children,
-}: {
-  label: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label className={error ? "text-error" : ""}>{label}</Label>
-      {children}
-      {error && <p className="text-xs text-error">{error}</p>}
-    </div>
-  );
-}
-
-function FileField({
-  label,
-  file,
-  onChange,
-  error,
-}: {
-  label: string;
-  file: File | null;
-  onChange: (f: File | null) => void;
-  error?: string;
-}) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const previewUrl = file ? URL.createObjectURL(file) : null;
-
-  function handle(e: ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0] ?? null;
-    onChange(f);
-  }
-
-  return (
-    <div className="space-y-1.5">
-      <Label className={error ? "text-error" : ""}>{label}</Label>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        onChange={handle}
-        className="hidden"
-      />
-      {file && previewUrl ? (
-        <div className="relative overflow-hidden rounded-lg border border-border">
-          <img src={previewUrl} alt={label} className="h-32 w-full object-cover" />
-          <button
-            type="button"
-            onClick={() => {
-              onChange(null);
-              if (inputRef.current) inputRef.current.value = "";
+            <IdCard className="h-4 w-4 text-primary" aria-hidden="true" />
+            Documento de identidade (RG)
+          </h2>
+          <p className="-mt-1 text-xs text-muted-foreground">
+            Envie fotos legíveis da frente e do verso. JPG, PNG ou WEBP até 5 MB.
+          </p>
+          <FileField
+            label="RG — Frente"
+            previewAlt="Foto enviada da frente do RG"
+            name="rgFrente"
+            file={rgFrente}
+            onChange={(f) => {
+              setRgFrente(f);
+              setErrors((e) => ({ ...e, rgFrente: "" }));
             }}
-            className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-background/90 text-foreground shadow hover:bg-background"
-            aria-label="Remover imagem"
-          >
-            <X className="h-4 w-4" />
-          </button>
-          <p className="truncate bg-background/80 px-2 py-1 text-[11px] text-muted-foreground">
-            {file.name}
-          </p>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          className={`flex h-24 w-full flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed text-sm transition-colors ${
-            error
-              ? "border-error bg-error/5 text-error"
-              : "border-border bg-bg2/40 text-muted-foreground hover:border-primary hover:bg-primary/5 hover:text-primary"
-          }`}
+            error={errors.rgFrente}
+          />
+          <FileField
+            label="RG — Verso"
+            previewAlt="Foto enviada do verso do RG"
+            name="rgVerso"
+            file={rgVerso}
+            onChange={(f) => {
+              setRgVerso(f);
+              setErrors((e) => ({ ...e, rgVerso: "" }));
+            }}
+            error={errors.rgVerso}
+          />
+        </section>
+
+        <ApprovalNotice />
+
+        <TermsConsent
+          checked={aceitaTermos}
+          onCheckedChange={(v) => {
+            setAceitaTermos(v);
+            if (v && errors.termos) setErrors((e) => ({ ...e, termos: "" }));
+          }}
+          error={errors.termos}
+        />
+
+        <Button
+          type="submit"
+          className="w-full"
+          size="lg"
+          disabled={loading}
+          aria-busy={loading}
+          variant={temErros ? "error" : "default"}
         >
-          <Upload className="h-4 w-4" />
-          <span className="text-xs font-medium">Enviar imagem</span>
-        </button>
-      )}
-      {error && <p className="text-xs text-error">{error}</p>}
-    </div>
+          {loading ? "Enviando..." : "Solicitar cadastro"}
+        </Button>
+      </form>
+
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        É um atleta?{" "}
+        <Link
+          to="/cadastro"
+          className="rounded-sm font-semibold text-primary transition-colors hover:text-gold-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          Cadastre-se aqui
+        </Link>
+      </p>
+    </AuthShell>
   );
 }
