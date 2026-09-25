@@ -90,7 +90,7 @@ export const Route = createFileRoute("/a/$atletaId")({
     <PublicShell>
       <div className="mx-auto max-w-lg py-24 text-center">
         <h1 className="font-display text-2xl font-bold">Não foi possível carregar o perfil</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : "Erro inesperado."}</p>
         <Button asChild className="mt-6"><Link to="/">Voltar</Link></Button>
       </div>
     </PublicShell>
