@@ -18,7 +18,20 @@ export default defineConfig(({ command }) => ({
       },
     }),
     // Cloudflare por padrão; a Vercel troca via NITRO_PRESET=vercel (script vercel-build).
-    ...(command === "build" ? [nitro({ defaultPreset: "cloudflare-module" })] : []),
+    ...(command === "build"
+      ? [
+          nitro({
+            defaultPreset: "cloudflare-module",
+            // Vercel Cron: sincronização diária dos wearables (09:00 UTC / 06:00 BRT).
+            vercel: {
+              config: {
+                version: 3,
+                crons: [{ path: "/api/public/hooks/sync-wearables", schedule: "0 9 * * *" }],
+              },
+            },
+          }),
+        ]
+      : []),
     viteReact(),
   ],
   css: { transformer: "lightningcss" },

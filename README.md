@@ -281,10 +281,12 @@ npx wrangler secret put CRON_SECRET
 
 #### Cron de sincronização de wearables
 
-O job do `pg_cron` no Supabase deve chamar o hook com o `CRON_SECRET` (e não com a chave pública):
+Na Vercel, o cron é configurado automaticamente pelo build (`vite.config.ts` → `vercel.config.crons`): todo dia às 09:00 UTC a Vercel chama `GET /api/public/hooks/sync-wearables` enviando `Authorization: Bearer <CRON_SECRET>`. Basta que `CRON_SECRET` exista nas Environment Variables do projeto.
+
+Fora da Vercel (ex.: Cloudflare), agende uma chamada equivalente, por exemplo com `pg_cron` no Supabase:
 
 ```sql
-select cron.schedule('sync-wearables-daily', '0 6 * * *', $$
+select cron.schedule('sync-wearables-daily', '0 9 * * *', $$
   select net.http_post(
     url     := 'https://<seu-dominio>/api/public/hooks/sync-wearables',
     headers := jsonb_build_object('Authorization', 'Bearer <CRON_SECRET>')
