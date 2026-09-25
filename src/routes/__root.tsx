@@ -71,10 +71,36 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * "Pular para o conteúdo" (WCAG 2.4.1). Primeiro item da ordem de tabulação em todas as
+ * páginas. O foco é movido via JS porque o Lenis (SmoothScroll) intercepta o salto por âncora
+ * e porque nem toda rota tem `#conteudo` — nesse caso cai no primeiro <main>.
+ */
+function SkipLink() {
+  return (
+    <a
+      href="#conteudo"
+      className="skip-link"
+      onClick={(e) => {
+        const alvo =
+          document.getElementById("conteudo") ?? document.querySelector<HTMLElement>("main");
+        if (!alvo) return;
+        e.preventDefault();
+        if (!alvo.hasAttribute("tabindex")) alvo.setAttribute("tabindex", "-1");
+        alvo.focus({ preventScroll: true });
+        alvo.scrollIntoView({ block: "start" });
+      }}
+    >
+      Pular para o conteúdo
+    </a>
+  );
+}
+
 function RootComponent() {
   return (
     <ThemeProvider>
       <SessionProvider>
+        <SkipLink />
         <SmoothScroll />
         <Outlet />
         <CookieConsentBanner />

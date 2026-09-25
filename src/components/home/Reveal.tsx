@@ -68,17 +68,27 @@ export function Reveal({
   );
 }
 
-export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
+/** `as="h2"` quando o eyebrow é o único título da seção (hierarquia de headings). */
+export function Eyebrow({
+  children,
+  className,
+  as: Tag = "p",
+}: {
+  children: ReactNode;
+  className?: string;
+  as?: "p" | "h2";
+}) {
   return (
-    <p
+    <Tag
       className={cn(
-        "flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.32em] text-primary",
+        // gold-ink: o dourado de marca não passa 4.5:1 em texto pequeno sobre fundo claro.
+        "flex items-center gap-3 font-body text-[10px] font-bold uppercase tracking-[0.32em] text-gold-ink",
         className,
       )}
     >
-      <span className="eyebrow-line h-px w-8 bg-primary/70" />
+      <span aria-hidden="true" className="eyebrow-line h-px w-8 bg-primary/70" />
       {children}
-    </p>
+    </Tag>
   );
 }
 

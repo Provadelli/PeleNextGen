@@ -10,9 +10,9 @@ const BASE =
 function Inner({ children }: { children: ReactNode }) {
   return (
     <>
-      <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/45 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
+      <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/45 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
       {children}
-      <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover/btn:translate-x-1" />
+      <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover/btn:translate-x-1" />
     </>
   );
 }

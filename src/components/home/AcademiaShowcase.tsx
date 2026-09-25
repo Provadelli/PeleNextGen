@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useId,
   useRef,
   useState,
   type KeyboardEvent,
@@ -190,6 +191,7 @@ export function AcademiaShowcase({
   const total = items.length;
   const item = items[active];
   const paused = hovered || focused || !inView;
+  const painelId = useId();
 
   // Ref para o hover com atraso não usar um `active` desatualizado.
   const activeRef = useRef(active);
@@ -241,12 +243,20 @@ export function AcademiaShowcase({
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLElement>) {
+    // Padrão de abas (WAI-ARIA): setas trocam a aba e o foco acompanha a aba ativa.
+    const lista = e.currentTarget.closest('[role="tablist"]');
+    const focarAtiva = () =>
+      requestAnimationFrame(() =>
+        lista?.querySelector<HTMLElement>('[aria-selected="true"]')?.focus(),
+      );
     if (e.key === "ArrowDown" || e.key === "ArrowRight") {
       e.preventDefault();
       next();
+      focarAtiva();
     } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
       e.preventDefault();
       prev();
+      focarAtiva();
     }
   }
 
@@ -304,13 +314,15 @@ export function AcademiaShowcase({
               type="button"
               role="tab"
               aria-selected={i === active}
+              aria-controls={painelId}
+              tabIndex={i === active ? 0 : -1}
               onClick={() => clickTitle(i)}
               onKeyDown={onKeyDown}
               className={cn(
                 "relative h-10 overflow-hidden rounded-full border px-5 text-[11px] font-bold uppercase tracking-[0.16em] transition-all duration-300",
                 i === active
                   ? "border-primary bg-primary text-primary-foreground shadow-gold"
-                  : "border-foreground/15 text-foreground/60",
+                  : "border-foreground/25 text-foreground/75 hover:text-foreground",
               )}
             >
               {it.tag}
@@ -336,15 +348,17 @@ export function AcademiaShowcase({
           {items.map((it, i) => {
             const on = i === active;
             return (
-              <li key={it.tag} className="relative">
+              <li key={it.tag} role="presentation" className="relative">
                 <button
                   type="button"
                   role="tab"
                   aria-selected={on}
+                  aria-controls={painelId}
+                  tabIndex={on ? 0 : -1}
                   onMouseEnter={() => hoverTitle(i)}
                   onClick={() => clickTitle(i)}
                   onKeyDown={onKeyDown}
-                  className="group/t relative flex w-full items-start gap-5 rounded-2xl py-5 pl-7 pr-5 text-left outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="group/t relative flex w-full items-start gap-5 rounded-2xl py-5 pl-7 pr-5 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {on && (
                     <motion.span
@@ -361,7 +375,7 @@ export function AcademiaShowcase({
                   <span
                     className={cn(
                       "relative mt-1 font-display text-sm font-bold tabular-nums tracking-[0.18em] transition-colors duration-500",
-                      on ? "text-primary" : "text-foreground/30 group-hover/t:text-primary/70",
+                      on ? "text-gold-ink" : "text-foreground/70 group-hover/t:text-gold-ink",
                     )}
                   >
                     {pad(i + 1)}
@@ -370,7 +384,7 @@ export function AcademiaShowcase({
                     <span
                       className={cn(
                         "block text-[10px] font-bold uppercase tracking-[0.28em] transition-colors duration-500",
-                        on ? "text-primary" : "text-foreground/40",
+                        on ? "text-gold-ink" : "text-foreground/70",
                       )}
                     >
                       {it.tag}
@@ -380,7 +394,7 @@ export function AcademiaShowcase({
                         "mt-1.5 block font-display text-2xl font-extrabold leading-[1.1] tracking-[-0.02em] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] xl:text-[1.75rem]",
                         on
                           ? "translate-x-1 text-foreground"
-                          : "text-foreground/35 group-hover/t:translate-x-1 group-hover/t:text-foreground/70",
+                          : "text-foreground/60 group-hover/t:translate-x-1 group-hover/t:text-foreground/85",
                       )}
                     >
                       {it.titulo}
@@ -483,7 +497,7 @@ export function AcademiaShowcase({
             </div>
 
             {/* Contador grande no canto. */}
-            <div className="pointer-events-none absolute bottom-4 right-6 z-[5] hidden font-display text-[5.5rem] font-extrabold leading-none tracking-[-0.06em] text-white/15 sm:block lg:bottom-[11.5rem]">
+            <div aria-hidden="true" className="pointer-events-none absolute bottom-4 right-6 z-[5] hidden font-display text-[5.5rem] font-extrabold leading-none tracking-[-0.06em] text-white/15 sm:block lg:bottom-[11.5rem]">
               <AnimatePresence mode="wait">
                 <motion.span
                   key={active}
@@ -501,6 +515,8 @@ export function AcademiaShowcase({
 
           {/* Texto do slide: painel branco sobreposto à base da foto. */}
           <div
+            id={painelId}
+            role="tabpanel"
             data-logo-cursor
             aria-live={paused || reduced ? "polite" : "off"}
             className="relative z-10 mx-3 -mt-14 rounded-3xl border border-primary/20 bg-[var(--cream)] p-6 shadow-[0_30px_70px_-35px_rgba(0,0,0,0.45)] sm:mx-8 sm:p-8 lg:absolute lg:inset-x-8 lg:bottom-6 lg:mx-0 lg:mt-0"
@@ -510,11 +526,11 @@ export function AcademiaShowcase({
               <h3 className="font-display text-xl font-extrabold leading-tight tracking-[-0.02em] text-ink sm:text-2xl lg:hidden">
                 <WordsIn key={`t-${active}`} text={item.titulo} reduced={reduced} />
               </h3>
-              <p className="hidden text-[10px] font-bold uppercase tracking-[0.28em] text-primary lg:block">
+              <p className="hidden text-[10px] font-bold uppercase tracking-[0.28em] text-gold-ink lg:block">
                 {item.tag}
               </p>
               <p className="shrink-0 font-display text-xs font-bold tabular-nums tracking-[0.2em]">
-                <span className="text-primary">{pad(active + 1)}</span>
+                <span className="text-gold-ink">{pad(active + 1)}</span>
                 <span className="text-ink/40"> / {pad(total)}</span>
               </p>
             </div>

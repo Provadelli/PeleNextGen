@@ -37,6 +37,8 @@
   --color-gold: var(--gold);
   --color-gold-light: var(--gold-light);
   --color-gold-dark: var(--gold-dark);
+  --color-gold-ink: var(--gold-ink);
+  --color-blue-ink: var(--blue-ink);
   --color-blue: var(--blue);
   --color-blue-light: var(--blue-light);
   --color-blue-dark: var(--blue-dark);
@@ -78,13 +80,20 @@
   --gold: oklch(0.72 0.14 82);
   --gold-light: oklch(0.82 0.13 88);
   --gold-dark: oklch(0.58 0.13 78);
+  /* Dourado para TEXTO: o --gold claro dá ~2.5:1 em fundo claro (reprova WCAG AA).
+     Este tom dá ~6:1 em branco. No escuro volta a ser o --gold. */
+  --gold-ink: oklch(0.50 0.11 75);
+  /* Azul para texto pequeno (status "Avaliado"): ≥ 4.5:1 nos dois temas. */
+  --blue-ink: oklch(0.48 0.18 256);
   /* Off-white quente das superfícies claras (seção Academia). */
   --cream: oklch(0.965 0.012 85);
   --blue: oklch(0.52 0.18 256);
   --blue-dark: oklch(0.38 0.16 258);
   --blue-light: oklch(0.62 0.17 252);
-  --success: oklch(0.62 0.16 152);
-  --error: oklch(0.60 0.21 27);
+  /* Mais escuros que o original (0.62 / 0.60) para texto verde/vermelho passar 4.5:1
+     em fundo claro, inclusive nos badges com fundo tingido (/15). */
+  --success: oklch(0.48 0.13 152);
+  --error: oklch(0.50 0.20 27);
 
   /* Surfaces — modo claro */
   --background: oklch(0.985 0.005 250);  /* off-white */
@@ -117,7 +126,8 @@
 
   --border: oklch(0.20 0.03 258 / 12%);
   --input: oklch(0.20 0.03 258 / 14%);
-  --ring: var(--gold);
+  /* Anel de foco precisa de 3:1 contra o fundo (WCAG 1.4.11). */
+  --ring: var(--gold-ink);
 
   --chart-1: var(--gold);
   --chart-2: var(--blue-light);
@@ -147,11 +157,13 @@
   --gold: oklch(0.78 0.14 85);
   --gold-light: oklch(0.86 0.13 90);
   --gold-dark: oklch(0.66 0.13 80);
+  --gold-ink: var(--gold);
+  --blue-ink: oklch(0.75 0.12 252);
   --blue: oklch(0.52 0.18 256);
   --blue-dark: oklch(0.38 0.16 258);
   --blue-light: oklch(0.62 0.17 252);
   --success: oklch(0.76 0.16 152);
-  --error: oklch(0.65 0.21 27);
+  --error: oklch(0.70 0.19 27);
 
   --background: oklch(0.18 0.04 258);
   --bg2: oklch(0.21 0.04 256);
@@ -179,7 +191,8 @@
   --accent-foreground: oklch(0.98 0 0);
 
   --destructive: var(--error);
-  --destructive-foreground: oklch(0.98 0 0);
+  /* Texto escuro sobre o vermelho claro do tema escuro: 6.5:1 (branco dava 3.4:1). */
+  --destructive-foreground: oklch(0.18 0.04 258);
 
   --border: oklch(1 0 0 / 14%);
   --input: oklch(1 0 0 / 16%);
@@ -229,6 +242,41 @@
     font-family: var(--font-display);
     letter-spacing: -0.01em;
   }
+
+  /* Foco visível padrão (WCAG 2.4.7) para links/botões sem estilo próprio.
+     :where() tem especificidade zero: os focus-visible:ring-* do shadcn continuam valendo. */
+  :where(a, button, [role="button"], [role="tab"], input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+
+  /* Alvos de foco programático (ex.: <main tabindex=-1> do "Pular para o conteúdo"). */
+  [tabindex="-1"]:focus {
+    outline: none;
+  }
+}
+
+/* Link "Pular para o conteúdo": invisível até receber foco pelo teclado. */
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 200;
+  transform: translateY(-200%);
+  border-radius: 9999px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.15s ease-out;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--foreground);
+  outline-offset: 3px;
 }
 
 /* Custom utility classes */
@@ -269,6 +317,8 @@
   --border: oklch(1 0 0 / 14%);
   --bg2: oklch(1 0 0 / 6%);
   --bg3: oklch(1 0 0 / 10%);
+  --gold-ink: oklch(0.78 0.14 85);
+  --ring: oklch(0.78 0.14 85);
   color: var(--foreground);
 }
 
@@ -280,6 +330,8 @@
   --bg2: oklch(0.955 0.008 250);
   --bg3: oklch(0.925 0.012 250);
   --primary: var(--gold-dark);
+  --gold-ink: oklch(0.50 0.11 75);
+  --ring: oklch(0.50 0.11 75);
   color: var(--foreground);
 }
 
@@ -292,12 +344,27 @@
   --bg2: oklch(0.905 0.016 82);
   --bg3: oklch(0.88 0.02 80);
   --primary: var(--gold-dark);
+  --gold-ink: oklch(0.46 0.10 75);
+  --ring: oklch(0.46 0.10 75);
   color: var(--foreground);
+}
+
+/* Blocos sempre escuros (vídeo do Hero, foto do Propósito, CTA, footer): o dourado de
+   texto e o anel de foco voltam ao dourado claro, que passa contraste sobre fundo escuro. */
+@utility on-dark {
+  --gold-ink: oklch(0.78 0.14 85);
+  --ring: oklch(0.78 0.14 85);
 }
 
 /* Faixa contínua (logos dos parceiros). */
 @utility marquee-track {
   animation: marquee-scroll 38s linear infinite;
+}
+
+/* Pausa pelo botão (WCAG 2.2.2) e enquanto o foco do teclado estiver na faixa. */
+.marquee-track[data-paused="true"],
+.group:focus-within .marquee-track {
+  animation-play-state: paused;
 }
 
 @keyframes marquee-scroll {

@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LayoutDashboard,
   Trophy,
@@ -71,11 +71,29 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  // A sidebar vira gaveta abaixo de lg (1024px). Fechada, fica fora da tela e precisa
+  // sair da ordem de tabulação (inert) — senão o teclado "some" em links invisíveis.
+  const [isDesktop, setIsDesktop] = useState(true);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const navRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => setIsDesktop(mq.matches);
+    onChange();
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
+    // Ao abrir a gaveta, o foco vai para o primeiro item do menu.
+    navRef.current?.querySelector<HTMLElement>("a")?.focus();
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        menuButtonRef.current?.focus();
+      }
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
@@ -106,11 +124,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <ThemeToggle />
           {user && <NotificationsBell />}
           <button
+            ref={menuButtonRef}
+            type="button"
             onClick={() => setOpen((v) => !v)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-border text-foreground"
-            aria-label="Abrir menu"
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-border text-foreground transition-colors hover:bg-bg3 active:scale-95"
+            aria-label={open ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={open}
+            aria-controls="app-sidebar"
           >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
           </button>
         </div>
 
@@ -118,6 +140,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar */}
       <aside
+        id="app-sidebar"
+        aria-label="Navegação lateral"
+        inert={!open && !isDesktop}
         className={cn(
           "fixed inset-y-0 left-0 z-30 flex w-72 max-w-[85vw] flex-col border-r border-border bg-sidebar transition-transform [view-transition-name:app-sidebar] lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
@@ -133,7 +158,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
             {role ? ROLE_AREA[role] : "\u00A0"}
           </p>
-          <nav className="space-y-1" aria-busy={!ready}>
+          <nav ref={navRef} className="space-y-1" aria-label="Menu principal" aria-busy={!ready}>
             {!ready ? (
               <div className="space-y-1.5" aria-hidden="true">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -152,14 +177,21 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     key={item.to}
                     to={item.to}
                     onClick={() => setOpen(false)}
+                    // Só o item mais específico é a "página atual": sem exact, /peneiras
+                    // também receberia aria-current em /peneiras/criar.
+                    aria-current={active ? "page" : undefined}
+                    activeOptions={{ exact: true }}
                     className={cn(
-                      "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200",
+                      "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200 active:scale-[0.98]",
                       active
-                        ? "bg-gradient-to-r from-primary/25 to-primary/5 text-primary shadow-[inset_3px_0_0_0_var(--gold)] ring-1 ring-primary/20"
+                        ? "bg-gradient-to-r from-primary/25 to-primary/5 text-gold-ink shadow-[inset_3px_0_0_0_var(--gold)] ring-1 ring-primary/20"
                         : "text-foreground/80 hover:translate-x-0.5 hover:bg-sidebar-accent hover:text-foreground",
                     )}
                   >
-                    <Icon className={cn("h-5 w-5 transition-colors", active ? "text-primary" : "text-foreground/60 group-hover:text-foreground")} />
+                    <Icon
+                      aria-hidden="true"
+                      className={cn("h-5 w-5 transition-colors", active ? "text-gold-ink" : "text-foreground/60 group-hover:text-foreground")}
+                    />
                     {item.label}
                   </Link>
                 );
@@ -177,7 +209,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             >
               <AthleteAvatar
                 src={user.avatarUrl ?? undefined}
-                alt={user.nome}
+                alt=""
                 className="h-10 w-10 shrink-0 border border-primary/30"
               />
               <div className="min-w-0 flex-1">
@@ -193,25 +225,18 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Backdrop */}
+      {/* Backdrop — só para mouse/toque; no teclado fecha pelo botão ou Esc
+          (não precisa de mais uma parada de Tab). */}
       {open && (
         <div
-          role="button"
-          tabIndex={0}
-          aria-label="Fechar menu"
+          aria-hidden="true"
           onClick={() => setOpen(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              setOpen(false);
-            }
-          }}
           className="fixed inset-0 z-20 bg-background/70 backdrop-blur-sm lg:hidden"
         />
       )}
 
-      {/* Content */}
-      <main className="flex-1 lg:pl-72">
+      {/* Content — alvo do "Pular para o conteúdo" (__root.tsx). */}
+      <main id="conteudo" tabIndex={-1} className="flex-1 lg:pl-72">
         {user && (
           <div className="hidden justify-end gap-2 px-4 pt-6 sm:px-6 lg:flex lg:px-10">
             <ThemeToggle />

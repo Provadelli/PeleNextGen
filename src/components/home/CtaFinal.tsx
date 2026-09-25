@@ -5,7 +5,7 @@ import { AuthLink } from "./AuthLink";
 
 export function CtaFinal() {
   return (
-    <section className="relative isolate overflow-hidden border-t border-border">
+    <section className="on-dark relative isolate overflow-hidden border-t border-border">
       <img
         src={campo}
         alt="Atleta disputando lance durante uma partida"

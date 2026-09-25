@@ -1,21 +1,27 @@
 import { createFileRoute, Link, Navigate, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
+  AlertTriangle,
   CheckCircle2,
+  Loader2,
   Lock,
   Mail,
   MapPin,
   MessageSquarePlus,
   Phone,
+  RotateCcw,
   Search,
+  SearchX,
   ShieldCheck,
   UserCircle2,
+  Users,
 } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { AthleteAvatar } from "@/components/AthleteAvatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -29,7 +35,6 @@ import { calcularIdade } from "@/lib/date";
 import { useSession } from "@/lib/session";
 import { startConversation } from "@/lib/chat";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/candidatos/")({
@@ -61,22 +66,30 @@ function CandidatosPage() {
   const [status, setStatus] = useState<(typeof STATUS_TABS)[number]["value"]>("todos");
   const [startingChat, setStartingChat] = useState<string | null>(null);
   const [realAtletas, setRealAtletas] = useState<Candidato[]>([]);
+  // Estados da carga: "idle" (perfil sem acesso aos dados), "loading", "error", "ok".
+  const [carga, setCarga] = useState<"idle" | "loading" | "error" | "ok">("idle");
+  const [tentativa, setTentativa] = useState(0);
   const effectiveStatus = status;
 
   useEffect(() => {
     if (!canScout) return;
     let cancelled = false;
+    setCarga("loading");
     (async () => {
-      const { data: roles } = await supabase
+      const { data: roles, error: rolesError } = await supabase
         .from("user_roles")
         .select("user_id")
         .eq("role", "atleta");
+      if (rolesError) throw rolesError;
       const ids = (roles ?? []).map((r) => r.user_id);
       if (ids.length === 0) {
-        if (!cancelled) setRealAtletas([]);
+        if (!cancelled) {
+          setRealAtletas([]);
+          setCarga("ok");
+        }
         return;
       }
-      const [{ data: profs }, { data: notas }] = await Promise.all([
+      const [{ data: profs, error: profsError }, { data: notas }] = await Promise.all([
         supabase
           .from("profiles")
           .select(
@@ -89,6 +102,7 @@ function CandidatosPage() {
           .in("atleta_user_id", ids)
           .order("created_at", { ascending: false }),
       ]);
+      if (profsError) throw profsError;
       if (cancelled || !profs) return;
       const latestByAtleta = new Map<string, number>();
       (notas ?? []).forEach((n) => {
@@ -114,11 +128,20 @@ function CandidatosPage() {
         notaGeral: latestByAtleta.get(p.id),
       }));
       setRealAtletas(mapped);
-    })();
+      setCarga("ok");
+    })().catch(() => {
+      if (!cancelled) setCarga("error");
+    });
     return () => {
       cancelled = true;
     };
-  }, [canScout]);
+  }, [canScout, tentativa]);
+
+  const temFiltro = q.trim() !== "" || status !== "todos";
+  function limparFiltros() {
+    setQ("");
+    setStatus("todos");
+  }
 
   async function handleStartChat(c: Candidato) {
     if (!c.userId) return;
@@ -153,7 +176,7 @@ function CandidatosPage() {
   return (
     <AppLayout>
       <header className="mb-8">
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Candidatos</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-gold-ink">Candidatos</p>
         <h1 className="mt-1 font-display text-3xl font-extrabold sm:text-4xl">
           {isClube ? "Atletas aprovados" : "Atletas inscritos"}
         </h1>
@@ -164,28 +187,52 @@ function CandidatosPage() {
         </p>
       </header>
 
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row">
-        <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Buscar por nome, posição ou cidade..."
-            className="pl-10"
-            aria-label="Buscar atletas"
-          />
+      <div
+        role="search"
+        aria-label="Filtros de candidatos"
+        className="mb-3 flex flex-col gap-3 md:flex-row md:items-end"
+      >
+        <div className="flex-1">
+          <label
+            htmlFor="busca-atletas"
+            className="mb-1.5 block text-xs font-semibold text-muted-foreground"
+          >
+            Buscar atletas
+          </label>
+          <div className="relative">
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <Input
+              id="busca-atletas"
+              type="search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Nome, posição ou cidade"
+              className="h-11 pl-10 focus-visible:ring-2"
+              disabled={carga === "loading"}
+            />
+          </div>
         </div>
         {!isClube && (
-          <div className="flex gap-1 overflow-x-auto rounded-xl border border-border bg-bg2 p-1">
+          <div
+            role="group"
+            aria-label="Filtrar por status"
+            className="flex gap-1 overflow-x-auto rounded-xl border border-border bg-bg2 p-1"
+          >
             {STATUS_TABS.map((s) => (
               <button
                 key={s.value}
+                type="button"
+                aria-pressed={status === s.value}
+                disabled={carga === "loading"}
                 onClick={() => setStatus(s.value)}
                 className={
-                  "shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors " +
+                  "min-h-9 shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 " +
                   (status === s.value
                     ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground")
+                    : "text-muted-foreground hover:bg-bg3 hover:text-foreground")
                 }
               >
                 {s.label}
@@ -195,133 +242,272 @@ function CandidatosPage() {
         )}
       </div>
 
-      {isClube ? (
+      {/* Contagem anunciada pelo leitor de tela a cada mudança de filtro (WCAG 4.1.3). */}
+      <p role="status" aria-live="polite" className="mb-4 min-h-5 text-sm text-muted-foreground">
+        {carga === "ok" &&
+          `${list.length} ${list.length === 1 ? "atleta encontrado" : "atletas encontrados"}` +
+            (temFiltro ? ` de ${realAtletas.length}` : "")}
+      </p>
+
+      {carga === "loading" ? (
+        <ListaSkeleton />
+      ) : carga === "error" ? (
+        <EstadoLista
+          icon={AlertTriangle}
+          tom="erro"
+          titulo="Não foi possível carregar os candidatos"
+          descricao="Verifique sua conexão e tente de novo."
+          acao={
+            <Button onClick={() => setTentativa((t) => t + 1)}>
+              <RotateCcw aria-hidden="true" />
+              Tentar novamente
+            </Button>
+          }
+        />
+      ) : isClube ? (
         <ClubeCardsView list={list} />
+      ) : list.length === 0 ? (
+        temFiltro ? (
+          <EstadoLista
+            icon={SearchX}
+            titulo="Nenhum candidato corresponde aos filtros"
+            descricao="Tente outro termo de busca ou outro status."
+            acao={
+              <Button variant="outline" onClick={limparFiltros}>
+                Limpar filtros
+              </Button>
+            }
+          />
+        ) : (
+          <EstadoLista
+            icon={Users}
+            titulo="Nenhum candidato inscrito ainda"
+            descricao="Os atletas aparecem aqui assim que se cadastrarem na plataforma."
+          />
+        )
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-card">
-          <table className="w-full min-w-[640px] text-sm">
-            <thead className="bg-bg2 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-              <tr>
-                <th className="px-5 py-3">Atleta</th>
-                <th className="px-5 py-3">Posição</th>
-                <th className="hidden px-5 py-3 md:table-cell">Idade</th>
-                <th className="hidden px-5 py-3 lg:table-cell">Cidade</th>
-                <th className="px-5 py-3">Nota</th>
-                <th className="px-5 py-3">Status</th>
-                {canScout && <th className="px-5 py-3 text-right">Ações</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {list.map((c) => (
-                <tr key={c.id} className="border-t border-border transition-colors hover:bg-bg2">
-                  <td className="px-5 py-3">
-                    {c.userId ? (
-                      <Link
-                        to="/atletas/$atletaId"
-                        params={{ atletaId: c.userId }}
-                        className="flex items-center gap-3 font-semibold hover:text-primary"
-                      >
-                        <AthleteAvatar
-                          src={c.avatar}
-                          alt={c.nome}
-                          className="h-9 w-9 border border-border"
-                        />
-                        {c.nome}
-                      </Link>
-                    ) : (
-                      <Link
-                        to="/candidatos/$candidatoId"
-                        params={{ candidatoId: c.id }}
-                        className="flex items-center gap-3 font-semibold hover:text-primary"
-                      >
-                        <AthleteAvatar
-                          src={c.avatar}
-                          alt={c.nome}
-                          className="h-9 w-9 border border-border"
-                        />
-                        {c.nome}
-                      </Link>
-                    )}
-                  </td>
-                  <td className="px-5 py-3 text-muted-foreground">{c.posicao}</td>
-                  <td className="hidden px-5 py-3 text-muted-foreground md:table-cell">
-                    {calcularIdade(c.dataNascimento)} anos
-                  </td>
-                  <td className="hidden px-5 py-3 text-muted-foreground lg:table-cell">
-                    {c.cidade}
-                  </td>
-                  <td className="px-5 py-3 font-bold text-gradient-gold">
+        <>
+          {/* Celular (< 768px): cartões — a tabela exigiria rolagem lateral. */}
+          <ul className="space-y-3 md:hidden" aria-label="Candidatos">
+            {list.map((c) => (
+              <li
+                key={c.id}
+                className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card"
+              >
+                <AtletaLink c={c} className="min-w-0 flex-1">
+                  <span className="block truncate">{c.nome}</span>
+                  <span className="block text-xs font-normal text-muted-foreground">
+                    {c.posicao} · {calcularIdade(c.dataNascimento)} anos · {c.cidade}
+                  </span>
+                </AtletaLink>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="text-sm font-bold text-gold-ink">
+                    <span className="sr-only">Nota </span>
                     {c.notaGeral?.toFixed(1) ?? "—"}
-                  </td>
-                  <td className="px-5 py-3">
-                    <CandStatus status={c.status} />
-                  </td>
+                  </span>
+                  <CandStatus status={c.status} />
+                </div>
+                {canScout && (
+                  <AcoesAtleta c={c} startingChat={startingChat} onChat={handleStartChat} />
+                )}
+              </li>
+            ))}
+          </ul>
+
+          {/* Tablet e desktop: tabela (as colunas cabem a partir de 768px; o overflow é só
+              uma proteção para fontes ampliadas). */}
+          <div
+            className="hidden overflow-x-auto rounded-2xl border border-border bg-card shadow-card md:block"
+          >
+            <table className="w-full text-sm">
+              <caption className="sr-only">
+                Candidatos inscritos, com posição, idade, cidade, nota e status
+              </caption>
+              <thead className="bg-bg2 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th scope="col" className="px-5 py-3">Atleta</th>
+                  <th scope="col" className="px-5 py-3">Posição</th>
+                  <th scope="col" className="px-5 py-3">Idade</th>
+                  <th scope="col" className="hidden px-5 py-3 lg:table-cell">Cidade</th>
+                  <th scope="col" className="px-5 py-3">Nota</th>
+                  <th scope="col" className="px-5 py-3">Status</th>
                   {canScout && (
-                    <td className="px-5 py-3">
-                      <div className="flex justify-end gap-1">
-                        {c.userId ? (
-                          <Button
-                            asChild
-                            variant="ghost"
-                            size="sm"
-                            aria-label={`Ver perfil de ${c.nome}`}
-                          >
-                            <Link to="/atletas/$atletaId" params={{ atletaId: c.userId }}>
-                              <UserCircle2 className="h-4 w-4" />
-                            </Link>
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled
-                            aria-label="Candidato sem conta no app"
-                            title="Candidato sem conta no app"
-                          >
-                            <UserCircle2 className="h-4 w-4 opacity-50" />
-                          </Button>
-                        )}
-                        {c.userId ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            aria-label={`Iniciar conversa com ${c.nome}`}
-                            disabled={startingChat === c.id}
-                            onClick={() => handleStartChat(c)}
-                          >
-                            <MessageSquarePlus className="h-4 w-4" />
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled
-                            aria-label="Candidato sem conta no app — não é possível conversar"
-                            title="Candidato sem conta no app"
-                          >
-                            <MessageSquarePlus className="h-4 w-4 opacity-50" />
-                          </Button>
-                        )}
-                      </div>
-                    </td>
+                    <th scope="col" className="px-5 py-3 text-right">Ações</th>
                   )}
                 </tr>
-              ))}
-              {list.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={canScout ? 7 : 6}
-                    className="px-5 py-12 text-center text-muted-foreground"
-                  >
-                    Nenhum candidato encontrado.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {list.map((c) => (
+                  <tr key={c.id} className="border-t border-border transition-colors hover:bg-bg2">
+                    <td className="px-5 py-3">
+                      <AtletaLink c={c}>{c.nome}</AtletaLink>
+                    </td>
+                    <td className="px-5 py-3 text-muted-foreground">{c.posicao}</td>
+                    <td className="px-5 py-3 text-muted-foreground">
+                      {calcularIdade(c.dataNascimento)} anos
+                    </td>
+                    <td className="hidden px-5 py-3 text-muted-foreground lg:table-cell">
+                      {c.cidade}
+                    </td>
+                    <td className="px-5 py-3 font-bold text-gold-ink">
+                      {c.notaGeral?.toFixed(1) ?? "—"}
+                    </td>
+                    <td className="px-5 py-3">
+                      <CandStatus status={c.status} />
+                    </td>
+                    {canScout && (
+                      <td className="px-5 py-3">
+                        <AcoesAtleta c={c} startingChat={startingChat} onChat={handleStartChat} />
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </AppLayout>
+  );
+}
+
+/** Link para o perfil do atleta (conta no app) ou do candidato (só inscrição). */
+function AtletaLink({
+  c,
+  className,
+  children,
+}: {
+  c: Candidato;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const cls =
+    "flex items-center gap-3 rounded-md font-semibold underline-offset-4 transition-colors hover:text-gold-ink hover:underline active:opacity-70 " +
+    (className ?? "");
+  // alt="" no avatar: o nome já é o texto do link (evita leitura duplicada).
+  const avatar = (
+    <AthleteAvatar src={c.avatar} alt="" className="h-9 w-9 shrink-0 border border-border" />
+  );
+  return c.userId ? (
+    <Link to="/atletas/$atletaId" params={{ atletaId: c.userId }} className={cls}>
+      {avatar}
+      <span className="min-w-0">{children}</span>
+    </Link>
+  ) : (
+    <Link to="/candidatos/$candidatoId" params={{ candidatoId: c.id }} className={cls}>
+      {avatar}
+      <span className="min-w-0">{children}</span>
+    </Link>
+  );
+}
+
+function AcoesAtleta({
+  c,
+  startingChat,
+  onChat,
+}: {
+  c: Candidato;
+  startingChat: string | null;
+  onChat: (c: Candidato) => void;
+}) {
+  const abrindo = startingChat === c.id;
+  return (
+    <div className="flex justify-end gap-1">
+      {c.userId ? (
+        <Button asChild variant="ghost" size="icon" aria-label={`Ver perfil de ${c.nome}`}>
+          <Link to="/atletas/$atletaId" params={{ atletaId: c.userId }}>
+            <UserCircle2 className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        </Button>
+      ) : (
+        <Button
+          variant="ghost"
+          size="icon"
+          disabled
+          aria-label={`${c.nome} não tem conta no app — perfil indisponível`}
+          title="Candidato sem conta no app"
+        >
+          <UserCircle2 className="h-4 w-4" aria-hidden="true" />
+        </Button>
+      )}
+      {c.userId ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={abrindo ? `Abrindo conversa com ${c.nome}…` : `Iniciar conversa com ${c.nome}`}
+          aria-busy={abrindo}
+          disabled={abrindo}
+          onClick={() => onChat(c)}
+        >
+          {abrindo ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <MessageSquarePlus className="h-4 w-4" aria-hidden="true" />
+          )}
+        </Button>
+      ) : (
+        <Button
+          variant="ghost"
+          size="icon"
+          disabled
+          aria-label={`${c.nome} não tem conta no app — não é possível conversar`}
+          title="Candidato sem conta no app"
+        >
+          <MessageSquarePlus className="h-4 w-4" aria-hidden="true" />
+        </Button>
+      )}
+    </div>
+  );
+}
+
+function ListaSkeleton() {
+  return (
+    <div role="status" aria-busy="true" className="space-y-3">
+      <span className="sr-only">Carregando candidatos…</span>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div
+          key={i}
+          aria-hidden="true"
+          className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4"
+        >
+          <Skeleton className="h-9 w-9 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="h-3 w-1/2" />
+          </div>
+          <Skeleton className="h-6 w-16 rounded-full" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function EstadoLista({
+  icon: Icon,
+  titulo,
+  descricao,
+  acao,
+  tom,
+}: {
+  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" }>;
+  titulo: string;
+  descricao: string;
+  acao?: React.ReactNode;
+  tom?: "erro";
+}) {
+  return (
+    <div
+      role={tom === "erro" ? "alert" : undefined}
+      className="flex flex-col items-center rounded-2xl border border-dashed border-border bg-card px-6 py-12 text-center shadow-card"
+    >
+      <Icon
+        className={"h-10 w-10 " + (tom === "erro" ? "text-destructive" : "text-muted-foreground")}
+        aria-hidden="true"
+      />
+      <h2 className="mt-4 font-display text-lg font-bold">{titulo}</h2>
+      <p className="mt-1 max-w-sm text-sm text-muted-foreground">{descricao}</p>
+      {acao && <div className="mt-5">{acao}</div>}
+    </div>
   );
 }
 
@@ -407,10 +593,11 @@ function ClubeCardsView({ list }: { list: Candidato[] }) {
                   size="lg"
                   onClick={() => setPaying(c)}
                   className="h-12 w-full text-base font-bold"
-                  aria-label={`Desbloquear contato de ${c.nome} por R$ 49,99`}
                 >
                   <Lock className="mr-2 h-4 w-4" aria-hidden="true" />
+                  {/* Nome acessível começa pelo texto visível (WCAG 2.5.3). */}
                   Desbloquear por R$ 49,99
+                  <span className="sr-only"> o contato de {c.nome}</span>
                 </Button>
               )}
             </article>
@@ -489,7 +676,7 @@ function InfoRow({
 function CandStatus({ status }: { status: string }) {
   const map: Record<string, string> = {
     pendente: "bg-muted-foreground/15 text-muted-foreground",
-    avaliado: "bg-blue-light/15 text-blue-light",
+    avaliado: "bg-blue-ink/15 text-blue-ink",
     aprovado: "bg-success/15 text-success",
     reprovado: "bg-destructive/15 text-destructive",
   };
