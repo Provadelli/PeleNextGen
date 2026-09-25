@@ -1,12 +1,15 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { ArrowLeft, Building2, Mail, Lock, User, CheckCircle2, FileText, Clock } from "lucide-react";
-import { Logo } from "@/components/Logo";
+import { Building2, Mail, Lock, User, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { AuthShell } from "@/components/auth/AuthShell";
+import { AuthSuccess } from "@/components/auth/AuthSuccess";
+import { ApprovalNotice } from "@/components/auth/ApprovalNotice";
+import { FormField } from "@/components/auth/FormField";
+import { focusFirstError } from "@/components/auth/focus-first-error";
+import { TermsConsent } from "@/components/auth/TermsConsent";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -39,18 +42,19 @@ const schema = z
     path: ["confirmarSenha"],
   });
 
+/** Ordem visual dos campos — usada para focar o primeiro erro. */
+const ORDEM_CAMPOS = ["nomeClube", "cnpj", "nome", "email", "senha", "confirmarSenha", "termos"];
+
 function maskCNPJ(v: string) {
   const d = v.replace(/\D/g, "").slice(0, 14);
   if (d.length <= 2) return d;
   if (d.length <= 5) return `${d.slice(0, 2)}.${d.slice(2)}`;
   if (d.length <= 8) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5)}`;
-  if (d.length <= 12)
-    return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8)}`;
+  if (d.length <= 12) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8)}`;
   return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
 }
 
 function CadastroClubePage() {
-  const navigate = useNavigate();
   const [form, setForm] = useState({
     nomeClube: "",
     cnpj: "",
@@ -71,19 +75,22 @@ function CadastroClubePage() {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
+    if (loading) return;
     const result = schema.safeParse(form);
+    const fieldErrors: Record<string, string> = {};
     if (!result.success) {
-      const fieldErrors: Record<string, string> = {};
       result.error.errors.forEach((err) => {
         const key = err.path[0] as string;
-        fieldErrors[key] = err.message;
+        if (!fieldErrors[key]) fieldErrors[key] = err.message;
       });
-      setErrors(fieldErrors);
-      toast.error("Corrija os campos destacados.");
-      return;
     }
     if (!aceitaTermos) {
-      toast.error("Você precisa aceitar os Termos de Uso e a Política de Privacidade.");
+      fieldErrors.termos = "Você precisa aceitar os Termos de Uso e a Política de Privacidade.";
+    }
+    if (Object.keys(fieldErrors).length) {
+      setErrors(fieldErrors);
+      toast.error("Corrija os campos destacados.");
+      focusFirstError(fieldErrors, ORDEM_CAMPOS);
       return;
     }
 
@@ -115,195 +122,133 @@ function CadastroClubePage() {
     setSuccess(true);
   }
 
-  if (success) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-6">
-        <div className="w-full max-w-md text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-success/15 text-success">
-            <CheckCircle2 className="h-8 w-8" />
-          </div>
-          <h1 className="mt-6 font-display text-2xl font-extrabold">Cadastro enviado!</h1>
-          <p className="mt-3 text-muted-foreground">
-            Seu cadastro foi recebido com sucesso. Aguarde o suporte para liberação de acesso.
-          </p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Você receberá uma notificação quando seu acesso for ativado.
-          </p>
-          <Button asChild className="mt-6" variant="outline">
-            <Link to="/login">Voltar para login</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  if (success) return <AuthSuccess />;
+
+  const temErros = Object.values(errors).some(Boolean);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
-      <div className="w-full max-w-md">
-        <Link
-          to="/login"
-          className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" /> Voltar ao login
-        </Link>
-
-        <Logo className="mb-6" />
-
-        <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
-            <Building2 className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="font-display text-2xl font-extrabold">Cadastro de Clube</h1>
-            <p className="text-xs text-muted-foreground">
-              Preencha os dados para solicitar acesso como clube.
-            </p>
-          </div>
-        </div>
-
-        <form onSubmit={submit} className="space-y-4">
-          <Field label="Nome do clube" error={errors.nomeClube}>
-            <div className="relative">
-              <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={form.nomeClube}
-                onChange={(e) => update("nomeClube", e.target.value)}
-                placeholder="Ex: FC Estrela do Sul"
-                className={`pl-10 ${errors.nomeClube ? "border-error ring-error/40" : ""}`}
-              />
-            </div>
-          </Field>
-
-          <Field label="CNPJ ou identificação" error={errors.cnpj}>
-            <div className="relative">
-              <FileText className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={form.cnpj}
-                onChange={(e) => update("cnpj", maskCNPJ(e.target.value))}
-                placeholder="00.000.000/0000-00"
-                className={`pl-10 ${errors.cnpj ? "border-error ring-error/40" : ""}`}
-              />
-            </div>
-          </Field>
-
-          <Field label="Nome do responsável" error={errors.nome}>
-            <div className="relative">
-              <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={form.nome}
-                onChange={(e) => update("nome", e.target.value)}
-                placeholder="Nome completo do responsável"
-                className={`pl-10 ${errors.nome ? "border-error ring-error/40" : ""}`}
-              />
-            </div>
-          </Field>
-
-          <Field label="E-mail" error={errors.email}>
-            <div className="relative">
-              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="email"
-                value={form.email}
-                onChange={(e) => update("email", e.target.value)}
-                placeholder="contato@seuclube.com"
-                className={`pl-10 ${errors.email ? "border-error ring-error/40" : ""}`}
-              />
-            </div>
-          </Field>
-
-          <Field label="Senha" error={errors.senha}>
-            <div className="relative">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <PasswordInput
-                value={form.senha}
-                onChange={(e) => update("senha", e.target.value)}
-                placeholder="••••••••"
-                className={`pl-10 ${errors.senha ? "border-error ring-error/40" : ""}`}
-              />
-            </div>
-          </Field>
-
-          <Field label="Confirmar senha" error={errors.confirmarSenha}>
-            <div className="relative">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <PasswordInput
-                value={form.confirmarSenha}
-                onChange={(e) => update("confirmarSenha", e.target.value)}
-                placeholder="••••••••"
-                className={`pl-10 ${errors.confirmarSenha ? "border-error ring-error/40" : ""}`}
-              />
-            </div>
-          </Field>
-
-          <div className="flex items-start gap-3 rounded-xl border border-primary/25 bg-primary/5 p-3.5">
-            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
-              <Clock className="h-3.5 w-3.5" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-primary">Aprovação necessária</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                O cadastro não concede acesso imediato. Após o envio, o suporte validará seus
-                dados e liberará o acesso.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3">
-            <Checkbox
-              id="aceite-termos"
-              checked={aceitaTermos}
-              onCheckedChange={(v) => setAceitaTermos(v === true)}
-              className="mt-0.5"
+    <AuthShell
+      icon={Building2}
+      title="Cadastro de Clube"
+      description="Preencha os dados para solicitar acesso como clube."
+    >
+      <form onSubmit={submit} noValidate className="space-y-4">
+        <FormField label="Nome do clube" name="nomeClube" icon={Building2} error={errors.nomeClube}>
+          {(field) => (
+            <Input
+              {...field}
+              value={form.nomeClube}
+              onChange={(e) => update("nomeClube", e.target.value)}
+              placeholder="Ex: FC Estrela do Sul"
+              autoComplete="organization"
             />
-            <Label htmlFor="aceite-termos" className="text-sm font-normal leading-relaxed text-foreground">
-              Li e aceito os{" "}
-              <Link to="/termos" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline hover:text-gold-light">
-                Termos de Uso
-              </Link>{" "}
-              e a{" "}
-              <Link to="/privacidade" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline hover:text-gold-light">
-                Política de Privacidade
-              </Link>
-              .
-            </Label>
-          </div>
+          )}
+        </FormField>
 
-          <Button
-            type="submit"
-            className="w-full"
-            size="lg"
-            disabled={loading}
-            variant={Object.values(errors).some(Boolean) ? "error" : "default"}
-          >
-            {loading ? "Enviando..." : "Solicitar cadastro"}
-          </Button>
-        </form>
+        <FormField label="CNPJ ou identificação" name="cnpj" icon={FileText} error={errors.cnpj}>
+          {(field) => (
+            <Input
+              {...field}
+              inputMode="numeric"
+              value={form.cnpj}
+              onChange={(e) => update("cnpj", maskCNPJ(e.target.value))}
+              placeholder="00.000.000/0000-00"
+            />
+          )}
+        </FormField>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          É um atleta?{" "}
-          <Link to="/cadastro" className="font-semibold text-primary hover:text-gold-light">
-            Cadastre-se aqui
-          </Link>
-        </p>
-      </div>
-    </div>
-  );
-}
+        <FormField label="Nome do responsável" name="nome" icon={User} error={errors.nome}>
+          {(field) => (
+            <Input
+              {...field}
+              value={form.nome}
+              onChange={(e) => update("nome", e.target.value)}
+              placeholder="Nome completo do responsável"
+              autoComplete="name"
+            />
+          )}
+        </FormField>
 
-function Field({
-  label,
-  error,
-  children,
-}: {
-  label: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label className={error ? "text-error" : ""}>{label}</Label>
-      {children}
-      {error && <p className="text-xs text-error">{error}</p>}
-    </div>
+        <FormField label="E-mail" name="email" icon={Mail} error={errors.email}>
+          {(field) => (
+            <Input
+              {...field}
+              type="email"
+              value={form.email}
+              onChange={(e) => update("email", e.target.value)}
+              placeholder="contato@seuclube.com"
+              autoComplete="email"
+            />
+          )}
+        </FormField>
+
+        <FormField
+          label="Senha"
+          name="senha"
+          icon={Lock}
+          error={errors.senha}
+          hint="Mínimo de 6 caracteres."
+        >
+          {(field) => (
+            <PasswordInput
+              {...field}
+              value={form.senha}
+              onChange={(e) => update("senha", e.target.value)}
+              placeholder="••••••••"
+              autoComplete="new-password"
+            />
+          )}
+        </FormField>
+
+        <FormField
+          label="Confirmar senha"
+          name="confirmarSenha"
+          icon={Lock}
+          error={errors.confirmarSenha}
+        >
+          {(field) => (
+            <PasswordInput
+              {...field}
+              value={form.confirmarSenha}
+              onChange={(e) => update("confirmarSenha", e.target.value)}
+              placeholder="••••••••"
+              autoComplete="new-password"
+            />
+          )}
+        </FormField>
+
+        <ApprovalNotice />
+
+        <TermsConsent
+          checked={aceitaTermos}
+          onCheckedChange={(v) => {
+            setAceitaTermos(v);
+            if (v && errors.termos) setErrors((e) => ({ ...e, termos: "" }));
+          }}
+          error={errors.termos}
+        />
+
+        <Button
+          type="submit"
+          className="w-full"
+          size="lg"
+          disabled={loading}
+          aria-busy={loading}
+          variant={temErros ? "error" : "default"}
+        >
+          {loading ? "Enviando..." : "Solicitar cadastro"}
+        </Button>
+      </form>
+
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        É um atleta?{" "}
+        <Link
+          to="/cadastro"
+          className="rounded-sm font-semibold text-primary transition-colors hover:text-gold-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          Cadastre-se aqui
+        </Link>
+      </p>
+    </AuthShell>
   );
 }
