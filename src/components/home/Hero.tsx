@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight, Pause, Play } from "lucide-react";
 import type { Peneira } from "@/lib/mock-data";
 import { Reveal } from "./Reveal";
 import { AuthLink } from "./AuthLink";
@@ -18,6 +18,21 @@ const HERO_TITLE: TitlePart[] = [
 function HeroBackgroundMedia() {
   const [reduced, setReduced] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
+  // WCAG 2.2.2: conteúdo em movimento por mais de 5s precisa de um controle de pausa.
+  const [paused, setPaused] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  function togglePause() {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) {
+      void v.play();
+      setPaused(false);
+    } else {
+      v.pause();
+      setPaused(true);
+    }
+  }
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -32,7 +47,10 @@ function HeroBackgroundMedia() {
   // abaixo do centro (gramado e círculo central), que é o assunto do sobrevoo.
   const mediaCls = "h-full w-full object-cover object-[50%_58%] opacity-55";
 
+  const showVideo = !reduced && !videoFailed;
+
   return (
+    <>
     <div className="absolute inset-0 -z-10 overflow-hidden bg-ink">
       <div className="absolute inset-x-0 top-0 h-[100svh] lg:h-full">
         {reduced ? (
@@ -41,6 +59,9 @@ function HeroBackgroundMedia() {
           <img src={campoAcao} alt="" aria-hidden="true" className={mediaCls} />
         ) : (
           <video
+            ref={videoRef}
+            aria-hidden="true"
+            tabIndex={-1}
             src="/videos/hero-background.mp4"
             poster={heroAtleta}
             autoPlay
@@ -59,19 +80,33 @@ function HeroBackgroundMedia() {
           no desktop o texto fica à esquerda (degradê horizontal). */}
       <div className="absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/55 to-ink/80 lg:bg-gradient-to-r lg:from-ink/85 lg:via-ink/55 lg:to-ink/20" />
     </div>
+    {showVideo && (
+      <button
+        type="button"
+        onClick={togglePause}
+        aria-label={paused ? "Reproduzir vídeo de fundo" : "Pausar vídeo de fundo"}
+        className="absolute bottom-4 right-4 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-ink/60 text-white backdrop-blur transition-colors hover:border-primary hover:text-primary active:scale-95 lg:bottom-6 lg:right-6"
+      >
+        {paused ? (
+          <Play className="h-4 w-4" aria-hidden="true" />
+        ) : (
+          <Pause className="h-4 w-4" aria-hidden="true" />
+        )}
+      </button>
+    )}
+    </>
   );
 }
 
 export function Hero({ proxima, loading }: { proxima: Peneira | null; loading: boolean }) {
   return (
-    <section className="relative isolate flex min-h-[100svh] items-center overflow-hidden border-b border-border">
-      <HeroBackgroundMedia />
+    <section className="on-dark relative isolate flex min-h-[100svh] items-center overflow-hidden border-b border-border">
       <div className="pointer-events-none absolute -left-40 -top-40 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
       <div className="relative z-10 mx-auto grid w-full max-w-[1400px] gap-10 px-6 pb-16 pt-28 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:px-10 lg:pb-24 lg:pt-32">
         <div className="flex flex-col justify-center">
           <Reveal immediate>
             <p className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.32em] text-primary">
-              <span className="h-px w-10 bg-primary/60" />
+              <span aria-hidden="true" className="h-px w-10 bg-primary/60" />
               Pelé Scout · Plataforma oficial
             </p>
           </Reveal>
@@ -96,9 +131,9 @@ export function Hero({ proxima, loading }: { proxima: Peneira | null; loading: b
                 href="/peneiras"
                 className="group/btn relative inline-flex h-12 items-center gap-2 overflow-hidden rounded-full bg-primary px-7 text-sm font-bold uppercase tracking-[0.12em] text-primary-foreground shadow-gold transition-transform duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
               >
-                <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/45 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
+                <span aria-hidden="true" className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/45 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
                 Encontrar minha peneira
-                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
               </AuthLink>
               <a
                 href="#como-funciona"
@@ -118,7 +153,7 @@ export function Hero({ proxima, loading }: { proxima: Peneira | null; loading: b
               ].map(([a, b]) => (
                 <div key={a}>
                   <dt className="font-display text-base font-extrabold text-primary sm:text-lg">{a}</dt>
-                  <dd className="mt-1 text-xs text-white/60">{b}</dd>
+                  <dd className="mt-1 text-xs text-white/75">{b}</dd>
                 </div>
               ))}
             </dl>
@@ -129,6 +164,9 @@ export function Hero({ proxima, loading }: { proxima: Peneira | null; loading: b
           <ProximaPeneiraCard peneira={proxima} loading={loading} />
         </Reveal>
       </div>
+      {/* Depois do conteúdo no DOM: o botão de pausa do vídeo fica no fim da ordem de
+          tabulação do Hero (visualmente continua como fundo, via -z-10). */}
+      <HeroBackgroundMedia />
     </section>
   );
 }

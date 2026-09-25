@@ -17,7 +17,7 @@ function fmt(iso: string) {
 
 // bg-background + color-scheme escuro: a lista nativa de opções deixa de abrir branca no tema escuro.
 const selectCls =
-  "h-11 min-w-[7rem] sm:min-w-[9rem] cursor-pointer rounded-full border border-border bg-background px-4 text-xs font-semibold tracking-normal text-foreground sm:uppercase sm:tracking-[0.12em] outline-none transition-colors hover:border-primary/60 focus:border-primary dark:[color-scheme:dark]";
+  "h-11 min-w-[7rem] sm:min-w-[9rem] cursor-pointer rounded-full border border-border bg-background px-4 text-xs font-semibold tracking-normal text-foreground sm:uppercase sm:tracking-[0.12em] outline-none transition-colors hover:border-primary/60 focus:border-primary focus-visible:ring-2 focus-visible:ring-ring dark:[color-scheme:dark]";
 const optionCls = "bg-background text-foreground";
 
 function Card({ p, delay, index }: { p: Peneira; delay: number; index: number }) {
@@ -183,7 +183,7 @@ export function PeneirasSection({
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Cidade ou clube"
             aria-label="Buscar por cidade ou clube"
-            className="h-11 w-full rounded-full border border-border bg-background pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
+            className="h-11 w-full rounded-full border border-border bg-background pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
         <select

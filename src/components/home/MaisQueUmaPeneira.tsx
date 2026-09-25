@@ -27,7 +27,7 @@ export function MaisQueUmaPeneira() {
   return (
     <section
       id="proposito"
-      className="relative isolate flex min-h-[100svh] scroll-mt-16 items-center overflow-hidden bg-ink text-white"
+      className="on-dark relative isolate flex min-h-[100svh] scroll-mt-16 items-center overflow-hidden bg-ink text-white"
     >
       {/* Fundo total: Pelé coroando o garoto — o talento escondido sendo descoberto. */}
       <div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden">
@@ -102,7 +102,7 @@ export function MaisQueUmaPeneira() {
                   <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-primary transition-transform duration-500 group-hover:rotate-[-8deg] group-hover:scale-110">
                     <Icon className="h-5 w-5" />
                   </span>
-                  <span className="font-display text-xs font-bold uppercase tracking-[0.24em] text-white/50">
+                  <span className="font-display text-xs font-bold uppercase tracking-[0.24em] text-white/70">
                     0{i + 1}
                   </span>
                 </div>

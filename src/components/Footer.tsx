@@ -15,12 +15,12 @@ function FooterLink({ children }: { children: ReactNode }) {
 }
 
 const linkCls =
-  "group/fl text-sm text-ink-foreground/65 transition-colors duration-300 hover:text-primary";
+  "group/fl text-sm text-ink-foreground/75 transition-colors duration-300 hover:text-primary";
 
 function Coluna({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
     <div>
-      <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">{titulo}</p>
+      <h2 className="font-body text-[10px] font-bold uppercase tracking-[0.28em] text-primary">{titulo}</h2>
       <ul className="mt-5 space-y-3">{children}</ul>
     </div>
   );
@@ -32,7 +32,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="relative overflow-hidden border-t border-primary/20 bg-ink text-ink-foreground">
+    <footer className="on-dark relative overflow-hidden border-t border-primary/20 bg-ink text-ink-foreground">
       <div className="relative mx-auto grid max-w-[1400px] gap-12 px-6 py-20 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] lg:px-10">
         <div className="max-w-xs sm:col-span-2 lg:col-span-1">
           <Link
@@ -43,7 +43,7 @@ export function Footer() {
           >
             <Logo variant="onDark" className="[&_img]:h-14" />
           </Link>
-          <p className="mt-5 text-sm leading-relaxed text-ink-foreground/60">
+          <p className="mt-5 text-sm leading-relaxed text-ink-foreground/75">
             A plataforma de peneiras que leva a oportunidade até o talento — avaliação profissional
             e um histórico real da sua evolução no futebol.
           </p>
@@ -51,13 +51,15 @@ export function Footer() {
             href="mailto:pelenextgen@hotmail.com"
             className="group/fl mt-6 inline-flex items-center gap-2 text-sm font-semibold text-ink-foreground/80 transition-colors hover:text-primary"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 transition-all duration-300 group-hover/fl:border-primary group-hover/fl:bg-primary group-hover/fl:text-primary-foreground">
+            <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 transition-all duration-300 group-hover/fl:border-primary group-hover/fl:bg-primary group-hover/fl:text-primary-foreground">
               <Mail className="h-4 w-4" />
             </span>
             <FooterLink>pelenextgen@hotmail.com</FooterLink>
           </a>
         </div>
 
+        {/* display:contents mantém o grid atual e dá um landmark de navegação ao rodapé. */}
+        <nav aria-label="Rodapé" className="contents">
         <Coluna titulo="Plataforma">
           {SECTIONS.slice(0, 5).map((s) => (
             <li key={s.id}>
@@ -121,9 +123,10 @@ export function Footer() {
             </Link>
           </li>
         </Coluna>
+        </nav>
       </div>
 
-      <div className="relative mx-auto flex max-w-[1400px] flex-col gap-4 border-t border-white/10 px-6 py-6 text-xs text-ink-foreground/50 sm:flex-row sm:items-center sm:justify-between lg:px-10">
+      <div className="relative mx-auto flex max-w-[1400px] flex-col gap-4 border-t border-white/10 px-6 py-6 text-xs text-ink-foreground/70 sm:flex-row sm:items-center sm:justify-between lg:px-10">
         <p>© {new Date().getFullYear()} Pelé Next Gen — A plataforma de peneiras.</p>
         <button
           type="button"
@@ -131,7 +134,7 @@ export function Footer() {
           className="group inline-flex items-center gap-2 self-start font-semibold uppercase tracking-[0.16em] text-ink-foreground/70 transition-colors hover:text-primary sm:self-auto"
         >
           Voltar ao topo
-          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 transition-all duration-300 group-hover:-translate-y-1 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
+          <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 transition-all duration-300 group-hover:-translate-y-1 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
             <ArrowUp className="h-4 w-4" />
           </span>
         </button>

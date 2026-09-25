@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -71,14 +71,23 @@ export function StoryCarousel({
 
   const autoplay = !reduced;
   const paused = hovered || focused || !inView;
+  const painelId = useId();
 
   function onKeyDown(e: KeyboardEvent<HTMLButtonElement>) {
+    // Nas abas, o foco acompanha a aba ativa (roving tabindex).
+    const lista = e.currentTarget.closest('[role="tablist"]');
+    const focarAtiva = () =>
+      requestAnimationFrame(() =>
+        lista?.querySelector<HTMLElement>('[aria-selected="true"]')?.focus(),
+      );
     if (e.key === "ArrowRight") {
       e.preventDefault();
       next();
+      focarAtiva();
     } else if (e.key === "ArrowLeft") {
       e.preventDefault();
       prev();
+      focarAtiva();
     }
   }
 
@@ -142,7 +151,7 @@ export function StoryCarousel({
                     onClick={() => go(i)}
                     onKeyDown={onKeyDown}
                     aria-current={i === active ? "step" : undefined}
-                    className="group/tl inline-flex flex-col items-center gap-3 outline-none"
+                    className="group/tl inline-flex flex-col items-center gap-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background"
                   >
                     <span
                       className={cn(
@@ -156,7 +165,7 @@ export function StoryCarousel({
                       className={cn(
                         "text-[10px] font-bold uppercase tracking-[0.22em] transition-colors duration-300",
                         i === active
-                          ? "text-primary"
+                          ? "text-gold-ink"
                           : "text-muted-foreground group-hover/tl:text-foreground",
                       )}
                     >
@@ -176,12 +185,14 @@ export function StoryCarousel({
                   type="button"
                   role="tab"
                   aria-selected={i === active}
+                  aria-controls={painelId}
+                  tabIndex={i === active ? 0 : -1}
                   onClick={() => go(i)}
                   onKeyDown={onKeyDown}
                   className={cn(
                     "relative h-10 overflow-hidden rounded-full border px-5 text-[11px] font-bold uppercase tracking-[0.16em] transition-all duration-300",
                     i === active
-                      ? "border-primary bg-primary/10 text-primary"
+                      ? "border-primary bg-primary/10 text-gold-ink"
                       : "border-border text-muted-foreground hover:-translate-y-0.5 hover:border-primary/60 hover:text-foreground",
                   )}
                 >
@@ -245,12 +256,14 @@ export function StoryCarousel({
           <div className="flex flex-col justify-between gap-8 p-7 sm:p-10 lg:p-12">
             <div
               key={active}
+              id={painelId}
+              role="tabpanel"
               aria-live={paused || !autoplay ? "polite" : "off"}
               aria-label={`${active + 1} de ${total}`}
               className="hero-anim-fade-up"
             >
               <p className="font-display text-sm font-bold tabular-nums tracking-[0.2em]">
-                <span className="text-primary">{pad(active + 1)}</span>
+                <span className="text-gold-ink">{pad(active + 1)}</span>
                 <span className="text-muted-foreground"> / {pad(total)}</span>
               </p>
               <h3 className="mt-6 font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.02em] lg:text-4xl">
@@ -258,7 +271,7 @@ export function StoryCarousel({
               </h3>
               <p className="mt-5 text-base leading-relaxed text-muted-foreground">{item.texto}</p>
               {item.destaque && (
-                <p className="mt-7 border-l-2 border-primary pl-4 font-display text-lg font-bold leading-snug text-primary">
+                <p className="mt-7 border-l-2 border-primary pl-4 font-display text-lg font-bold leading-snug text-gold-ink">
                   {item.destaque}
                 </p>
               )}

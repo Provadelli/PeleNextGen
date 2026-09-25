@@ -113,7 +113,10 @@ function Landing() {
           scrolled
             ? "border-b border-border bg-background/80 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.45)] backdrop-blur-xl"
             : "border-b border-transparent bg-transparent",
-          hidden && !menu && "-translate-y-full",
+          // Transparente sobre o vídeo: foco/dourado em versão para fundo escuro.
+          !scrolled && !menu && "on-dark",
+          // Esconde ao rolar, mas nunca com o foco do teclado dentro (WCAG 2.4.7).
+          hidden && !menu && "-translate-y-full focus-within:translate-y-0",
         )}
       >
         <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-10">
@@ -133,20 +136,26 @@ function Landing() {
             />
           </Link>
 
-          <nav className="hidden items-center gap-6 lg:flex">
+          <nav aria-label="Seções da página" className="hidden items-center gap-6 lg:flex">
             {SECTIONS.map((s) => (
               <a
                 key={s.id}
                 href={`#${s.id}`}
                 onClick={(e) => scrollToSection(e, s.id)}
                 data-active={active === s.id}
+                aria-current={active === s.id ? "location" : undefined}
                 className={cn(
-                  "relative text-[11px] font-bold uppercase tracking-[0.16em] transition-all duration-300 hover:text-primary active:scale-90 data-[active=true]:text-primary",
-                  scrolled ? "text-foreground/65" : "text-white/80",
+                  "relative text-[11px] font-bold uppercase tracking-[0.16em] transition-all duration-300 active:scale-90",
+                  // Sobre o vídeo (fundo sempre escuro) o dourado claro passa; com o header
+                  // opaco no tema claro, usa o dourado de texto (gold-ink).
+                  scrolled
+                    ? "text-foreground/80 hover:text-gold-ink data-[active=true]:text-gold-ink"
+                    : "text-white/85 hover:text-primary data-[active=true]:text-primary",
                 )}
               >
                 {s.label}
                 <span
+                  aria-hidden="true"
                   className="absolute -bottom-1.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-primary transition-transform duration-300"
                   style={{ transform: active === s.id ? "scaleX(1)" : undefined }}
                 />
@@ -159,8 +168,8 @@ function Landing() {
             <Link
               to="/login"
               className={cn(
-                "hidden h-10 items-center px-3 text-xs font-bold uppercase tracking-[0.14em] transition-colors duration-300 hover:text-primary sm:inline-flex",
-                scrolled ? "text-foreground/80" : "text-white/90",
+                "hidden h-10 items-center px-3 text-xs font-bold uppercase tracking-[0.14em] transition-colors duration-300 sm:inline-flex",
+                scrolled ? "text-foreground/80 hover:text-gold-ink" : "text-white/90 hover:text-primary",
               )}
             >
               Entrar
@@ -170,20 +179,26 @@ function Landing() {
             </GoldButton>
             <button
               type="button"
-              aria-label="Abrir menu de seções"
+              aria-label={menu ? "Fechar menu de seções" : "Abrir menu de seções"}
+              aria-expanded={menu}
+              aria-controls="menu-secoes"
               onClick={() => setMenu((v) => !v)}
               className={cn(
                 "inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-300 active:scale-90 lg:hidden",
                 scrolled ? "border-border" : "border-white/30 text-white",
               )}
             >
-              {menu ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+              {menu ? <X className="h-4 w-4" aria-hidden="true" /> : <Menu className="h-4 w-4" aria-hidden="true" />}
             </button>
           </div>
         </div>
 
         {menu && (
-          <nav className="grid gap-1 border-t border-border bg-background/95 px-4 pb-4 pt-3 backdrop-blur sm:px-6 lg:hidden">
+          <nav
+            id="menu-secoes"
+            aria-label="Seções da página"
+            className="grid gap-1 border-t border-border bg-background/95 px-4 pb-4 pt-3 backdrop-blur sm:px-6 lg:hidden"
+          >
             {SECTIONS.map((s) => (
               <a
                 key={s.id}
@@ -192,7 +207,7 @@ function Landing() {
                   setMenu(false);
                   scrollToSection(e, s.id);
                 }}
-                className="rounded-lg px-3 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-foreground/75 transition-all duration-300 hover:bg-bg2 hover:text-primary active:scale-95"
+                className="rounded-lg px-3 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-foreground/80 transition-all duration-300 hover:bg-bg2 hover:text-gold-ink active:scale-95"
               >
                 {s.label}
               </a>
@@ -201,7 +216,7 @@ function Landing() {
             <Link
               to="/login"
               onClick={() => setMenu(false)}
-              className="mt-2 rounded-lg border border-primary/40 px-3 py-2.5 text-center text-xs font-bold uppercase tracking-[0.16em] text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground active:scale-95 sm:hidden"
+              className="mt-2 rounded-lg border border-primary/40 px-3 py-2.5 text-center text-xs font-bold uppercase tracking-[0.16em] text-gold-ink transition-all duration-300 hover:bg-primary hover:text-primary-foreground active:scale-95 sm:hidden"
             >
               Entrar
             </Link>
@@ -209,7 +224,8 @@ function Landing() {
         )}
       </header>
 
-      <main>
+      {/* Alvo do "Pular para o conteúdo" (__root.tsx). */}
+      <main id="conteudo" tabIndex={-1}>
         <Hero proxima={proxima} loading={loading} />
         <MaisQueUmaPeneira />
         <Historia />

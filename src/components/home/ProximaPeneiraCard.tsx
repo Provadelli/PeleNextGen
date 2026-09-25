@@ -122,13 +122,13 @@ export function ProximaPeneiraCard({
 
           <dl className="mt-6 grid grid-cols-3 gap-3 border-t border-white/15 pt-5 text-white">
             <div>
-              <dt className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-white/55">
+              <dt className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-white/75">
                 <Clock className="h-3 w-3" /> Horário
               </dt>
               <dd className="mt-1 text-sm font-semibold">{peneira.horario}</dd>
             </div>
             <div>
-              <dt className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-white/55">
+              <dt className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-white/75">
                 <CalendarDays className="h-3 w-3" /> Idades
               </dt>
               <dd className="mt-1 truncate text-sm font-semibold">
@@ -136,7 +136,7 @@ export function ProximaPeneiraCard({
               </dd>
             </div>
             <div>
-              <dt className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-white/55">
+              <dt className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-white/75">
                 <Users className="h-3 w-3" /> Vagas
               </dt>
               <dd className="mt-1 text-sm font-semibold tabular-nums">
