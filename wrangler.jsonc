@@ -3,9 +3,7 @@
   "name": "pelescout-nextgen",
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "dist/server/index.mjs",
-  "vars": {
-    "SUPABASE_URL": "https://slbohgbvmmzfasjbzcuk.supabase.co",
-    "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_XyhdeR3UKM5KiNB1pN-rlA_k5F9EKzx"
-  }
+  "main": "dist/server/index.mjs"
+  // Variáveis e segredos NÃO ficam aqui (arquivo versionado).
+  // Produção: `wrangler secret put <NOME>` · Dev local: arquivo `.dev.vars` (ignorado pelo Git).
 }

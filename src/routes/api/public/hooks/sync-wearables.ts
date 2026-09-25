@@ -1,13 +1,26 @@
+import { timingSafeEqual } from "crypto";
 import { createFileRoute } from "@tanstack/react-router";
 import { getAdmin, syncConnection } from "@/server/wearables.server";
 
-// Called daily by pg_cron. Auth via Supabase anon `apikey` header.
+// Called daily by pg_cron. Auth via `Authorization: Bearer <CRON_SECRET>`.
+function isAuthorized(request: Request): boolean {
+  const secret = process.env.CRON_SECRET;
+  const header = request.headers.get("authorization") ?? "";
+  const token = header.startsWith("Bearer ") ? header.slice(7) : "";
+  if (!secret || !token) return false;
+  const a = Buffer.from(token);
+  const b = Buffer.from(secret);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
 export const Route = createFileRoute("/api/public/hooks/sync-wearables")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apiKey = request.headers.get("apikey");
-        if (!apiKey || apiKey !== process.env.SUPABASE_PUBLISHABLE_KEY) {
+        if (!process.env.CRON_SECRET) {
+          return new Response("CRON_SECRET not configured", { status: 500 });
+        }
+        if (!isAuthorized(request)) {
           return new Response("Unauthorized", { status: 401 });
         }
         const admin = getAdmin();

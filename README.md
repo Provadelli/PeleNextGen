@@ -184,7 +184,13 @@ Resumindo em duas palavras: **frontend é `src/`** (rotas, componentes, hooks, l
 
 ## Configuração do Ambiente
 
-Crie um arquivo `.env` na raiz do projeto com os valores do seu projeto Supabase. **O `.env` nunca deve ser commitado** (já está no `.gitignore`).
+Copie o modelo e preencha com os valores do seu projeto Supabase. **O `.env` nunca deve ser commitado** (já está no `.gitignore`; só o `.env.example`, sem valores, é versionado).
+
+```bash
+cp .env.example .env
+```
+
+Variáveis públicas:
 
 ```bash
 # Supabase (obrigatório)
@@ -206,6 +212,7 @@ Estas variáveis são usadas por código server-only (`src/server/supabase-admin
 |----------|--------------|------------------|
 | `SUPABASE_SERVICE_ROLE_KEY` | Bypass de RLS para operações admin e sincronização de wearables | `wrangler secret put SUPABASE_SERVICE_ROLE_KEY` (produção) / `.dev.vars` (dev local) |
 | `GOOGLE_FIT_CLIENT_ID` / `GOOGLE_FIT_CLIENT_SECRET` | OAuth do Google Fit (conexão de wearables) | idem |
+| `CRON_SECRET` | Autentica o cron diário em `/api/public/hooks/sync-wearables` (header `Authorization: Bearer <CRON_SECRET>`) | idem |
 
 Em dev local, essas variáveis ficam em um arquivo `.dev.vars` na raiz (formato `NOME=valor`, já está no `.gitignore`). Em produção no Cloudflare, use `wrangler secret put <NOME>` — nunca coloque essas chaves no bloco `vars` do `wrangler.jsonc`, que é versionado no Git.
 
@@ -259,12 +266,30 @@ Configuração em `wrangler.jsonc`:
   "name": "pelescout-nextgen",
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "dist/server/index.mjs",
-  "vars": {
-    "SUPABASE_URL": "https://<seu-projeto>.supabase.co",
-    "SUPABASE_PUBLISHABLE_KEY": "<sua-anon-key>"
-  }
+  "main": "dist/server/index.mjs"
 }
+```
+
+O `wrangler.jsonc` **não** contém chaves. Configure-as como secrets:
+
+```bash
+npx wrangler secret put SUPABASE_URL
+npx wrangler secret put SUPABASE_PUBLISHABLE_KEY
+npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+npx wrangler secret put CRON_SECRET
+```
+
+#### Cron de sincronização de wearables
+
+O job do `pg_cron` no Supabase deve chamar o hook com o `CRON_SECRET` (e não com a chave pública):
+
+```sql
+select cron.schedule('sync-wearables-daily', '0 6 * * *', $$
+  select net.http_post(
+    url     := 'https://<seu-dominio>/api/public/hooks/sync-wearables',
+    headers := jsonb_build_object('Authorization', 'Bearer <CRON_SECRET>')
+  );
+$$);
 ```
 
 ### Opção 2: Vercel
@@ -275,7 +300,7 @@ O app usa TanStack Start com SSR e rotas de servidor (`src/routes/api/*`, `/site
 2. Framework preset: **Other** (a Vercel detecta o output do Nitro automaticamente após o build).
 3. Build command: deixe o padrão — a Vercel já roda o script `vercel-build` do `package.json` (`NITRO_PRESET=vercel vite build`) automaticamente quando ele existe.
 4. Output directory: irrelevante (o Nitro gera `.vercel/output/` direto, seguindo a Build Output API).
-5. Em Project Settings → Environment Variables, adicione as mesmas variáveis listadas em [Configuração do Ambiente](#configuração-do-ambiente): `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_PROJECT_ID` e, se for usar wearables, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_FIT_CLIENT_ID`, `GOOGLE_FIT_CLIENT_SECRET`.
+5. Em Project Settings → Environment Variables, adicione as mesmas variáveis listadas em [Configuração do Ambiente](#configuração-do-ambiente): `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_PROJECT_ID` e, se for usar wearables, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_FIT_CLIENT_ID`, `GOOGLE_FIT_CLIENT_SECRET`, `CRON_SECRET`.
 
 Para testar localmente antes de subir:
 

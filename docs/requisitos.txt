@@ -259,7 +259,7 @@ RN-25  Conexão de wearable pertence exclusivamente ao atleta autenticado.
 RN-26  Métricas sincronizadas são privadas ao atleta e visíveis ao
        admin/suporte; clubes só com desbloqueio.
 RN-27  Webhook de sincronização (`/api/public/hooks/sync-wearables`)
-       só processa payload com assinatura HMAC válida.
+       só processa chamadas com `Authorization: Bearer <CRON_SECRET>`.
 
 --------------------------------------------------------------------------------
 3.8 Exclusão e Retenção
