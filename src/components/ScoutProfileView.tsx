@@ -36,6 +36,7 @@ import {
 } from "@/lib/scout-profile";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { SeguirOlheiro } from "@/components/VanillaInteracoes";
 
 export interface ScoutProfileViewProps {
   userId: string;
@@ -285,6 +286,7 @@ export function ScoutProfileView({ userId, variant }: ScoutProfileViewProps) {
           </div>
 
           <div className="flex shrink-0 flex-col gap-3 lg:w-56">
+            {!isSelf && <SeguirOlheiro id={profile.id} nome={profile.nome} />}
             <Button
               className="w-full"
               onClick={isSelf ? undefined : handleContato}

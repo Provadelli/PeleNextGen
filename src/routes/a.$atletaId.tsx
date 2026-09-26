@@ -23,6 +23,7 @@ import {
   type PublicTitulo,
 } from "@/lib/public-atleta.functions";
 import { ACHIEVEMENT_ICONS } from "@/components/icons/FootballIcons";
+import { InteracoesAtleta } from "@/components/VanillaInteracoes";
 
 function calcIdade(dob: string | null): number | null {
   if (!dob) return null;
@@ -209,6 +210,8 @@ function PublicAtletaPage() {
             </div>
           </section>
         </div>
+
+        <InteracoesAtleta atleta={{ id: atleta.id, nome: atleta.nome, posicao: atleta.posicao }} />
 
         {(clubes.length > 0 || titulos.length > 0) && (
           <div className="grid gap-4 lg:grid-cols-2">
