@@ -17,6 +17,7 @@ import {
   LineChart,
   BarChart3,
   GitCompareArrows,
+  Newspaper,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { NotificationsBell } from "./NotificationsBell";
@@ -36,6 +37,7 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "suporte"] },
+  { to: "/feed", label: "Feed de atletas", icon: Newspaper, roles: ["admin", "atleta", "clube", "suporte"] },
   { to: "/peneiras", label: "Peneiras", icon: Trophy, roles: ["admin", "atleta", "clube", "suporte"] },
   { to: "/peneiras/criar", label: "Criar peneira", icon: PlusCircle, roles: ["admin", "clube"] },
   { to: "/candidatos", label: "Candidatos", icon: Users, roles: ["admin", "suporte"] },

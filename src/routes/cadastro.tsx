@@ -20,6 +20,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { ScrollPicker, range } from "@/components/ScrollPicker";
+import { useVanilla } from "@/hooks/use-vanilla";
+import { ativarValidacao, REGRAS_CADASTRO } from "@/assets/js/validation.js";
 import { calcularIdade, formatarDataBR, fromISODate, toISODate, IDADE_MIN, IDADE_MAX } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -113,6 +115,8 @@ function CadastroPage() {
   const [foto, setFoto] = useState<string>("");
   const [fotoFile, setFotoFile] = useState<File | null>(null);
   const fotoInputRef = useRef<HTMLInputElement>(null);
+  // Validação interativa em JavaScript nativo (src/assets/js/validation.js).
+  const formRef = useVanilla<HTMLFormElement>((f) => ativarValidacao(f, REGRAS_CADASTRO), []);
 
   function handleFotoChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -262,7 +266,7 @@ function CadastroPage() {
             </p>
           </div>
 
-          <form onSubmit={submit} className="space-y-8">
+          <form ref={formRef} onSubmit={submit} className="space-y-8" noValidate>
             <div>
               <h2 className="mb-4 font-display text-lg font-bold">Foto de perfil</h2>
               <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-border bg-bg2/40 p-6 sm:flex-row sm:items-center sm:gap-6">
@@ -309,23 +313,32 @@ function CadastroPage() {
             </div>
 
             <Section title="Dados pessoais">
-              <Field label="Nome completo" error={errors.nome} className="sm:col-span-2">
+              <Field label="Nome completo" error={errors.nome} campoId="cad-nome" className="sm:col-span-2">
                 <Input
+                  id="cad-nome"
+                  aria-describedby="cad-nome-erro"
+                  autoComplete="name"
                   value={form.nome}
                   onChange={(e) => update("nome", e.target.value)}
                   placeholder="Ex: João Pedro Silva"
                 />
               </Field>
-              <Field label="E-mail" error={errors.email}>
+              <Field label="E-mail" error={errors.email} campoId="cad-email">
                 <Input
+                  id="cad-email"
+                  aria-describedby="cad-email-erro"
+                  autoComplete="email"
                   type="email"
                   value={form.email}
                   onChange={(e) => update("email", e.target.value)}
                   placeholder="seu@email.com"
                 />
               </Field>
-              <Field label="Celular (WhatsApp)" error={errors.celular}>
+              <Field label="Celular (WhatsApp)" error={errors.celular} campoId="cad-celular">
                 <Input
+                  id="cad-celular"
+                  aria-describedby="cad-celular-erro"
+                  autoComplete="tel"
                   type="tel"
                   inputMode="tel"
                   value={form.celular}
@@ -334,12 +347,17 @@ function CadastroPage() {
                   maxLength={20}
                 />
               </Field>
-              <Field label="Senha" error={errors.senha} className="sm:col-span-2">
+              <Field label="Senha" error={errors.senha} campoId="cad-senha" className="sm:col-span-2">
                 <PasswordInput
+                  id="cad-senha"
+                  aria-describedby="cad-senha-forca cad-senha-erro"
+                  autoComplete="new-password"
                   value={form.senha}
                   onChange={(e) => update("senha", e.target.value)}
                   placeholder="Mínimo 6 caracteres"
                 />
+                {/* Medidor de força: criado pelo validation.js dentro deste elemento vazio. */}
+                <div id="cad-senha-forca" />
               </Field>
             </Section>
 
@@ -551,16 +569,22 @@ function Field({
   error,
   children,
   className,
+  campoId,
 }: {
   label: string;
   error?: string;
   children: React.ReactNode;
   className?: string;
+  /** id do campo validado pelo validation.js: liga o label e cria o <p> da mensagem. */
+  campoId?: string;
 }) {
   return (
     <div className={"space-y-2 " + (className ?? "")}>
-      <Label className="text-sm font-semibold">{label}</Label>
+      <Label htmlFor={campoId} className="text-sm font-semibold">
+        {label}
+      </Label>
       {children}
+      {campoId && <p id={`${campoId}-erro`} className="min-h-4 text-xs font-medium text-destructive" />}
       {error && <p className="text-xs font-medium text-destructive">{error}</p>}
     </div>
   );

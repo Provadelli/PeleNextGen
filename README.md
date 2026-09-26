@@ -22,6 +22,7 @@ O **Pelé Next Gen** organiza seletivas (peneiras) de futebol, hospeda perfis pr
 - [Segurança (RLS)](#segurança-rls)
 - [Scripts Úteis](#scripts-úteis)
 - [Design System](#design-system)
+- [Manual de Interatividade](#manual-de-interatividade)
 - [Licença](#licença)
 
 ---
@@ -401,6 +402,88 @@ Tema escuro com paleta azul-marinho e acentos dourados.
 
 - **Headings**: Poppins (600–900)
 - **Body**: Inter (400–700)
+
+---
+
+## Manual de Interatividade
+
+Camada de dinamismo feita em **JavaScript nativo (Vanilla JS)**, com manipulação direta do DOM e eventos do navegador, integrada às telas React do projeto. Todo o código fica em **`src/assets/js/`**.
+
+### Como o JavaScript nativo convive com o React
+
+As páginas React renderizam um elemento vazio e entregam esse elemento aos módulos de `src/assets/js/` pelo hook `src/hooks/use-vanilla.ts`. A partir daí, o conteúdo dessa área é criado e atualizado só com `createElement`, `addEventListener`, `classList` e atributos (`aria-pressed`, `aria-selected`, `aria-invalid`). O React não coloca filhos nessas áreas, então os dois não disputam o mesmo DOM. Quando a página sai da tela, cada módulo devolve uma função de limpeza que remove os listeners.
+
+Os estilos continuam sendo classes utilitárias do Tailwind com os tokens do projeto (`bg-bg2`, `text-primary`, `border-border`...), escritas dentro dos arquivos `.js`. O Tailwind lê esses arquivos (`@source "../src"` em `src/styles.css`), sem CSS paralelo.
+
+### Onde cada funcionalidade aparece
+
+| Tela | Rota | O que é JavaScript nativo |
+|---|---|---|
+| Feed de atletas (nova) | `/feed` (menu "Feed de atletas") | Abas, filtros, cards, votos, tags, seguir e favoritar |
+| Perfil do atleta | `/a/:atletaId` | Bloco "Interações da comunidade": voto, seguir, favoritar, abas e tags |
+| Perfil do olheiro | `/olheiros/:userId` | Botões Seguir e Favoritar o olheiro |
+| Login | `/login` | Validação interativa dos campos |
+| Cadastro de atleta | `/cadastro` | Validação interativa e medidor de força da senha |
+
+### Arquivos JavaScript e responsabilidades
+
+| Arquivo | O que controla | Principais funções |
+|---|---|---|
+| `ui.js` | Toasts de feedback, abas acessíveis, animação dos contadores e criação de elementos | `mostrarToast()`, `criarAbas()`, `pulsar()`, `criar()` |
+| `feed.js` | Monta o feed: cards, abas Todos, Seguindo e Favoritos, contagem de resultados e estado vazio | `montarFeed()` |
+| `filters.js` | Filtros em tempo real por posição, região e busca | `criarFiltros()` |
+| `interacoes.js` | Confirmar tags de atributos, votar, seguir e favoritar (atletas e olheiros) | `criarListaDeTags()`, `criarBotaoVoto()`, `criarBotaoSeguir()`, `criarBotaoFavorito()`, `ligarInteracoes()`, `montarSeguirFavoritar()` |
+| `perfil.js` | Bloco de interações do perfil do atleta, com as abas Atributos e Seus registros | `montarInteracoesPerfil()` |
+| `validation.js` | Validação do login e do cadastro, mensagens de erro e medidor de força da senha | `ativarValidacao()`, `REGRAS_LOGIN`, `REGRAS_CADASTRO` |
+| `store.js` | Guarda votos, tags, quem o usuário segue e favoritos no `localStorage` | `tem()`, `alternar()` |
+| `data.js` | Região de cada estado, atributos por posição e funções de texto | `regiaoDaCidade()`, `atributosDaPosicao()`, `normalizar()`, `iniciais()` |
+
+Arquivos React que chamam esses módulos: `src/routes/feed.tsx`, `src/components/VanillaInteracoes.tsx`, `src/routes/login.tsx`, `src/routes/cadastro.tsx` e o hook `src/hooks/use-vanilla.ts`.
+
+### 1. Interatividades no feed e no perfil (`interacoes.js`)
+
+- **Confirmar tag de atributo:** cada atleta tem três atributos ligados à posição (ex.: Atacante: Finalização, Velocidade e Drible). O clique alterna `aria-pressed`, e as classes `aria-pressed:` do Tailwind trocam a borda tracejada pela sólida dourada.
+- **Votar:** o botão com seta atualiza o contador na hora, com uma animação curta feita pela Web Animations API.
+- **Seguir:** o botão muda entre "Seguir" e "Seguindo". Funciona para atletas (feed e perfil) e para olheiros (perfil do olheiro).
+- **Favoritar:** a estrela é preenchida, e o atleta passa a aparecer na aba Favoritos do feed.
+- Um único `addEventListener("click")` por área atende todos os botões (delegação de eventos). Se o mesmo atleta aparece em mais de um lugar, todos os botões dele são atualizados juntos.
+- As ações ficam salvas no navegador (`store.js`), então o estado continua igual ao navegar entre o feed e os perfis. A contagem mostra a ação do próprio usuário até existir uma tabela de votos no Supabase.
+
+### 2. Filtros dinâmicos (`filters.js` + `feed.js`)
+
+- **Posição:** chips com `aria-pressed`, evento `click`.
+- **Região:** `select` com as 5 regiões, evento `change`. A região é descoberta pela cidade do atleta ("Nova Iguaçu - RJ", "Recife/PE", "Belo Horizonte, Minas Gerais").
+- **Busca por nome ou cidade:** evento `input`, filtra a cada letra e ignora acentos.
+- Os cards não são recriados: só ganham ou perdem a classe `hidden`. A contagem ("2 atletas encontrados com Atacante, região Norte") fica numa região `aria-live`.
+- O botão "Limpar filtros" fica desabilitado quando não há filtro ativo. Sem resultados, aparece um estado vazio com a mensagem certa para cada caso.
+
+### 3. Validação de formulários (`validation.js`)
+
+- **Ao sair do campo** (`focusout`), o campo é validado. Depois disso, é revalidado **a cada digitação** (`input`).
+- **No envio** (`submit`, em fase de captura), todos os campos são validados. Se houver erro, o envio é barrado com `preventDefault()` e `stopPropagation()` antes de chegar ao código do React e ao Supabase, o foco vai para o primeiro campo com problema e um toast avisa quantos campos precisam de correção. Se tudo estiver certo, o envio segue normalmente.
+- As mensagens aparecem no `<p id="{campo}-erro">` ligado ao campo por `aria-describedby`. O campo recebe `aria-invalid="true"`, e a borda fica vermelha pela classe `aria-[invalid=true]:border-destructive` do componente `Input`.
+- **Login:** e-mail válido e senha preenchida.
+- **Cadastro:** nome e sobrenome só com letras, e-mail válido, celular com DDD (10 ou 11 dígitos) e senha com 6 a 72 caracteres, com medidor de força (fraca, média, forte) que troca a largura e a cor da barra por classes do Tailwind.
+
+### Abas sem recarregar a página (`ui.js`)
+
+- Feed: Todos, Seguindo e Favoritos, com contador ao lado de cada aba.
+- Perfil do atleta: Atributos e Seus registros.
+- As abas usam `role="tablist"`, `role="tab"` e `aria-selected`, e funcionam com clique e com as teclas ← → Home e End.
+
+### Toasts de feedback (`ui.js`)
+
+- Avisam o resultado de cada ação: voto registrado ou removido, atributo confirmado, seguir ou deixar de seguir, favorito adicionado ou removido e erros de formulário.
+- São criados com `createElement`, somem sozinhos depois de 3,5 segundos, podem ser fechados no ×, aparecem no máximo 3 por vez e são anunciados por leitores de tela (`role="status"`).
+
+### Como testar
+
+1. `npm i` e `npm run dev`.
+2. Entre com uma conta e abra **Feed de atletas** no menu.
+3. Combine os filtros de posição, região e busca. Vote, siga, favorite e confirme atributos em alguns atletas.
+4. Troque para as abas Seguindo e Favoritos, com o mouse e depois com as setas do teclado.
+5. Abra o perfil de um atleta: os botões aparecem no mesmo estado do feed.
+6. Em `/login` e `/cadastro`, clique em enviar com os campos vazios e depois corrija campo por campo.
 
 ---
 

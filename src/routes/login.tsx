@@ -13,6 +13,8 @@ import { type Role } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { traduzirErroAuth } from "@/lib/auth-errors";
+import { useVanilla } from "@/hooks/use-vanilla";
+import { ativarValidacao, REGRAS_LOGIN } from "@/assets/js/validation.js";
 import { useTTS } from "@/hooks/use-tts";
 
 const PAGE_NARRATION =
@@ -150,6 +152,9 @@ function LoginPage() {
     }
     return "/peneiras";
   }
+
+  // Validação interativa em JavaScript nativo (src/assets/js/validation.js).
+  const formRef = useVanilla<HTMLFormElement>((form) => ativarValidacao(form, REGRAS_LOGIN), []);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -332,7 +337,7 @@ function LoginPage() {
             Use suas credenciais — o tipo de conta é detectado automaticamente.
           </p>
 
-          <form onSubmit={submit} className="mt-6 space-y-4">
+          <form ref={formRef} onSubmit={submit} className="mt-6 space-y-4" noValidate>
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
               <div className="relative">
@@ -345,8 +350,10 @@ function LoginPage() {
                   placeholder="seu@email.com"
                   className="pl-10"
                   autoComplete="email"
+                  aria-describedby="email-erro"
                 />
               </div>
+              <p id="email-erro" className="min-h-4 text-xs font-medium text-destructive" />
             </div>
 
             <div className="space-y-2">
@@ -360,8 +367,10 @@ function LoginPage() {
                   placeholder="••••••••"
                   className="pl-10"
                   autoComplete="current-password"
+                  aria-describedby="senha-erro"
                 />
               </div>
+              <p id="senha-erro" className="min-h-4 text-xs font-medium text-destructive" />
             </div>
 
             <Button type="submit" className="w-full" size="lg" disabled={loading}>

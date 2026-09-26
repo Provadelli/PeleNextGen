@@ -18,6 +18,7 @@ import { Route as ComparadorRouteImport } from './routes/comparador'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DemoComponentesRouteImport } from './routes/demo-componentes'
 import { Route as DesempenhoRouteImport } from './routes/desempenho'
+import { Route as FeedRouteImport } from './routes/feed'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ManualRouteImport } from './routes/manual'
 import { Route as PerfilRouteImport } from './routes/perfil'
@@ -89,6 +90,11 @@ const DemoComponentesRoute = DemoComponentesRouteImport.update({
 const DesempenhoRoute = DesempenhoRouteImport.update({
   id: '/desempenho',
   path: '/desempenho',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedRoute = FeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -239,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/demo-componentes': typeof DemoComponentesRoute
   '/desempenho': typeof DesempenhoRoute
+  '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
   '/manual': typeof ManualRoute
   '/perfil': typeof PerfilRoute
@@ -277,6 +284,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/demo-componentes': typeof DemoComponentesRoute
   '/desempenho': typeof DesempenhoRoute
+  '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
   '/manual': typeof ManualRoute
   '/perfil': typeof PerfilRoute
@@ -316,6 +324,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/demo-componentes': typeof DemoComponentesRoute
   '/desempenho': typeof DesempenhoRoute
+  '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
   '/manual': typeof ManualRoute
   '/perfil': typeof PerfilRoute
@@ -356,6 +365,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/demo-componentes'
     | '/desempenho'
+    | '/feed'
     | '/login'
     | '/manual'
     | '/perfil'
@@ -394,6 +404,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/demo-componentes'
     | '/desempenho'
+    | '/feed'
     | '/login'
     | '/manual'
     | '/perfil'
@@ -432,6 +443,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/demo-componentes'
     | '/desempenho'
+    | '/feed'
     | '/login'
     | '/manual'
     | '/perfil'
@@ -471,6 +483,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DemoComponentesRoute: typeof DemoComponentesRoute
   DesempenhoRoute: typeof DesempenhoRoute
+  FeedRoute: typeof FeedRoute
   LoginRoute: typeof LoginRoute
   ManualRoute: typeof ManualRoute
   PerfilRoute: typeof PerfilRoute
@@ -563,6 +576,13 @@ declare module '@tanstack/react-router' {
       path: '/desempenho'
       fullPath: '/desempenho'
       preLoaderRoute: typeof DesempenhoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed': {
+      id: '/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof FeedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -767,6 +787,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DemoComponentesRoute: DemoComponentesRoute,
   DesempenhoRoute: DesempenhoRoute,
+  FeedRoute: FeedRoute,
   LoginRoute: LoginRoute,
   ManualRoute: ManualRoute,
   PerfilRoute: PerfilRoute,
