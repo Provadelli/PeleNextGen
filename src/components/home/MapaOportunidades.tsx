@@ -128,7 +128,7 @@ export function MapaOportunidades({ peneiras }: { peneiras: Peneira[] }) {
           </Reveal>
 
           {top.length === 0 ? (
-            <p className="mt-10 text-sm text-muted-foreground">Novas regiões em breve.</p>
+            <p className="mt-10 text-sm text-muted-foreground">Nenhuma peneira ativa no momento.</p>
           ) : (
             <Reveal stagger delay={120} className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3">
               {top.map(([uf, n], i) => (
@@ -278,7 +278,7 @@ export function MapaOportunidades({ peneiras }: { peneiras: Peneira[] }) {
                 <span className="h-3 w-3 rounded-full bg-gradient-gold shadow-gold" /> Com peneiras
               </span>
               <span className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full bg-foreground/10" /> Em breve
+                <span className="h-3 w-3 rounded-full bg-foreground/10" /> Sem peneiras
               </span>
             </div>
 

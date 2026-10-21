@@ -75,7 +75,7 @@ function PrivacidadePage() {
               <li>Exibir seu perfil esportivo para olheiros e clubes que você autorizar;</li>
               <li>
                 Exibir seu perfil esportivo no ranking de atletas e disponibilizar seus dados de
-                contato (e-mail e celular) a clubes que pagarem pelo desbloqueio, conforme a seção 5;
+                contato (e-mail e celular) a clubes cuja solicitação de desbloqueio for aprovada pela nossa equipe, conforme a seção 5;
               </li>
               <li>Registrar e mostrar sua evolução técnica ao longo do tempo;</li>
               <li>Viabilizar o chat entre atletas, olheiros e clubes;</li>
@@ -149,8 +149,8 @@ function PrivacidadePage() {
           <section className="reveal-on-scroll">
             <h2 className="font-display text-xl font-bold text-foreground">5. Compartilhamento</h2>
             <p className="mt-2">
-              Clubes só têm acesso a vídeos, perfil completo e chat de um atleta depois de desbloquear o
-              contato dele na plataforma. Olheiros veem os dados necessários para conduzir avaliações nas
+              Clubes só têm acesso a vídeos, perfil completo e chat de um atleta depois de a nossa
+              equipe aprovar o desbloqueio do contato dele. Olheiros veem os dados necessários para conduzir avaliações nas
               peneiras em que atuam. Não compartilhamos, vendemos nem alugamos seus dados pessoais a
               terceiros fora da plataforma para fins de marketing ou publicidade. Podemos divulgar dados
               quando exigido por lei, ordem judicial ou para proteger direitos, segurança e propriedade da

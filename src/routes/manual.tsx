@@ -16,7 +16,6 @@ import {
   Star,
   ChevronDown,
   UserCircle,
-  Play,
   Lightbulb,
   XCircle,
 } from "lucide-react";
@@ -214,7 +213,6 @@ function ManualPage() {
               </p>
               <p className="mt-3 font-semibold text-foreground">É a sua chance de mostrar:</p>
               <BulletList items={["Seu futebol", "Sua disciplina", "Sua atitude"]} />
-              <VideoPlaceholder title="O que esperar de uma peneira (2:30)" />
             </Accordion>
 
             <Accordion
@@ -576,59 +574,3 @@ function Callout({
   );
 }
 
-/**
- * Sem `youtubeId`: mantém o placeholder "em breve".
- * Com `youtubeId`: facade de vídeo (thumbnail estática + botão de play) que só
- * monta o iframe do YouTube no clique, evitando carregar o player inteiro
- * antes do usuário pedir.
- */
-function VideoPlaceholder({ title, youtubeId }: { title: string; youtubeId?: string }) {
-  const [playing, setPlaying] = useState(false);
-
-  if (youtubeId && playing) {
-    return (
-      <div className="mt-5 aspect-video w-full overflow-hidden rounded-xl border border-border">
-        <iframe
-          className="h-full w-full"
-          src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1`}
-          title={title}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      </div>
-    );
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={youtubeId ? () => setPlaying(true) : undefined}
-      aria-label={youtubeId ? `Assistir: ${title}` : undefined}
-      className={cn(
-        "mt-5 group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl border border-border bg-gradient-to-br from-bg2 to-bg3 transition-all hover:border-primary/40",
-        youtubeId ? "cursor-pointer" : "cursor-default",
-      )}
-    >
-      {youtubeId ? (
-        <img
-          src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
-          alt=""
-          aria-hidden="true"
-          loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover opacity-60 transition-opacity group-hover:opacity-75"
-        />
-      ) : (
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,theme(colors.primary/0.15),transparent_60%)]" />
-      )}
-      <div className="relative flex flex-col items-center gap-3 text-center">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform group-hover:scale-110">
-          <Play className="h-6 w-6 translate-x-0.5" />
-        </div>
-        <p className="text-sm font-semibold text-foreground">{title}</p>
-        <p className="text-xs text-muted-foreground">
-          {youtubeId ? "Assistir vídeo" : "Vídeo explicativo em breve"}
-        </p>
-      </div>
-    </button>
-  );
-}
