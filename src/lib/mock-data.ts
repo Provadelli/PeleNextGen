@@ -9,8 +9,6 @@ export type Posicao =
 export type StatusPeneira = "aberta" | "em_andamento" | "encerrada";
 export type Visibilidade = "publica" | "privada";
 
-/** Preço, em reais, que um clube paga para desbloquear contato de 1 atleta aprovado. */
-export const PRECO_CONTATO_BRL = 49.9;
 
 export interface Jogo {
   /** ex: "1", "2", ... */
