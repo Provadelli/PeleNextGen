@@ -36,6 +36,9 @@ import { useSession } from "@/lib/session";
 import { startConversation } from "@/lib/chat";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useMinhasSolicitacoes } from "@/lib/solicitacoes";
+import { SolicitacaoStatus } from "@/components/SolicitacaoStatus";
+import { UnlockContatoDialog, type UnlockTarget } from "@/components/UnlockContatoDialog";
 
 export const Route = createFileRoute("/candidatos/")({
   head: () => ({
@@ -53,8 +56,6 @@ const STATUS_TABS = [
   { value: "avaliado", label: "Avaliados" },
   { value: "aprovado", label: "Aprovados" },
 ] as const;
-
-const PRECO_DESBLOQUEIO = 49.99;
 
 function CandidatosPage() {
   const { user, ready } = useSession();
@@ -512,24 +513,10 @@ function EstadoLista({
 }
 
 function ClubeCardsView({ list }: { list: Candidato[] }) {
-  const [unlocked, setUnlocked] = useState<Set<string>>(new Set());
-  const [paying, setPaying] = useState<Candidato | null>(null);
-  const [processing, setProcessing] = useState(false);
-
-  const confirmar = async () => {
-    if (!paying) return;
-    setProcessing(true);
-    // Simula processamento de pagamento
-    await new Promise((r) => setTimeout(r, 900));
-    setUnlocked((prev) => {
-      const next = new Set(prev);
-      next.add(paying.id);
-      return next;
-    });
-    setProcessing(false);
-    toast.success(`Contato de ${paying.nome} desbloqueado!`);
-    setPaying(null);
-  };
+  const { user } = useSession();
+  const solicitacoes = useMinhasSolicitacoes();
+  const [alvo, setAlvo] = useState<UnlockTarget | null>(null);
+  const liberados = new Set(user?.contatosDesbloqueados ?? []);
 
   if (list.length === 0) {
     return (
@@ -543,7 +530,10 @@ function ClubeCardsView({ list }: { list: Candidato[] }) {
     <>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {list.map((c) => {
-          const isUnlocked = unlocked.has(c.id);
+          // Atletas reais usam o user_id; o servidor valida o alvo.
+          const alvoId = c.userId ?? c.id;
+          const isUnlocked = liberados.has(alvoId);
+          const sol = solicitacoes.statusDe(alvoId);
           return (
             <article
               key={c.id}
@@ -589,58 +579,32 @@ function ClubeCardsView({ list }: { list: Candidato[] }) {
                   Contato desbloqueado
                 </div>
               ) : (
-                <Button
-                  size="lg"
-                  onClick={() => setPaying(c)}
-                  className="h-12 w-full text-base font-bold"
-                >
-                  <Lock className="mr-2 h-4 w-4" aria-hidden="true" />
-                  {/* Nome acessível começa pelo texto visível (WCAG 2.5.3). */}
-                  Desbloquear por R$ 49,99
-                  <span className="sr-only"> o contato de {c.nome}</span>
-                </Button>
+                <div className="space-y-2">
+                  {sol && <SolicitacaoStatus solicitacao={sol} />}
+                  {sol?.status !== "pendente" && (
+                    <Button
+                      size="lg"
+                      onClick={() => setAlvo({ id: alvoId, nome: c.nome })}
+                      className="h-12 w-full text-base font-bold"
+                    >
+                      <Lock className="mr-2 h-4 w-4" aria-hidden="true" />
+                      {/* Nome acessível começa pelo texto visível (WCAG 2.5.3). */}
+                      Solicitar desbloqueio
+                      <span className="sr-only"> do contato de {c.nome}</span>
+                    </Button>
+                  )}
+                </div>
               )}
             </article>
           );
         })}
       </div>
 
-      <Dialog open={!!paying} onOpenChange={(o) => !o && !processing && setPaying(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="font-display text-xl">Confirmar desbloqueio</DialogTitle>
-            <DialogDescription>
-              Você terá acesso ao local e aos contatos (telefone e e-mail) de{" "}
-              <strong className="text-foreground">{paying?.nome}</strong>.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="rounded-2xl border border-border bg-bg2 p-5 text-center">
-            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Total
-            </p>
-            <p className="mt-1 font-display text-4xl font-extrabold text-gradient-gold">
-              R$ {PRECO_DESBLOQUEIO.toFixed(2).replace(".", ",")}
-            </p>
-            <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-              <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-              Pagamento único, acesso imediato
-            </p>
-          </div>
-          <DialogFooter className="gap-2 sm:gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setPaying(null)}
-              disabled={processing}
-              className="h-11"
-            >
-              Cancelar
-            </Button>
-            <Button onClick={confirmar} disabled={processing} className="h-11 font-bold">
-              {processing ? "Processando..." : "Confirmar pagamento"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <UnlockContatoDialog
+        target={alvo}
+        onClose={() => setAlvo(null)}
+        onSolicitado={solicitacoes.reload}
+      />
     </>
   );
 }

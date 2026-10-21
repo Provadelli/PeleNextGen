@@ -24,36 +24,6 @@ export async function clearSession() {
   }
 }
 
-/**
- * Solicita ao servidor o desbloqueio do contato de um candidato.
- * A gravação é feita exclusivamente no backend, após validação de papel e pagamento.
- */
-export async function unlockContato(candidatoId: string) {
-  const { data: sess } = await supabase.auth.getSession();
-  const token = sess.session?.access_token;
-  if (!token) throw new Error("Você precisa estar autenticado.");
-
-  const res = await fetch("/api/contatos/unlock", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ candidatoId }),
-  });
-  if (!res.ok) {
-    throw new Error(
-      res.status === 402
-        ? "Pagamento não confirmado."
-        : "Não foi possível desbloquear o contato.",
-    );
-  }
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new Event("png-session"));
-  }
-}
-
-
 async function loadSessionUser(userId: string): Promise<SessionUser | null> {
   const [{ data: profile }, { data: roles }] = await Promise.all([
     supabase.from("profiles").select("nome, email, avatar_url").eq("id", userId).maybeSingle(),
