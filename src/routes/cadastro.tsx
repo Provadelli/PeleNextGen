@@ -420,7 +420,7 @@ function CadastroPage() {
                         "w-full justify-start text-left font-normal",
                         !form.altura && "text-muted-foreground",
                       )}
-                      aria-label="Selecionar altura em centímetros"
+                      aria-label={form.altura ? `Altura: ${form.altura} cm` : "Selecione a altura"}
                     >
                       <Ruler className="mr-2 h-4 w-4" />
                       {form.altura ? `${form.altura} cm` : <span>Selecione a altura</span>}
@@ -448,7 +448,7 @@ function CadastroPage() {
                         "w-full justify-start text-left font-normal",
                         !form.peso && "text-muted-foreground",
                       )}
-                      aria-label="Selecionar peso em quilogramas"
+                      aria-label={form.peso ? `Peso: ${form.peso} kg` : "Selecione o peso"}
                     >
                       <Weight className="mr-2 h-4 w-4" />
                       {form.peso ? `${form.peso} kg` : <span>Selecione o peso</span>}
@@ -468,7 +468,7 @@ function CadastroPage() {
 
               <Field label="Posição" error={errors.posicao}>
                 <Select value={form.posicao} onValueChange={(v) => update("posicao", v)}>
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Posição">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>

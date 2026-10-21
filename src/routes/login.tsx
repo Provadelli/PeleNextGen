@@ -264,7 +264,7 @@ function LoginPage() {
               variant="outline"
               size="sm"
               onClick={toggleNarration}
-              aria-label={isSpeaking ? "Parar leitura da página" : "Ouvir conteúdo da página"}
+              aria-label={isSpeaking ? "Parar leitura da página" : "Ouvir página em voz alta"}
               aria-pressed={isSpeaking}
               disabled={ttsLoading}
             >

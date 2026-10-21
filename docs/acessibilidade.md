@@ -1,6 +1,32 @@
-# Acessibilidade — WCAG 2.1 AA (Sprint 3)
+# Acessibilidade — WCAG 2.1 AA (Sprints 3 e 4)
 
-Escopo: **Home** (`/`), **Dashboard** (`/dashboard`, painel do gestor) e **Candidatos** (`/candidatos`, listagem com filtros), além do layout compartilhado (`__root.tsx`, `AppLayout.tsx`, `Footer.tsx`).
+Escopo: **Home** (`/`), **Dashboard** (`/dashboard`), **Candidatos** (`/candidatos`) e, na Sprint 4, **/login, /cadastro, /peneiras, /ranking, /suporte, /clubes, /chat, /perfil e /demo-componentes** (ainda não há `/design-system`; a página de componentes é a `demo-componentes`), além do layout compartilhado (`__root.tsx`, `AppLayout.tsx`, `Footer.tsx`).
+
+## 0. Resultado da Sprint 4 (axe-core, claro e escuro, `scripts/axe-audit.mjs`)
+
+Rodar: `node scripts/axe-audit.mjs https://pelenextgen.vercel.app /login /cadastro ...` (regras `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`; também lista erros de console e respostas HTTP ≥ 400).
+
+| Tela | Antes | Correção | Depois |
+|---|---|---|---|
+| `/login` | `label-content-name-mismatch` (botão "Ouvir página") | `aria-label` agora contém o texto visível (2.5.3) | 0 |
+| `/cadastro` | `button-name` (select Posição sem nome); `label-content-name-mismatch` (altura e peso) | `aria-label="Posição"`; rótulos de altura/peso iniciam pelo texto visível | 0 |
+| `/peneiras`, `/chat`, `/perfil`, `/ranking` | mesmo botão "Ouvir página" | idem `/login` | 0 |
+| `/suporte`, `/clubes` | — | — | 0 |
+| `/demo-componentes` | `label` (2 inputs) e `color-contrast` (`text-white` sobre `--success`/`--error`, que clareiam no escuro) | `aria-label` nos inputs; `text-background` no lugar de `text-white` | ⚠️ restam só contrastes dos estados *simulados* (disabled com `opacity-50`, pulso de animação), que não existem em controles reais |
+
+Observações:
+- `/chat` e `/perfil` exigem login; sem sessão o axe auditou a tela exibida ao visitante. Auditar logado: ver pendências.
+- `/ranking` registra no console `401` em `rpc/get_athlete_leaderboard` para visitante anônimo (permissão do Supabase, não é código de front; regra de negócio inalterada).
+- Teclado nas novas telas: a mesma base de foco visível global, Radix (Popover/Select/Dialog) com `Esc` e retorno de foco, e link "Pular para o conteúdo". Roteiro da seção 3 vale para elas.
+
+## 0.1 Lighthouse (produção)
+
+| Momento | Mobile (Perf / A11y) | Desktop (Perf / A11y) | Peso |
+|---|---|---|---|
+| Antes (main, 21/10/2026) | 61 / 100 (LCP 44 s) | 86 / 100 | 24,9 MB |
+| Depois | _preencher após o merge/deploy_ | _preencher_ | |
+
+Mudanças de performance: vídeo do Hero 8,8 MB → 1,2 MB (720p, sem áudio, `faststart`) e só carregado em ≥ 1024px sem "economia de dados"; 4 fotos da home de 3–4 MB → ~0,2–0,3 MB (máx. 1600 px); logos de 606 KB → ~20 KB; `width`/`height` nos logos. Relatórios em `docs/lighthouse/`.
 
 Legenda de status: ✅ Atende · ⚠️ Parcial (ver observação) · 🔲 Verificação manual pendente · N/A Não se aplica às telas do escopo.
 
