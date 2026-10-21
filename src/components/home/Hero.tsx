@@ -18,6 +18,7 @@ const HERO_TITLE: TitlePart[] = [
 function HeroBackgroundMedia() {
   const [reduced, setReduced] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
+  const [wide, setWide] = useState(false);
   // WCAG 2.2.2: conteúdo em movimento por mais de 5s precisa de um controle de pausa.
   const [paused, setPaused] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -42,18 +43,29 @@ function HeroBackgroundMedia() {
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
+  // Performance: o vídeo (~1,2 MB) só carrega em telas largas e sem "economia de dados";
+  // no celular o poster estático cumpre o papel.
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+    setWide(mq.matches && !saveData);
+    const onChange = () => setWide(mq.matches && !saveData);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
   // Enquadramento: o vídeo (16:9) ocupa só a primeira tela — no celular a seção fica
   // bem mais alta que a tela e o vídeo ficaria ampliado demais. O foco fica levemente
   // abaixo do centro (gramado e círculo central), que é o assunto do sobrevoo.
   const mediaCls = "h-full w-full object-cover object-[50%_58%] opacity-55";
 
-  const showVideo = !reduced && !videoFailed;
+  const showVideo = wide && !reduced && !videoFailed;
 
   return (
     <>
     <div className="absolute inset-0 -z-10 overflow-hidden bg-ink">
       <div className="absolute inset-x-0 top-0 h-[100svh] lg:h-full">
-        {reduced ? (
+        {reduced || !wide ? (
           <img src={heroAtleta} alt="" aria-hidden="true" className={mediaCls} />
         ) : videoFailed ? (
           <img src={campoAcao} alt="" aria-hidden="true" className={mediaCls} />

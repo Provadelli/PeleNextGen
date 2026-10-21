@@ -58,7 +58,7 @@ function DemoComponentes() {
               </button>
             </StateBlock>
             <StateBlock label="Error">
-              <button className="inline-flex h-9 animate-pulse items-center justify-center rounded-md bg-error px-4 py-2 text-sm font-medium text-white shadow-sm ring-2 ring-error/40 ring-offset-2 ring-offset-background">
+              <button className="inline-flex h-9 animate-pulse items-center justify-center rounded-md bg-error px-4 py-2 text-sm font-medium text-background shadow-sm ring-2 ring-error/40 ring-offset-2 ring-offset-background">
                 Falha ao inscrever
               </button>
             </StateBlock>
@@ -89,6 +89,7 @@ function DemoComponentes() {
             </StateBlock>
             <StateBlock label="Active (digitando)">
               <input
+                aria-label="E-mail (digitando)"
                 defaultValue="pedro@pele.com"
                 className="flex h-9 w-full rounded-md border border-primary/40 bg-transparent px-3 py-1 text-sm text-foreground shadow-sm"
               />
@@ -103,6 +104,7 @@ function DemoComponentes() {
             <StateBlock label="Error">
               <div className="space-y-1">
                 <input
+                  aria-label="E-mail (com erro)"
                   defaultValue="email-invalido"
                   aria-invalid="true"
                   className="flex h-9 w-full rounded-md border border-error bg-transparent px-3 py-1 text-sm text-foreground shadow-sm ring-1 ring-error/40"
@@ -177,7 +179,7 @@ function DemoComponentes() {
               <SimpleCard
                 className="border-error ring-1 ring-error/40"
                 badge="ERRO"
-                badgeClass="bg-error text-white"
+                badgeClass="bg-error text-background"
               />
             </StateBlock>
           </div>
@@ -304,15 +306,15 @@ function PeneiraMock({ state }: { state?: "hover" | "focus" | "active" | "disabl
           : "Ver detalhes";
   const ctaClass =
     state === "active"
-      ? "bg-success text-white"
+      ? "bg-success text-background"
       : state === "error"
-        ? "bg-error text-white"
+        ? "bg-error text-background"
         : "bg-primary text-primary-foreground";
 
   return (
     <article className={`${base} ${stateClass}`}>
       <div className="relative h-24 overflow-hidden bg-gradient-blue">
-        <span className="absolute left-3 top-3 rounded-full bg-success/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+        <span className="absolute left-3 top-3 rounded-full bg-success/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-background">
           Aberta
         </span>
       </div>
