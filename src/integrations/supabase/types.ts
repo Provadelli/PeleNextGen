@@ -419,6 +419,39 @@ export type Database = {
         }
         Relationships: []
       }
+      solicitacoes_desbloqueio: {
+        Row: {
+          id: string
+          clube_id: string
+          candidato_id: string
+          status: string
+          criado_em: string
+          resolvido_em: string | null
+          resolvido_por: string | null
+          observacao: string | null
+        }
+        Insert: {
+          id?: string
+          clube_id: string
+          candidato_id: string
+          status?: string
+          criado_em?: string
+          resolvido_em?: string | null
+          resolvido_por?: string | null
+          observacao?: string | null
+        }
+        Update: {
+          id?: string
+          clube_id?: string
+          candidato_id?: string
+          status?: string
+          criado_em?: string
+          resolvido_em?: string | null
+          resolvido_por?: string | null
+          observacao?: string | null
+        }
+        Relationships: []
+      }
       contatos_desbloqueados: {
         Row: {
           candidato_id: string
