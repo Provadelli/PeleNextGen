@@ -28,7 +28,10 @@ disponível (aparelho dos participantes), sem afirmar que alguém tenha errado p
 | 2 | Hipótese H2 (não validada): selos de 9 px | Card de peneira em /peneiras (T1, T3) | antes-2.png | depois-2.png | Categoria e status são informação usada para escolher a peneira. 11 px melhora a leitura em tela pequena. Commit 4dd0c32 |
 | 3 | Hipótese H3 (não validada): rótulo de 10 px | Menu lateral (todas as tarefas) | antes-3.png | depois-3.png | O rótulo informa a área do usuário (atleta, clube, olheiro). `text-xs` (12 px) é mais legível. Arquivo do Miguel (AppLayout), aviso feito. Commit 7fd6be0 |
 
-Os prints ainda precisam ser tirados (ver pendências).
+Prints: recortes em **desktop** (a janela do navegador não encolheu para celular). ANTES no site em produção
+(conta de clube) e DEPOIS no `npm run dev` (conta de atleta), por isso o rótulo do menu diz "ÁREA DO CLUBE" no
+antes e "ÁREA DO ATLETA" no depois. Medidas no depois: botão de tema 44x44 px, selos 11 px, rótulo 12 px.
+No antes, o botão de tema media 36x36 px em produção.
 
 ## Resumo de métricas
 
