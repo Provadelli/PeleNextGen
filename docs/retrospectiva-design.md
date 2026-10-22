@@ -1,0 +1,48 @@
+# Retrospectiva de design — Pelé Next Gen (Sprints 1 a 4)
+
+> **Rascunho.** O que está escrito vem do histórico do git (`git log`, 1.069 commits até 22/10/2026), dos tokens em `src/styles.css` e do que foi feito na Sprint 4. Trechos em **[PREENCHER]** dependem de informação que o git não tem (Figma, decisões e datas das Sprints 1 e 2) e devem ser completados pelo grupo antes da entrega.
+
+## Linha do tempo (evidência no git)
+
+| Data | Marco | Evidência |
+|---|---|---|
+| 24/04/2026 | Projeto nasce de um template (TanStack Start) e as primeiras telas e a marca (logo, cores) são geradas no mesmo dia: 60 commits em um dia, com ajustes sucessivos de logo e fundo ("Substituiu logo e trocou cores", "Corrigiu fundo do logo"…) | `git log --since=2026-04-24 --until=2026-04-25` |
+| 24–25/04 | Primeiros fluxos: sistema de peneiras, fluxo de clube e perfis | mensagens "Criou sistema de peneiras", "Implementou fluxo clube e roles" |
+| mai–jun/2026 | Muitos commits curtos por dia (103 em 07/05, 94 em 09/05, 129 em 15/06): iteração rápida de interface, ainda sem registro de decisões | `git log --format=%ad \| sort \| uniq -c` |
+| 19/09/2026 | **Redesign da home**: Hero com vídeo, carrossel no Legado e na Academia, header transparente, fotos reais e "paleta preto/dourado". É também quando a fonte Poppins deixa de aparecer no código | commit `468cde7` |
+| 22–23/09 | Novo design do dashboard e das abas Legado/Peneiras, repaginação de login e cadastro, ranking, **responsividade mobile** e ajustes de navegação | commits `a91064a` e seguintes |
+| 25/09 | **Acessibilidade no sistema todo** (contraste, foco visível, tokens `--gold-ink` e `--blue-ink` para texto) | commit `6b395df` |
+| 21/10 | Sprint 4, validação com usuários: 3 ajustes (botão de tema com 44px, selos do card com 11px, rótulo do menu com `text-xs`), com prints antes/depois | `docs/validacao/` |
+| 22/10 | **Design system**: rota `/design-system`, tokens vivos, componentes em todos os estados, alvos de 44px | commits `feat(s4)` e `fix(s4)` |
+
+## Como o design evoluiu
+
+1. **Do gerado para o sistematizado.** Até setembro as telas foram sendo ajustadas por commits curtos, quase todos sem descrição ("Changes"). A Sprint 4 é a primeira vez em que existe uma página que documenta tokens e estados.
+2. **Da paleta azul-marinho para preto/dourado, com tema claro e escuro.** O README ainda descreve a versão antiga (Poppins/Inter, `#d4af37`, `#0a1628`); o código hoje usa Space Grotesk e tokens em OKLCH com variantes claro/escuro. A divergência está registrada em `docs/design-system.md`.
+3. **Da cor decorativa para a cor com função.** A acessibilidade (25/09) criou tokens específicos para texto (`--gold-ink`, `--blue-ink`), com os comentários no `styles.css` explicando o porquê (dourado claro dava ~2,5:1 sobre fundo claro). Na Sprint 4 o contraste passou a ser **medido na própria página** para cada par texto/fundo.
+4. **Do desktop para o celular.** A responsividade entrou em 23/09; na Sprint 4 o critério passou a ser mensurável (sem rolagem lateral, alvo de 44px). A medição achou um defeito real: o dashboard ficava 81px mais largo que a tela de 375px porque a grade não tinha `grid-cols-1` (conteúdo cortado, escondido por `overflow-x: clip`).
+
+## Sprints 1 e 2 — **[PREENCHER pelo grupo]**
+
+- Sprint 1: entregáveis de design (Figma? wireframes? personas?), decisões de marca e de paleta, o que foi ao ar. **[PREENCHER]**
+- Sprint 2: o que mudou em relação ao Figma, componentes definidos, feedback recebido. **[PREENCHER]**
+- Datas e limites de cada sprint (o git não registra as fronteiras). **[PREENCHER]**
+- Link do Figma (se houver) e o que ficou diferente do protótipo. **[PREENCHER]**
+
+## Sprint 3 e 4 — o que o histórico confirma
+
+- **Sprint 3:** acessibilidade WCAG 2.1 AA documentada em `docs/acessibilidade.md` (Miguel). **[PREENCHER:** o que mais mudou no visual]
+- **Sprint 4:** validação com usuários e 3 ajustes pós-teste (Vitor); auditoria axe sem violações nas telas novas (Miguel); design system e responsividade (Arthur).
+
+## O que aprendemos
+
+- Tokens semânticos (`--primary`, `--ring`, `--card`) permitiram ter tema claro e escuro sem reescrever componentes; sempre que uma cor foi escrita fixa (`text-white`, `text-slate-50`) ela apareceu depois como falha de contraste.
+- Documentar a rota com os **componentes reais** (e não classes copiadas, como era a `/demo-componentes`) expõe o que não é consistente: foco `ring-1` × `ring-2`, falta de hover nos campos, componente de sucesso inexistente no `Alert`.
+- Medir antes de afirmar: o contraste `--accent-foreground`/`--accent` (3,44:1) só apareceu quando a página passou a calcular a razão.
+
+## O que fica para depois
+
+- Decidir um tom de `--accent` com contraste ≥ 4,5:1 com texto branco.
+- Unificar foco (`ring-2`) e dar hover aos campos.
+- Criar variante de sucesso no `Alert` e `Badge`.
+- Atualizar a seção "Design System" do README (texto proposto em `docs/design-system.md`).
