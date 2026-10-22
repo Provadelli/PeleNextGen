@@ -209,4 +209,14 @@ Verificação por leitura do código; **a conferência com axe DevTools e teclad
 Pendente (manual, telas com login — `/chat`, `/perfil`, `/clubes`, `/suporte`, `/candidatos`, `/peneiras/$id`): axe DevTools, Tab/Enter/Esc, foco visível, labels, `alt`, `h1` único. Itens já conhecidos do lint: `jsx-a11y/label-has-associated-control` em `src/routes/clubes.tsx` (filtros).
 
 ### Números finais
-_A preencher após o deploy do PR: Lighthouse mobile e desktop da home e axe nas rotas públicas (metas: Acessibilidade ≥ 90, Performance ≥ 80, console sem erros)._
+Medidos em produção (https://pelenextgen.vercel.app/) em 21/10/2026, depois do merge dos PRs #8 e #9. Lighthouse CLI (home) e `scripts/axe-audit.mjs`.
+
+| Medição | Antes | Depois |
+|---|---|---|
+| Performance mobile | 65 (LCP 6,9 s) | **79** (LCP 3,8 s) |
+| Performance desktop | 87 | **90** (LCP 1,9 s) |
+| Acessibilidade mobile e desktop | 100 | **100** |
+| axe `/`, `/login`, `/cadastro`, `/peneiras`, `/privacidade`, `/termos`, `/ranking` (claro e escuro) | `link-name` em `/privacidade` e `/termos` | **0 violações** |
+| Console nas rotas públicas | erro 401 em `/ranking` | **sem erros** |
+
+A meta de Performance mobile (≥ 80) ficou 1 ponto abaixo; o próximo ganho está nos chunks grandes de JS (`index` ~700 KB), a tratar com code-splitting.
