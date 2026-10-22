@@ -180,3 +180,33 @@ Pré-requisitos: mouse desconectado ou sem uso; Chrome ou Firefox; opcional NVDA
 | Tela | Lighthouse (mobile) | Lighthouse (desktop) | Data |
 |---|---|---|---|
 | Home | _preencher após o deploy_ | _preencher_ | |
+
+## Auditoria Sprint 4 — correções e checklist das telas novas
+
+Medição de partida (produção, 21/10/2026): Lighthouse home — desktop Perf 87 / A11y 100; mobile Perf 65 / A11y 100 (LCP 6,9 s, parágrafo do Hero com 3,4 s de atraso de renderização). axe (`scripts/axe-audit.mjs`): `/`, `/login`, `/cadastro`, `/peneiras` com 0 violações; `/privacidade` e `/termos` com `link-name` no logo do cabeçalho.
+
+| Achado | Correção |
+|---|---|
+| Fonte Space Grotesk bloqueava a renderização | `<link media="print">` virando `all` ao carregar (script em `__root.tsx`), mantendo `preconnect` |
+| Parágrafo do Hero (LCP) começava em `opacity-0` via `<Reveal>` | `<Reveal>` removido só desse parágrafo; `prefers-reduced-motion` e o resto do Hero preservados |
+| Imagens abaixo da dobra de 190–340 KB | Convertidas para WebP (máx. 1200 px, 70–180 KB) com `width`/`height`; `loading="lazy"` mantido |
+| `/privacidade` e `/termos`: `link-name` | `aria-label="Pelé Next Gen, ir para a página inicial"` no link do logo |
+| `/ranking`: 401 no console para visitante | A chamada a `get_athlete_leaderboard` só ocorre com sessão (a tela já exige login via `useRequireAuth`) |
+
+### Checklist WCAG 2.1 AA — telas do fluxo concierge
+Verificação por leitura do código; **a conferência com axe DevTools e teclado nas telas logadas continua pendente** (o script não faz login).
+
+| Critério | Solicitar desbloqueio (diálogo) | Aba Desbloqueios (suporte) | Status do pedido (cards) |
+|---|---|---|---|
+| 1.1.1 Alternativa textual | Ícones com `aria-hidden` | Ícones com `aria-hidden` | Ícones com `aria-hidden` |
+| 1.3.1 Estrutura | `DialogTitle`/`DialogDescription` (Radix) | Lista `<ul>`, `<label>` envolvendo o `Textarea` | Texto de status, não só cor |
+| 1.4.1 Cor não é o único meio | Texto "pendente/liberado/recusado" | Rótulo textual de status | Idem |
+| 2.1.1 / 2.4.3 Teclado e foco | Foco preso e devolvido pelo Radix; Esc fecha | Botões nativos, ordem natural | — |
+| 2.5.3 Rótulo no nome | "Solicitar desbloqueio" + `sr-only` com o nome | "Aprovar"/"Recusar" + `sr-only` com o clube | — |
+| 3.3.1 Erros identificados | `role="alert"` com nova tentativa | `role="alert"` com "Tentar novamente" | — |
+| 4.1.3 Mensagens de status | `role="status"` na confirmação | Carregando com `role="status"` | `role="status"` |
+
+Pendente (manual, telas com login — `/chat`, `/perfil`, `/clubes`, `/suporte`, `/candidatos`, `/peneiras/$id`): axe DevTools, Tab/Enter/Esc, foco visível, labels, `alt`, `h1` único. Itens já conhecidos do lint: `jsx-a11y/label-has-associated-control` em `src/routes/clubes.tsx` (filtros).
+
+### Números finais
+_A preencher após o deploy do PR: Lighthouse mobile e desktop da home e axe nas rotas públicas (metas: Acessibilidade ≥ 90, Performance ≥ 80, console sem erros)._
