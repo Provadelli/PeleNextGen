@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { mensagemDaFunction } from "@/lib/auth-errors";
 import { z } from "zod";
 import { TERMOS_VERSAO_ATUAL } from "@/lib/legal";
 
@@ -108,7 +109,7 @@ function CadastroClubePage() {
 
     setLoading(false);
     if (error) {
-      toast.error(error.message ?? "Falha ao enviar o cadastro.");
+      toast.error(await mensagemDaFunction(error));
       return;
     }
 

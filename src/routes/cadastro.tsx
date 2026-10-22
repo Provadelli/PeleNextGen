@@ -26,7 +26,7 @@ import { calcularIdade, formatarDataBR, fromISODate, toISODate, IDADE_MIN, IDADE
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { traduzirErroAuth } from "@/lib/auth-errors";
+import { mensagemDaFunction, traduzirErroAuth } from "@/lib/auth-errors";
 import { z } from "zod";
 
 export const Route = createFileRoute("/cadastro")({
@@ -75,16 +75,6 @@ const POSICOES = ["Goleiro", "Zagueiro", "Lateral", "Volante", "Meia", "Atacante
  * quando houver SMTP próprio configurado.
  */
 const CONFIRMAR_EMAIL_ATLETA = false;
-
-/** Extrai a mensagem de erro do corpo da resposta de uma edge function. */
-async function mensagemDaFunction(err: unknown): Promise<string> {
-  const ctx = (err as { context?: Response }).context;
-  if (ctx && typeof ctx.json === "function") {
-    const body = await ctx.json().catch(() => null);
-    if (body?.error) return traduzirErroAuth({ message: body.error, code: body.code });
-  }
-  return traduzirErroAuth(err as { message?: string });
-}
 
 const PES = ["Destro", "Canhoto", "Ambidestro"] as const;
 type Pe = (typeof PES)[number];
