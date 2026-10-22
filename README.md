@@ -29,18 +29,18 @@ Valores e forma de pagamento são combinados diretamente com a equipe, fora da p
 - Setup e variáveis de ambiente: seções [Configuração do Ambiente](#configuração-do-ambiente) e [Executando Localmente](#executando-localmente) (Node 22+).
 - Deploy: seção [Deploy](#deploy). Produção: https://pelenextgen.vercel.app/. As variáveis `VITE_SUPABASE_*`, `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` devem existir também no ambiente **Preview** da Vercel.
 - Migration nova desta sprint: `supabase/migrations/20261021120000_solicitacoes_desbloqueio.sql` (aplicar no Supabase antes do deploy).
-- Figma: _a equipe de design ainda não informou o link; preencher aqui assim que existir_.
+- Design: **não houve Figma**; o design das Sprints 1 e 2 foi feito direto em código no Lovable ([primeira versão publicada](https://pelescout-nextgen.lovable.app/)). Styleguide atual em `/design-system` e documentação em [docs/design-system.md](docs/design-system.md); retrospectiva em [docs/retrospectiva-design.md](docs/retrospectiva-design.md).
 - Acessibilidade e performance: [docs/acessibilidade.md](docs/acessibilidade.md).
 
 ### Equipe e entregas
 | Integrante | RM | Branch | PR | Telas |
 |---|---|---|---|---|
-| Arthur Moreira | 571532 | `Arthur` | Sem PR aberto até o momento | Não informado pela equipe |
+| Arthur Moreira | 571532 | `feat/s4-design-system` | PR para `main` (design system) | `/design-system` (tokens, tipografia, componentes e estados), layout em 375/768/1280px, alvos de toque de 44px |
 | Pedro Lucas Souza Provadelli | 572547 | `fix/s4-tanstack-cve`, `feat/s4-mvp-concierge`, `feat/s4-a11y-auditoria`, `fix/cadastro-erros-claros`, `docs/s4-numeros-finais` | [#7](https://github.com/Provadelli/PeleNextGen/pull/7) (CVE), [#9](https://github.com/Provadelli/PeleNextGen/pull/9) (concierge), [#8](https://github.com/Provadelli/PeleNextGen/pull/8) (auditoria), [#10](https://github.com/Provadelli/PeleNextGen/pull/10) (cadastro), [#11](https://github.com/Provadelli/PeleNextGen/pull/11) (números finais), todos mergeados | Solicitação de desbloqueio, aba Desbloqueios (suporte), `/ranking`, `/clubes`, `/candidatos`, cadastro de clube e olheiro |
 | Miguel | 573825 | `Miguel_Sprint4` (não `feat/s4-a11y-performance`) | [#6](https://github.com/Provadelli/PeleNextGen/pull/6) (mergeado) | Acessibilidade WCAG 2.1 AA e performance |
 | Vitor Louzano | 573885 | `feat/fluxos-refinados` | [#2](https://github.com/Provadelli/PeleNextGen/pull/2) (aberto, refinação de login e cadastro) | Login e cadastro; testes com usuários a registrar |
 
-> Os campos "Não informado pela equipe" e o link do Figma devem ser preenchidos pelos próprios integrantes. Os PRs acima foram conferidos no GitHub.
+> Os campos "Não informado pela equipe" devem ser preenchidos pelos próprios integrantes. Os PRs acima foram conferidos no GitHub.
 
 ---
 
@@ -405,6 +405,10 @@ npm run preview      # Preview local do build
 npm run deploy       # Build + deploy no Cloudflare
 npm run lint         # ESLint
 npm run format       # Prettier
+
+# Auditorias (usam o Chrome instalado e o puppeteer-core do projeto)
+node scripts/axe-audit.mjs <baseUrl> <rota...>            # axe-core WCAG 2.1 A/AA, claro e escuro
+node scripts/responsive-audit.mjs <baseUrl> [--prints]    # rolagem lateral, alvos < 44px e prints em 375/768/1280
 ```
 
 ### Validação de Cadastros Admin
@@ -420,25 +424,38 @@ Veja [`scripts/README.md`](scripts/README.md) para detalhes.
 
 ## Design System
 
-Tema escuro com paleta azul-marinho e acentos dourados.
+Styleguide vivo em **`/design-system`** (local: `http://localhost:8080/design-system`; `/demo-componentes` redireciona para ele). Documentação completa em [`docs/design-system.md`](docs/design-system.md).
+
+Tailwind CSS v4 com tokens em **OKLCH** definidos em `src/styles.css`, tema **claro e escuro** (classe `.dark`; `.light` força o claro dentro de um trecho) e acentos dourado e azul, escolhidos pelo aspecto futebolístico da marca. A página lê os valores reais das variáveis CSS e mede o contraste de cada par texto/fundo.
 
 ### Cores
 
-| Token | Cor | Uso |
-|-------|-----|-----|
-| `--gold` | `#d4af37` | Primária, botões, destaques |
-| `--gold-light` | `#f0d060` | Hover, gradientes |
-| `--blue` | `#005baa` | Secundária |
-| `--blue-dark` | `#003d73` | Fundos profundos |
-| `--background` | `#0a1628` | Fundo principal |
-| `--bg2` | `#0f1e33` | Cards e surfaces |
-| `--success` | `#2ecc71` | Aprovado |
-| `--error` | `#e74c3c` | Erro / reprovado |
+| Token | Claro | Escuro | Uso |
+|-------|-------|--------|-----|
+| `--gold` | `#D09A21` | `#E0AF3B` | Primária, botões, destaques |
+| `--gold-ink` | `#875800` | `#E0AF3B` | Dourado para texto e foco (contraste AA) |
+| `--blue` | `#0065CD` | `#0065CD` | Secundária |
+| `--blue-dark` | `#003B95` | `#003B95` | Fundos profundos |
+| `--background` | `#F8FAFD` | `#061223` | Fundo principal |
+| `--bg2` | `#EFF4F9` | `#0B192A` | Cards e superfícies |
+| `--success` | `#007136` | `#52CD7D` | Sucesso / aberta |
+| `--error` | `#BB0916` | `#FF655A` | Erro / reprovado |
+
+Há ainda `--gold-light`, `--gold-dark`, `--blue-light`, `--blue-ink`, `--bg3`, `--ink`, `--chart-1…5` e `--sidebar-*` (lista completa em `docs/design-system.md`).
 
 ### Tipografia
 
-- **Headings**: Poppins (600–900)
-- **Body**: Inter (400–700)
+- **Títulos e corpo**: Space Grotesk (400–700), carregada por Google Fonts em `src/routes/__root.tsx` (`--font-display` e `--font-body`).
+- Escala: `text-xs` a `text-5xl` do Tailwind (ver `/design-system#tipografia`). Raio base `--radius` = 0,75rem.
+
+### Componentes e convenções
+
+- Componentes shadcn/ui em `src/components/ui/` e do produto (`StatusBadge`, `PeneiraCard`, `SolicitacaoStatus`, `AthleteAvatar`, `EmptyState`…), todos exibidos em `/design-system` nos estados default, hover, focus-visible, active, disabled, erro, loading, vazio e sucesso.
+- Só tokens do Tailwind (`bg-card`, `text-muted-foreground`, `border-border`…); texto dourado/azul pequeno usa `text-gold-ink` / `text-blue-ink`.
+- Alvos de toque de no mínimo 44px abaixo de `md`; grades com `grid-cols-1` na base para não cortar o conteúdo em 375px.
+- Layout verificado em 375, 768 e 1280px (`scripts/responsive-audit.mjs`; prints em `docs/design-system/prints/`).
+
+> Histórico: as Sprints 1 e 2 usavam Poppins (títulos) e Inter (corpo); a fonte atual é Space Grotesk.
 
 ---
 
