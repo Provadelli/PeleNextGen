@@ -1,0 +1,7 @@
+participante,idade,persona,aparelho,Q1,Q2,Q5,Q10,indice
+P1,18,Olheiro,Celular,10,0,10,0,100.0
+P2,18,Atleta,Celular,8,1,8,3,80.0
+P3,21,Atleta,Celular,10,2,10,1,92.5
+P4,18,Clube,Celular,7,0,10,0,92.5
+P5,18,Atleta,Celular,8,0,10,0,95.0
+P6,18,Clube,Computador,8,2,9,5,75.0
