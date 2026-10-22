@@ -64,7 +64,7 @@ export function Parceiros() {
           <button
             type="button"
             onClick={() => setPaused((v) => !v)}
-            className="inline-flex h-10 items-center gap-2 rounded-full border border-border px-4 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:border-primary hover:text-foreground active:scale-95"
+            className="inline-flex h-11 items-center gap-2 rounded-full border border-border px-4 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:border-primary hover:text-foreground active:scale-95"
           >
             {paused ? (
               <Play className="h-3.5 w-3.5" aria-hidden="true" />

@@ -18,6 +18,7 @@ import {
   Legend,
 } from "recharts";
 import { AppLayout } from "@/components/AppLayout";
+import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { peneiras, candidatos } from "@/lib/mock-data";
@@ -171,7 +172,7 @@ function Dashboard() {
         <DashboardSkeleton />
       ) : (
         <>
-          <section aria-labelledby="kpis-titulo" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <section aria-labelledby="kpis-titulo" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <h2 id="kpis-titulo" className="sr-only">
               Indicadores
             </h2>
@@ -182,7 +183,7 @@ function Dashboard() {
             ))}
           </section>
 
-          <Reveal as="section" delay={120} className="mt-8 grid gap-6 xl:grid-cols-3">
+          <Reveal as="section" delay={120} className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-3">
             <ChartCard
               className="xl:col-span-2"
               title="Inscrições mensais"
@@ -247,7 +248,7 @@ function Dashboard() {
             </ChartCard>
           </Reveal>
 
-          <Reveal as="section" delay={160} className="mt-6 grid gap-6 xl:grid-cols-3">
+          <Reveal as="section" delay={160} className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
             <ChartCard
               className="xl:col-span-2"
               title="Médias por critério"
@@ -348,12 +349,12 @@ function DashboardSkeleton() {
   return (
     <div aria-busy="true" role="status">
       <span className="sr-only">Carregando painel…</span>
-      <div aria-hidden="true" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div aria-hidden="true" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="h-[124px] rounded-2xl" />
         ))}
       </div>
-      <div aria-hidden="true" className="mt-8 grid gap-6 xl:grid-cols-3">
+      <div aria-hidden="true" className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-3">
         <Skeleton className="h-[360px] rounded-2xl xl:col-span-2" />
         <Skeleton className="h-[360px] rounded-2xl" />
       </div>
@@ -377,27 +378,6 @@ function DashboardError({ error }: { error: unknown }) {
         </Button>
       </div>
     </AppLayout>
-  );
-}
-
-function EmptyState({
-  icon: Icon,
-  title,
-  description,
-  action,
-}: {
-  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" }>;
-  title: string;
-  description: string;
-  action?: React.ReactNode;
-}) {
-  return (
-    <div className="mt-4 flex flex-col items-center rounded-xl border border-dashed border-border px-4 py-10 text-center">
-      <Icon className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
-      <p className="mt-3 font-semibold">{title}</p>
-      <p className="mt-1 max-w-xs text-sm text-muted-foreground">{description}</p>
-      {action && <div className="mt-4">{action}</div>}
-    </div>
   );
 }
 

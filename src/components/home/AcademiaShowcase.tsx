@@ -319,7 +319,7 @@ export function AcademiaShowcase({
               onClick={() => clickTitle(i)}
               onKeyDown={onKeyDown}
               className={cn(
-                "relative h-10 overflow-hidden rounded-full border px-5 text-[11px] font-bold uppercase tracking-[0.16em] transition-all duration-300",
+                "relative h-11 overflow-hidden rounded-full border px-5 text-[11px] font-bold uppercase tracking-[0.16em] transition-all duration-300",
                 i === active
                   ? "border-primary bg-primary text-primary-foreground shadow-gold"
                   : "border-foreground/25 text-foreground/75 hover:text-foreground",

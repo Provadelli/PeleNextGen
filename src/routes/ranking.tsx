@@ -124,7 +124,7 @@ function RankingPage() {
           </p>
         </header>
 
-        <div className="grid gap-3 rounded-2xl border border-border bg-bg2 p-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 rounded-2xl border border-border bg-bg2 p-4 sm:grid-cols-3">
           <label className="text-xs font-semibold text-muted-foreground">
             <span className="mb-1 flex items-center gap-1"><Filter className="h-3 w-3" /> Posição</span>
             <select

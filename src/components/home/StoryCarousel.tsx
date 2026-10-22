@@ -190,7 +190,7 @@ export function StoryCarousel({
                   onClick={() => go(i)}
                   onKeyDown={onKeyDown}
                   className={cn(
-                    "relative h-10 overflow-hidden rounded-full border px-5 text-[11px] font-bold uppercase tracking-[0.16em] transition-all duration-300",
+                    "relative h-11 overflow-hidden rounded-full border px-5 text-[11px] font-bold uppercase tracking-[0.16em] transition-all duration-300",
                     i === active
                       ? "border-primary bg-primary/10 text-gold-ink"
                       : "border-border text-muted-foreground hover:-translate-y-0.5 hover:border-primary/60 hover:text-foreground",
@@ -309,18 +309,23 @@ export function StoryCarousel({
 
         {/* Celular (linha do tempo): pontos compactos no lugar da trilha. */}
         {nav === "timeline" && (
-          <div className="mt-5 flex justify-center gap-2 sm:hidden">
+          <div className="mt-3 flex justify-center sm:hidden">
             {items.map((it, i) => (
               <button
                 key={it.kicker}
                 type="button"
                 onClick={() => go(i)}
                 aria-label={`Ir para ${it.kicker}`}
-                className={cn(
-                  "h-2 rounded-full transition-all duration-300",
-                  i === active ? "w-8 bg-primary" : "w-2 bg-border",
-                )}
-              />
+                className="flex h-11 min-w-11 items-center justify-center px-1"
+              >
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "h-2 rounded-full transition-all duration-300",
+                    i === active ? "w-8 bg-primary" : "w-2 bg-border",
+                  )}
+                />
+              </button>
             ))}
           </div>
         )}
