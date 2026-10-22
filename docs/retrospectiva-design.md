@@ -18,13 +18,13 @@
 ## Como o design evoluiu
 
 1. **Do gerado para o sistematizado.** Até setembro as telas foram sendo ajustadas por commits curtos, quase todos sem descrição ("Changes"). A Sprint 4 é a primeira vez em que existe uma página que documenta tokens e estados.
-2. **Da paleta azul-marinho para preto/dourado, com tema claro e escuro.** O README ainda descreve a versão antiga (Poppins/Inter, `#d4af37`, `#0a1628`); o código hoje usa Space Grotesk e tokens em OKLCH com variantes claro/escuro. A divergência está registrada em `docs/design-system.md`.
+2. **Mesma identidade, outra base técnica.** O primeiro design (https://pelescout-nextgen.lovable.app/, lido em 22/10/2026) já era escuro, azul-marinho com dourado, `--radius` de 0,75rem, títulos em **Poppins** e corpo em **Inter** (`--font-display`/`--font-body` lidos da página) — exatamente o que o README descreve. O dourado `--gold` e o azul `--blue` publicados lá são os mesmos valores de hoje no tema escuro (`lab(74.68% 10.27 63.23)` e `lab(42.75% 7.54 -61.91)`). O que mudou depois: fonte (Space Grotesk), **tema claro**, tokens para texto (`*-ink`) e a home redesenhada. A divergência com o README está em `docs/design-system.md`.
 3. **Da cor decorativa para a cor com função.** A acessibilidade (25/09) criou tokens específicos para texto (`--gold-ink`, `--blue-ink`), com os comentários no `styles.css` explicando o porquê (dourado claro dava ~2,5:1 sobre fundo claro). Na Sprint 4 o contraste passou a ser **medido na própria página** para cada par texto/fundo.
 4. **Do desktop para o celular.** A responsividade entrou em 23/09; na Sprint 4 o critério passou a ser mensurável (sem rolagem lateral, alvo de 44px). A medição achou um defeito real: o dashboard ficava 81px mais largo que a tela de 375px porque a grade não tinha `grid-cols-1` (conteúdo cortado, escondido por `overflow-x: clip`).
 
 ## Sprints 1 e 2 — **[PREENCHER pelo grupo]**
 
-- Sprint 1: entregáveis de design (Figma? wireframes? personas?), decisões de marca e de paleta, o que foi ao ar. **[PREENCHER]**
+- Sprint 1 — **primeiro design publicado:** https://pelescout-nextgen.lovable.app/ ("Pelé Scout — Peneiras oficiais e avaliação de atletas"). Observado na página: tema escuro, Hero com o título "O talento existe. Falta a oportunidade.", cartão da próxima peneira, menu Propósito · Legado · Academia · Como funciona · Peneiras · Mapa · Parceiros, botões dourados "Cadastrar" e "Encontrar minha peneira". Alternância de tema já presente (print: `docs/design-system/primeiro-design-lovable-1280.jpg`). **[PREENCHER:** se esta URL é o resultado exato da Sprint 1 ou uma versão posterior do mesmo projeto; Figma/wireframes; decisões de paleta e fonte.**]**
 - Sprint 2: o que mudou em relação ao Figma, componentes definidos, feedback recebido. **[PREENCHER]**
 - Datas e limites de cada sprint (o git não registra as fronteiras). **[PREENCHER]**
 - Link do Figma (se houver) e o que ficou diferente do protótipo. **[PREENCHER]**
