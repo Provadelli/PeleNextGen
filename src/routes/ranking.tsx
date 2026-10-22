@@ -91,6 +91,9 @@ function RankingPage() {
   }, [isClube, rows, user?.contatosDesbloqueados?.length]);
 
   useEffect(() => {
+    // A tela exige login (useRequireAuth redireciona): visitante não chama a API,
+    // evitando o 401 no console.
+    if (!user) return;
     (async () => {
       setLoading(true);
       const { data } = await supabase.rpc("get_athlete_leaderboard", {
@@ -102,7 +105,7 @@ function RankingPage() {
       setRows((data ?? []) as Row[]);
       setLoading(false);
     })();
-  }, [posicao, cidade, skill]);
+  }, [user, posicao, cidade, skill]);
 
   return (
     <AppLayout>
