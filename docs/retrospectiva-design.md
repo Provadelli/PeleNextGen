@@ -11,7 +11,7 @@
 | mai–jun/2026 | Muitos commits curtos por dia (103 em 07/05, 94 em 09/05, 129 em 15/06): iteração rápida de interface, ainda sem registro de decisões | `git log --format=%ad \| sort \| uniq -c` |
 | 19/09/2026 | **Redesign da home**: Hero com vídeo, carrossel no Legado e na Academia, header transparente, fotos reais e "paleta preto/dourado". É também quando a fonte Poppins deixa de aparecer no código | commit `468cde7` |
 | 22–23/09 | Novo design do dashboard e das abas Legado/Peneiras, repaginação de login e cadastro, ranking, **responsividade mobile** e ajustes de navegação | commits `a91064a` e seguintes |
-| 25/09 | **Acessibilidade no sistema todo** (contraste, foco visível, tokens `--gold-ink` e `--blue-ink` para texto) | commit `6b395df` |
+| 25/09 (entrega da Sprint 3) | **Acessibilidade no sistema todo** (contraste, foco visível, tokens `--gold-ink` e `--blue-ink` para texto) | commit `6b395df` |
 | 21/10 | Sprint 4, validação com usuários: 3 ajustes (botão de tema com 44px, selos do card com 11px, rótulo do menu com `text-xs`), com prints antes/depois | `docs/validacao/` |
 | 22/10 | **Design system**: rota `/design-system`, tokens vivos, componentes em todos os estados, alvos de 44px | commits `feat(s4)` e `fix(s4)` |
 
@@ -27,11 +27,13 @@
 - **Sem Figma.** Nas Sprints 1 e 2 o design foi feito direto em código, na plataforma Lovable; o resultado das duas sprints é a versão publicada em https://pelescout-nextgen.lovable.app/ (informação do grupo). Não houve protótipo para comparar, então "o que mudou em relação ao Figma" não se aplica.
 - Características dessa versão (lidas na página em 22/10/2026): tema escuro azul-marinho com dourado, Poppins (títulos) e Inter (corpo), `--radius` 0,75rem, alternância de tema, Hero "O talento existe. Falta a oportunidade.", cartão da próxima peneira, menu Propósito · Legado · Academia · Como funciona · Peneiras · Mapa · Parceiros. Print: `docs/design-system/primeiro-design-lovable-1280.jpg`.
 - No git, esse período corresponde aos commits do bot do Lovable (997 de 1.069 commits), de 24/04/2026 em diante.
-- **[PREENCHER pelo grupo, se quiser detalhar]:** datas de início e fim das Sprints 1 e 2 e decisões de marca (por que dourado/azul, por que Poppins/Inter).
+- **Decisão de cores (informada pelo grupo):** dourado e azul foram escolhidos pelo aspecto futebolístico da marca.
+- **Datas das sprints (informadas pelo grupo):** Sprint 1 em 27/04/2026, Sprint 2 em 22/06/2026, Sprint 3 em 25/09/2026 e Sprint 4 com encerramento em 25/10/2026. Cruzando com o git: o grosso do design inicial (24–25/04) vem antes da entrega da Sprint 1, e as 129 mudanças de 15/06 e os commits de 21–22/06 ficam na janela da Sprint 2.
+- **Não registrado:** o motivo da escolha de Poppins/Inter.
 
 ## Sprint 3 e 4 — o que o histórico confirma
 
-- **Sprint 3:** acessibilidade WCAG 2.1 AA documentada em `docs/acessibilidade.md` (Miguel). **[PREENCHER:** o que mais mudou no visual]
+- **Sprint 3:** acessibilidade WCAG 2.1 AA documentada em `docs/acessibilidade.md` (Miguel). Na janela da sprint (22/06 a 25/09) o git registra o redesenho da home (19/09), o novo dashboard, login/cadastro, ranking e a responsividade mobile (22–23/09).
 - **Sprint 4:** validação com usuários e 3 ajustes pós-teste (Vitor); auditoria axe sem violações nas telas novas (Miguel); design system e responsividade (Arthur).
 
 ## O que aprendemos
