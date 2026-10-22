@@ -418,6 +418,8 @@ export function AcademiaShowcase({
               <motion.img
                 key={active}
                 src={item.img}
+                width={1200}
+                height={670}
                 alt={item.alt}
                 custom={dir}
                 variants={{

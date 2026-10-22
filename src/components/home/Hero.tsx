@@ -128,14 +128,13 @@ export function Hero({ proxima, loading }: { proxima: Peneira | null; loading: b
             className="mt-7 max-w-[16ch] font-display text-[2.4rem] font-extrabold min-[400px]:text-[2.75rem] leading-[0.95] tracking-[-0.03em] text-white sm:text-6xl lg:text-[5.25rem]"
           />
 
-          <Reveal immediate delay={240}>
-            <p className="mt-7 max-w-md text-base leading-relaxed text-white/70">
-              O Pelé Scout conecta atletas a peneiras oficiais e a olheiros que avaliam, registram e
-              acompanham cada passo da sua trajetória. Você se inscreve em minutos, participa da
-              avaliação presencial e recebe um relatório com notas técnicas, físicas e táticas —
-              tudo guardado no seu perfil para os clubes verem.
-            </p>
-          </Reveal>
+          {/* LCP: sem <Reveal> (opacity-0 inicial) para o parágrafo pintar de imediato. */}
+          <p className="mt-7 max-w-md text-base leading-relaxed text-white/70">
+            O Pelé Scout conecta atletas a peneiras oficiais e a olheiros que avaliam, registram e
+            acompanham cada passo da sua trajetória. Você se inscreve em minutos, participa da
+            avaliação presencial e recebe um relatório com notas técnicas, físicas e táticas —
+            tudo guardado no seu perfil para os clubes verem.
+          </p>
 
           <Reveal immediate delay={360}>
             <div className="mt-9 flex flex-wrap items-center gap-3">

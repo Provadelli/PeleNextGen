@@ -18,7 +18,7 @@ function TermosPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border px-4 py-4 sm:px-6">
-        <Link to="/">
+        <Link to="/" aria-label="Pelé Next Gen, ir para a página inicial">
           <Logo />
         </Link>
       </header>

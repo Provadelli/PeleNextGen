@@ -1,8 +1,8 @@
 import imgGrupo from "@/assets/home/time-grupo.jpg";
-import imgDesenvolvimento from "@/assets/home/desenvolvimento.jpeg";
-import imgExpansao from "@/assets/home/expansao.jpeg";
-import imgCamisa from "@/assets/home/time-camisa.jpg";
-import imgLegadoHoje from "@/assets/home/legado-hoje.jpg";
+import imgDesenvolvimento from "@/assets/home/desenvolvimento.webp";
+import imgExpansao from "@/assets/home/expansao.webp";
+import imgCamisa from "@/assets/home/time-camisa.webp";
+import imgLegadoHoje from "@/assets/home/legado-hoje.webp";
 import { Eyebrow, Reveal } from "./Reveal";
 import { StoryCarousel, type StoryItem } from "./StoryCarousel";
 

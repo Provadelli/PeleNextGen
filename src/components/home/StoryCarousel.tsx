@@ -228,6 +228,8 @@ export function StoryCarousel({
               <img
                 key={it.img + i}
                 src={it.img}
+                width={1200}
+                height={670}
                 alt={i === active ? it.alt : ""}
                 aria-hidden={i !== active}
                 loading={i === 0 ? "eager" : "lazy"}

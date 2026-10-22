@@ -34,9 +34,16 @@ export const Route = createRootRoute({
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap",
+        // Não bloqueia a renderização: nasce como "print" e vira "all" ao carregar (script abaixo).
+        media: "print",
+        "data-async-font": "1",
       },
     ],
     scripts: [
+      {
+        children:
+          "(function(){var l=document.querySelector('link[data-async-font]');if(!l)return;function a(){l.media='all'}if(l.sheet)a();else l.addEventListener('load',a)})()",
+      },
       {
         type: "application/ld+json",
         children: JSON.stringify({

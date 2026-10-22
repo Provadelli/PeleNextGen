@@ -1,8 +1,8 @@
-import imgCamisa from "@/assets/home/time-camisa.jpg";
+import imgCamisa from "@/assets/home/time-camisa.webp";
 import imgAcao from "@/assets/home/time-acao.jpg";
 import imgNoturno from "@/assets/home/time-noturno.jpg";
 import imgGrupo from "@/assets/home/time-grupo.jpg";
-import imgLegadoHoje from "@/assets/home/legado-hoje.jpg";
+import imgLegadoHoje from "@/assets/home/legado-hoje.webp";
 import { Eyebrow, Reveal } from "./Reveal";
 import { AcademiaShowcase, type ShowcaseItem } from "./AcademiaShowcase";
 
