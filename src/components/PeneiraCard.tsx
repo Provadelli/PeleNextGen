@@ -29,7 +29,7 @@ export function PeneiraCard({ peneira }: { peneira: Peneira }) {
         <div className="absolute left-3 top-3 flex items-center gap-1.5">
           <StatusBadge status={peneira.status} />
           {peneira.visibilidade === "privada" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-blue-dark/80 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-foreground backdrop-blur">
+            <span className="inline-flex items-center gap-1 rounded-full bg-blue-dark/80 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-foreground backdrop-blur">
               <Lock className="h-2.5 w-2.5" /> Privada
             </span>
           )}
@@ -70,13 +70,13 @@ export function PeneiraCard({ peneira }: { peneira: Peneira }) {
           {peneira.categorias.slice(0, 3).map((c) => (
             <li
               key={c}
-              className="shrink-0 rounded-full border border-border bg-bg2 px-2 py-0 text-[9px] font-bold uppercase tracking-wider text-slate-50"
+              className="shrink-0 rounded-full border border-border bg-bg2 px-2 py-0 text-[11px] font-bold uppercase tracking-wider text-slate-50"
             >
               {c}
             </li>
           ))}
           {peneira.categorias.length > 3 && (
-            <li className="shrink-0 rounded-full border border-border bg-bg2 px-2 py-0 text-[9px] font-bold uppercase tracking-wider text-slate-50">
+            <li className="shrink-0 rounded-full border border-border bg-bg2 px-2 py-0 text-[11px] font-bold uppercase tracking-wider text-slate-50">
               +{peneira.categorias.length - 3}
             </li>
           )}
