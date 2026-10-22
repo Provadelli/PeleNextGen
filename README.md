@@ -7,6 +7,43 @@ O **Pelé Next Gen** organiza seletivas (peneiras) de futebol, hospeda perfis pr
 
 ---
 
+## Sprint 4 — MVP concierge
+
+### Escopo
+Plataforma funcional de ponta a ponta, sem telas fictícias: o atleta se inscreve em peneiras, o olheiro avalia, o clube **solicita** o desbloqueio do contato e a equipe Pelé Next Gen libera; depois disso, o clube conversa com o atleta no chat.
+
+### Modelo concierge e bastidores
+O desbloqueio de contato **não tem pagamento automático**. O que o usuário vê é o que existe de fato:
+
+1. O clube clica em **Solicitar desbloqueio** (`/clubes`, `/ranking`, `/candidatos`). O servidor (`POST /api/contatos/unlock`) valida o papel de clube e grava uma linha em `solicitacoes_desbloqueio` com status `pendente`.
+2. A equipe de suporte é avisada por **notificação interna** (tabela `notifications`). Não há provedor de e-mail configurado; se for adotado um, o ponto de ligação é o mesmo handler.
+3. Em `/suporte` > aba **Desbloqueios**, o suporte aprova ou recusa (`POST /api/contatos/resolver`, exige papel `suporte`). Ao aprovar, **somente o servidor** cria a linha em `contatos_desbloqueados`.
+4. O clube vê o status (pendente, liberado ou recusado), o prazo **"até 24h úteis"** e recebe uma notificação com a resposta.
+
+Valores e forma de pagamento são combinados diretamente com a equipe, fora da plataforma. A tabela tem RLS: o clube lê só as próprias solicitações, o suporte lê todas e nenhum cliente escreve direto.
+
+### Fluxos principais
+`atleta se inscreve em peneira` → `olheiro avalia` → `clube solicita desbloqueio` → `suporte libera` → `chat clube ↔ atleta`.
+
+### Setup, deploy e Figma
+- Setup e variáveis de ambiente: seções [Configuração do Ambiente](#configuração-do-ambiente) e [Executando Localmente](#executando-localmente) (Node 22+).
+- Deploy: seção [Deploy](#deploy). Produção: https://pelenextgen.vercel.app/. As variáveis `VITE_SUPABASE_*`, `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` devem existir também no ambiente **Preview** da Vercel.
+- Migration nova desta sprint: `supabase/migrations/20261021120000_solicitacoes_desbloqueio.sql` (aplicar no Supabase antes do deploy).
+- Figma: _link a preencher pela equipe de design_.
+- Acessibilidade e performance: [docs/acessibilidade.md](docs/acessibilidade.md).
+
+### Equipe e entregas
+| Integrante | RM | Branch | PR | Telas |
+|---|---|---|---|---|
+| Arthur Moreira | 571532 | _a confirmar_ | _a confirmar_ | _a confirmar_ |
+| Pedro Lucas Souza Provadelli | 572547 | `fix/s4-tanstack-cve`, `feat/s4-mvp-concierge`, `feat/s4-a11y-auditoria` | #7 (CVE, mergeado); concierge e auditoria: _número após abrir o PR_ | Solicitação de desbloqueio, aba Desbloqueios (suporte), `/ranking`, `/clubes`, `/candidatos` |
+| Miguel | 573825 | `Miguel_Sprint4` (não `feat/s4-a11y-performance`) | [#6](https://github.com/Provadelli/PeleNextGen/pull/6) (mergeado) | Acessibilidade e performance |
+| Vitor Louzano | 573885 | _a confirmar_ | _a confirmar_ | Testes com usuários |
+
+> Branches e PRs marcados como "a confirmar" devem ser preenchidos com os números reais antes da entrega.
+
+---
+
 ## Sumário
 
 - [📘 Manual do Usuário](docs/manual-do-usuario.md) — guia interativo por papel (Atleta, Olheiro, Clube, Suporte)

@@ -16,7 +16,8 @@ import { AppLayout } from "@/components/AppLayout";
 import { AthleteAvatar } from "@/components/AthleteAvatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { PRECO_CONTATO_BRL } from "@/lib/mock-data";
+import { PRAZO_LIBERACAO, useMinhasSolicitacoes } from "@/lib/solicitacoes";
+import { SolicitacaoStatus } from "@/components/SolicitacaoStatus";
 import { calcularIdade } from "@/lib/date";
 import { useSession } from "@/lib/session";
 import { startConversation } from "@/lib/chat";
@@ -99,6 +100,7 @@ function ClubesPage() {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [target, setTarget] = useState<AtletaAvaliado | null>(null);
+  const solicitacoes = useMinhasSolicitacoes();
   const [aprovados, setAprovados] = useState<AtletaAvaliado[]>([]);
   const [aba, setAba] = useState<"todos" | Decisao>("todos");
   const [loading, setLoading] = useState(true);
@@ -333,12 +335,8 @@ function ClubesPage() {
         <h1 className="mt-1 font-display text-3xl font-extrabold sm:text-4xl">Atletas avaliados</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">
           Veja todos os atletas avaliados pelos olheiros, com a decisão de cada avaliação. Para
-          visualizar e-mail e celular, libere o
-          contato pagando{" "}
-          <strong className="text-primary">
-            R$ {PRECO_CONTATO_BRL.toFixed(2).replace(".", ",")}
-          </strong>{" "}
-          por atleta.
+          visualizar e-mail e celular, solicite o desbloqueio: nossa equipe libera o contato{" "}
+          <strong className="text-primary">{PRAZO_LIBERACAO}</strong>.
         </p>
       </Reveal>
 
@@ -615,10 +613,22 @@ function ClubesPage() {
                     </Button>
                   </div>
                 ) : (
-                  <Button onClick={() => abrirPagamento(c)} className="mt-4 w-full">
-                    <Lock className="mr-2 h-4 w-4" />
-                    Liberar contato — R$ {PRECO_CONTATO_BRL.toFixed(2).replace(".", ",")}
-                  </Button>
+                  <div className="mt-4 space-y-2">
+                    {(() => {
+                      const sol = solicitacoes.statusDe(...c.idsDesbloqueio);
+                      return (
+                        <>
+                          {sol && <SolicitacaoStatus solicitacao={sol} />}
+                          {sol?.status !== "pendente" && (
+                            <Button onClick={() => abrirPagamento(c)} className="w-full">
+                              <Lock className="mr-2 h-4 w-4" />
+                              Solicitar desbloqueio
+                            </Button>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
                 )}
               </Reveal>
             );
@@ -629,6 +639,7 @@ function ClubesPage() {
       <UnlockContatoDialog
         target={target && { id: target.candidatoId, nome: target.nome }}
         onClose={() => setTarget(null)}
+        onSolicitado={solicitacoes.reload}
       />
     </AppLayout>
   );

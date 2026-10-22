@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { CheckCircle2, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { AlertTriangle, CheckCircle2, Clock, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,8 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { PRECO_CONTATO_BRL } from "@/lib/mock-data";
-import { unlockContato } from "@/lib/session";
+import { PRAZO_LIBERACAO, solicitarDesbloqueio } from "@/lib/solicitacoes";
 
 export interface UnlockTarget {
   /** Id aceito por /api/contatos/unlock: candidatos.id ou o user_id do atleta. */
@@ -19,94 +17,111 @@ export interface UnlockTarget {
   nome: string;
 }
 
-const precoFormatado = `R$ ${PRECO_CONTATO_BRL.toFixed(2).replace(".", ",")}`;
+type Etapa = "idle" | "enviando" | "enviado" | "erro";
 
 /**
- * Checkout simulado para o clube liberar e-mail e celular de um atleta:
- * idle → processando (~1,2s) → aprovado (fecha sozinho em seguida).
- * Usado em /clubes (atletas aprovados) e /ranking (todos os atletas).
+ * Solicitação de desbloqueio (concierge): o clube pede, a equipe Pelé Next Gen libera.
+ * idle → enviando → enviado (confirmação) | erro (com nova tentativa).
+ * Usado em /candidatos, /clubes e /ranking.
  */
 export function UnlockContatoDialog({
   target,
   onClose,
+  onSolicitado,
 }: {
   target: UnlockTarget | null;
   onClose: () => void;
+  onSolicitado?: () => void;
 }) {
-  const [pagamento, setPagamento] = useState<"idle" | "processando" | "aprovado">("idle");
+  const [etapa, setEtapa] = useState<Etapa>("idle");
+  const [mensagemErro, setMensagemErro] = useState("");
 
   useEffect(() => {
-    if (target) setPagamento("idle");
+    if (target) setEtapa("idle");
   }, [target]);
 
-  async function confirmarPagamento() {
-    if (!target || pagamento !== "idle") return;
-    setPagamento("processando");
+  async function enviar() {
+    if (!target || etapa === "enviando") return;
+    setEtapa("enviando");
     try {
-      // Simulação: o "processamento" leva ~1,2s e o servidor sempre aprova.
-      await Promise.all([unlockContato(target.id), new Promise((r) => setTimeout(r, 1200))]);
-      setPagamento("aprovado");
-      toast.success("Pagamento aprovado!", {
-        description: `Contato de ${target.nome} desbloqueado.`,
-      });
-      setTimeout(onClose, 1500);
+      await solicitarDesbloqueio(target.id);
+      setEtapa("enviado");
+      onSolicitado?.();
     } catch (err) {
-      setPagamento("idle");
-      toast.error(err instanceof Error ? err.message : "Erro ao desbloquear contato");
+      setMensagemErro(err instanceof Error ? err.message : "Erro ao enviar a solicitação.");
+      setEtapa("erro");
     }
   }
 
   return (
-    <Dialog open={!!target} onOpenChange={(o) => !o && pagamento !== "processando" && onClose()}>
+    <Dialog open={!!target} onOpenChange={(o) => !o && etapa !== "enviando" && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Liberar contato do atleta</DialogTitle>
+          <DialogTitle>Solicitar desbloqueio de contato</DialogTitle>
           <DialogDescription>
-            Você está liberando os dados de contato (e-mail e celular) de{" "}
+            Você está pedindo o e-mail e o celular de{" "}
             <strong className="text-foreground">{target?.nome}</strong>.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="my-2 rounded-xl border border-primary/30 bg-primary/5 p-4">
-          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Valor</p>
-          <p className="font-display text-3xl font-extrabold text-gradient-gold">{precoFormatado}</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Pagamento único por atleta. Acesso permanente após confirmação. Após liberar, você
-            também poderá enviar mensagens diretamente para o atleta.
-          </p>
-        </div>
-
-        {pagamento === "aprovado" ? (
+        {etapa === "enviado" ? (
           <div
             role="status"
-            className="flex items-center gap-3 rounded-xl border border-success/40 bg-success/10 p-4"
+            className="flex items-start gap-3 rounded-xl border border-success/40 bg-success/10 p-4"
           >
-            <CheckCircle2 className="h-6 w-6 shrink-0 text-success" />
+            <CheckCircle2 className="mt-0.5 h-6 w-6 shrink-0 text-success" aria-hidden="true" />
             <div>
-              <p className="font-semibold text-success">Pagamento aprovado</p>
-              <p className="text-xs text-muted-foreground">
-                E-mail e celular de {target?.nome} já estão liberados.
+              <p className="font-semibold text-success">Solicitação enviada</p>
+              <p className="text-sm text-muted-foreground">
+                Nossa equipe vai analisar o pedido e liberar o contato {PRAZO_LIBERACAO}. Você
+                acompanha o status (pendente, liberado ou recusado) no card do atleta e recebe uma
+                notificação quando houver resposta.
               </p>
             </div>
           </div>
         ) : (
-          <p className="text-xs text-muted-foreground">
-            * Pagamento simulado (projeto acadêmico). Nenhuma cobrança real será efetuada.
-          </p>
+          <div className="my-2 rounded-xl border border-primary/30 bg-primary/5 p-4">
+            <p className="flex items-center gap-2 font-semibold">
+              <Clock className="h-4 w-4 text-primary" aria-hidden="true" />
+              Liberação {PRAZO_LIBERACAO}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              A Pelé Next Gen opera este serviço de forma assistida: a equipe confirma o pedido e
+              libera o contato manualmente. Os valores e a forma de pagamento são combinados
+              diretamente com a equipe; nenhuma cobrança é feita pela plataforma.
+            </p>
+          </div>
+        )}
+
+        {etapa === "erro" && (
+          <div
+            role="alert"
+            className="flex items-start gap-2 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm"
+          >
+            <AlertTriangle
+              className="mt-0.5 h-4 w-4 shrink-0 text-destructive"
+              aria-hidden="true"
+            />
+            <span>{mensagemErro}</span>
+          </div>
         )}
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={pagamento === "processando"}>
-            {pagamento === "aprovado" ? "Fechar" : "Cancelar"}
+          <Button variant="outline" onClick={onClose} disabled={etapa === "enviando"}>
+            {etapa === "enviado" ? "Fechar" : "Cancelar"}
           </Button>
-          {pagamento !== "aprovado" && (
-            <Button onClick={confirmarPagamento} disabled={pagamento === "processando"}>
-              {pagamento === "processando" ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          {etapa !== "enviado" && (
+            <Button onClick={enviar} disabled={etapa === "enviando"}>
+              {etapa === "enviando" ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
               ) : (
-                <CheckCircle2 className="mr-2 h-4 w-4" />
+                <Send className="mr-2 h-4 w-4" aria-hidden="true" />
               )}
-              {pagamento === "processando" ? "Processando pagamento…" : "Confirmar pagamento"}
+              {etapa === "enviando"
+                ? "Enviando…"
+                : etapa === "erro"
+                  ? "Tentar novamente"
+                  : "Solicitar desbloqueio"}
             </Button>
           )}
         </DialogFooter>

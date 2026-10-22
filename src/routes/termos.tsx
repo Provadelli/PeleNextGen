@@ -87,10 +87,12 @@ function TermosPage() {
           </section>
 
           <section className="reveal-on-scroll">
-            <h2 className="font-display text-xl font-bold text-foreground">7. Pagamentos (clubes)</h2>
+            <h2 className="font-display text-xl font-bold text-foreground">7. Desbloqueio de contato (clubes)</h2>
             <p className="mt-2">
-              Clubes podem pagar para desbloquear o contato de atletas avaliados. Os valores e a forma de
-              cobrança são informados no momento da compra, dentro da plataforma.
+              Clubes podem solicitar o desbloqueio do contato de atletas. O serviço é assistido: a
+              equipe Pelé Next Gen analisa cada pedido e libera o contato em até 24h úteis. A
+              plataforma não realiza cobranças automáticas; eventuais valores e a forma de pagamento
+              são combinados diretamente com a equipe.
             </p>
           </section>
 

@@ -7,10 +7,9 @@ const BodySchema = z.object({
 });
 
 /**
- * Desbloqueio de contato de atleta.
- * A criação da linha em `contatos_desbloqueados` é feita apenas aqui, no servidor,
- * após validar autenticação, papel de clube e a confirmação do pagamento.
- * O cliente não tem mais permissão de INSERT direto nessa tabela.
+ * Solicitação de desbloqueio de contato (modelo concierge).
+ * O clube só registra o pedido; quem libera é a equipe de suporte, em
+ * /api/contatos/resolver. Não há cobrança automática nesta etapa.
  */
 export const Route = createFileRoute("/api/contatos/unlock")({
   server: {
@@ -28,19 +27,18 @@ export const Route = createFileRoute("/api/contatos/unlock")({
 
         const admin = getAdmin();
 
-        // Só clubes podem desbloquear contatos.
+        // Só clubes podem solicitar desbloqueio.
         const { data: roles, error: rolesErr } = await admin
           .from("user_roles")
           .select("role")
           .eq("user_id", uid);
         if (rolesErr) return new Response("Erro ao validar permissões", { status: 500 });
         if (!(roles ?? []).some((r) => r.role === "clube")) {
-          return new Response("Apenas clubes podem desbloquear contatos", { status: 403 });
+          return new Response("Apenas clubes podem solicitar desbloqueio", { status: 403 });
         }
 
         // O alvo precisa existir: um candidato de peneira OU qualquer atleta da
-        // plataforma (nesse caso o id é o próprio user_id do atleta — usado pelo
-        // ranking e por list_atletas_aprovados).
+        // plataforma (nesse caso o id é o próprio user_id do atleta).
         const { data: cand } = await admin
           .from("candidatos")
           .select("id")
@@ -56,32 +54,51 @@ export const Route = createFileRoute("/api/contatos/unlock")({
           if (!atleta) return new Response("Atleta não encontrado", { status: 404 });
         }
 
-        // Confirmação de pagamento (a ser ligada ao provedor de pagamentos).
-        const paymentConfirmed = await confirmPayment(uid, parsed.candidatoId);
-        if (!paymentConfirmed) {
-          return new Response("Pagamento não confirmado", { status: 402 });
-        }
-
-        const { error } = await admin
+        // Já liberado: nada a pedir.
+        const { data: jaLiberado } = await admin
           .from("contatos_desbloqueados")
-          .insert({ clube_id: uid, candidato_id: parsed.candidatoId });
-        // 23505 = já desbloqueado, tratamos como sucesso idempotente.
-        if (error && error.code !== "23505") {
-          console.error("[contatos/unlock] insert failed", error.code);
-          return new Response("Não foi possível desbloquear o contato", { status: 500 });
+          .select("id")
+          .eq("clube_id", uid)
+          .eq("candidato_id", parsed.candidatoId)
+          .maybeSingle();
+        if (jaLiberado) return Response.json({ ok: true, status: "liberado" });
+
+        const { data: criada, error } = await admin
+          .from("solicitacoes_desbloqueio")
+          .insert({ clube_id: uid, candidato_id: parsed.candidatoId })
+          .select("id")
+          .single();
+        // 23505 = já existe pedido pendente; tratamos como sucesso idempotente.
+        if (error?.code === "23505") return Response.json({ ok: true, status: "pendente" });
+        if (error || !criada) {
+          console.error("[contatos/unlock] insert failed", error?.code);
+          return new Response("Não foi possível registrar a solicitação", { status: 500 });
         }
 
-        return Response.json({ ok: true });
+        // Avisa a equipe (notificação interna; não há provedor de e-mail configurado).
+        const [{ data: equipe }, { data: clube }, { data: alvo }] = await Promise.all([
+          admin.from("user_roles").select("user_id").eq("role", "suporte"),
+          admin.from("profiles").select("nome, nome_clube").eq("id", uid).maybeSingle(),
+          admin.from("profiles").select("nome").eq("id", parsed.candidatoId).maybeSingle(),
+        ]);
+        const quem = clube?.nome_clube || clube?.nome || "Um clube";
+        const nomeAtleta = alvo?.nome ? ` de ${alvo.nome}` : "";
+        if (equipe && equipe.length > 0) {
+          const { error: notifErr } = await admin.from("notifications").insert(
+            equipe.map((m) => ({
+              user_id: m.user_id,
+              kind: "system",
+              title: "Nova solicitação de desbloqueio",
+              body: `${quem} pediu o contato${nomeAtleta}.`,
+              link: "/suporte",
+              data: { solicitacao_id: criada.id },
+            })),
+          );
+          if (notifErr) console.error("[contatos/unlock] notify failed", notifErr.code);
+        }
+
+        return Response.json({ ok: true, status: "pendente" });
       },
     },
   },
 });
-
-/**
- * Ponto único de verificação de pagamento — executado somente no servidor.
- * TODO: ligar ao provedor de pagamentos (validar a cobrança do clube para este
- * candidato antes de liberar). Hoje o checkout ainda é simulado no produto.
- */
-async function confirmPayment(_clubeId: string, _candidatoId: string): Promise<boolean> {
-  return true;
-}

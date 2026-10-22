@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BR_STATES } from "@/lib/br-states";
 import { useSession } from "@/lib/session";
 import { useRequireAuth } from "@/hooks/use-require-auth";
-import { PRECO_CONTATO_BRL } from "@/lib/mock-data";
+import { PRAZO_LIBERACAO, useMinhasSolicitacoes } from "@/lib/solicitacoes";
 import { Button } from "@/components/ui/button";
 import { UnlockContatoDialog, type UnlockTarget } from "@/components/UnlockContatoDialog";
 
@@ -63,6 +63,7 @@ function RankingPage() {
     new Map(),
   );
   const [unlockTarget, setUnlockTarget] = useState<UnlockTarget | null>(null);
+  const solicitacoes = useMinhasSolicitacoes();
 
   // Clube: o RLS de profiles só devolve e-mail/celular dos atletas já desbloqueados,
   // então a consulta abaixo já responde "quais contatos este clube liberou".
@@ -116,7 +117,7 @@ function RankingPage() {
             Todos os atletas da plataforma, classificados pelas habilidades ou pela nota da última
             avaliação — filtre por posição, cidade e skill específica.
             {isClube &&
-              ` Para ver e-mail e celular de um atleta, libere o contato por R$ ${PRECO_CONTATO_BRL.toFixed(2).replace(".", ",")}.`}
+              ` Para ver e-mail e celular de um atleta, solicite o desbloqueio; a equipe libera o contato ${PRAZO_LIBERACAO}.`}
           </p>
         </header>
 
@@ -200,7 +201,10 @@ function RankingPage() {
                       </p>
                     )}
                   </div>
-                  {isClube && !contatos.has(r.id) && (
+                  {isClube && !contatos.has(r.id) && solicitacoes.statusDe(r.id)?.status === "pendente" && (
+                    <span className="shrink-0 text-xs font-semibold text-primary">Pendente</span>
+                  )}
+                  {isClube && !contatos.has(r.id) && solicitacoes.statusDe(r.id)?.status !== "pendente" && (
                     <Button
                       size="sm"
                       variant="outline"
@@ -208,8 +212,8 @@ function RankingPage() {
                       onClick={() => setUnlockTarget({ id: r.id, nome: r.nome })}
                     >
                       <Lock className="mr-1.5 h-3.5 w-3.5" />
-                      <span className="hidden sm:inline">Liberar contato</span>
-                      <span className="sm:hidden">Liberar</span>
+                      <span className="hidden sm:inline">Solicitar contato</span>
+                      <span className="sm:hidden">Solicitar</span>
                     </Button>
                   )}
                   <div className="w-11 shrink-0 text-right sm:w-16">
@@ -225,7 +229,11 @@ function RankingPage() {
         </div>
       </div>
 
-      <UnlockContatoDialog target={unlockTarget} onClose={() => setUnlockTarget(null)} />
+      <UnlockContatoDialog
+        target={unlockTarget}
+        onClose={() => setUnlockTarget(null)}
+        onSolicitado={solicitacoes.reload}
+      />
     </AppLayout>
   );
 }

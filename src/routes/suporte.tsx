@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Shield, Building2, User as UserIcon, Trash2, Filter, Users, Phone, Calendar, IdCard, ExternalLink, Inbox, RefreshCw, AlertTriangle } from "lucide-react";
+import { CheckCircle2, Shield, Building2, User as UserIcon, Trash2, Filter, Users, Phone, Calendar, IdCard, ExternalLink, Inbox, RefreshCw, AlertTriangle, Unlock } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getSignedUrl } from "@/lib/storage";
 import { toast } from "sonner";
 import { traduzirErroAuth } from "@/lib/auth-errors";
+import { DesbloqueiosTab } from "@/components/suporte/DesbloqueiosTab";
 
 export const Route = createFileRoute("/suporte")({
   head: () => ({
@@ -81,6 +82,7 @@ function SuportePage() {
   const [previewRequest, setPreviewRequest] = useState<RequestRow | null>(null);
   // Solicitação com ação em andamento — evita aprovar duas vezes (e reenviar o e-mail).
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [desbloqueiosPendentes, setDesbloqueiosPendentes] = useState(0);
 
   async function load() {
     setLoading(true);
@@ -343,6 +345,15 @@ function SuportePage() {
               </span>
             )}
           </TabsTrigger>
+          <TabsTrigger value="desbloqueios" className="gap-2 px-4 py-2">
+            <Unlock className="h-3.5 w-3.5" />
+            Desbloqueios
+            {desbloqueiosPendentes > 0 && (
+              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+                {desbloqueiosPendentes}
+              </span>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="usuarios" className="gap-2 px-4 py-2">
             <Users className="h-3.5 w-3.5" />
             Usuários
@@ -460,6 +471,10 @@ function SuportePage() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="desbloqueios">
+          <DesbloqueiosTab onPendentes={setDesbloqueiosPendentes} />
         </TabsContent>
 
         <TabsContent value="usuarios">
