@@ -66,12 +66,12 @@ export function ComponentsSection() {
     <div className="space-y-10">
       <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
         <strong className="text-foreground">Legenda.</strong> Todos os itens usam os componentes
-        reais de <code>src/components</code>. Os estados <em>default</em>, <em>disabled</em>,
-        erro, sucesso e <em>loading</em> são reais. Para <em>hover</em>, <em>focus-visible</em> e{" "}
+        reais de <code>src/components</code>. Os estados <em>default</em>, <em>disabled</em>, erro,
+        sucesso e <em>loading</em> são reais. Para <em>hover</em>, <em>focus-visible</em> e{" "}
         <em>active</em>, que dependem do mouse e do teclado, o estado é{" "}
         <strong className="text-foreground">forçado com as classes utilitárias equivalentes</strong>{" "}
-        passadas por <code>className</code> (marcados com “forçado”). Para ver o real, passe o
-        mouse ou use <kbd>Tab</kbd> em qualquer exemplo.
+        passadas por <code>className</code> (marcados com “forçado”). Para ver o real, passe o mouse
+        ou use <kbd>Tab</kbd> em qualquer exemplo.
       </p>
 
       <Bloco id="botao" titulo="Button" nota="7 variantes × estados; 4 tamanhos.">
@@ -143,7 +143,11 @@ export function ComponentsSection() {
         </div>
       </Bloco>
 
-      <Bloco id="badges" titulo="Badge e StatusBadge" nota="Badge (shadcn) e StatusBadge (status da peneira).">
+      <Bloco
+        id="badges"
+        titulo="Badge e StatusBadge"
+        nota="Badge (shadcn) e StatusBadge (status da peneira)."
+      >
         <div className="space-y-4">
           <Linha rotulo="Badge — variant">
             <Estado nome="default">
@@ -210,7 +214,11 @@ export function ComponentsSection() {
         </div>
       </Bloco>
 
-      <Bloco id="alert" titulo="Alert" nota="O componente tem as variantes default e destructive; sucesso usa as classes do token --success.">
+      <Bloco
+        id="alert"
+        titulo="Alert"
+        nota="O componente tem as variantes default e destructive; sucesso usa as classes do token --success."
+      >
         <div className="grid gap-4 md:grid-cols-3">
           <Estado nome="default (informação)">
             <Alert>
@@ -235,7 +243,11 @@ export function ComponentsSection() {
         </div>
       </Bloco>
 
-      <Bloco id="dialog" titulo="Dialog" nota="Abre de verdade: foco preso no diálogo, Esc fecha e devolve o foco ao botão.">
+      <Bloco
+        id="dialog"
+        titulo="Dialog"
+        nota="Abre de verdade: foco preso no diálogo, Esc fecha e devolve o foco ao botão."
+      >
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="outline">Abrir diálogo</Button>
@@ -277,7 +289,10 @@ export function ComponentsSection() {
           <Estado nome="focus-visible (forçado)">
             <Tabs defaultValue="a">
               <TabsList>
-                <TabsTrigger value="a" className="ring-2 ring-ring ring-offset-2 ring-offset-background">
+                <TabsTrigger
+                  value="a"
+                  className="ring-2 ring-ring ring-offset-2 ring-offset-background"
+                >
                   Resumo
                 </TabsTrigger>
                 <TabsTrigger value="b">Jogos</TabsTrigger>
@@ -287,7 +302,11 @@ export function ComponentsSection() {
         </div>
       </Bloco>
 
-      <Bloco id="table" titulo="Table" nota="Com dados, carregando e vazia. Em telas estreitas a tabela rola dentro do próprio container.">
+      <Bloco
+        id="table"
+        titulo="Table"
+        nota="Com dados, carregando e vazia. Em telas estreitas a tabela rola dentro do próprio container."
+      >
         <div className="grid gap-4 lg:grid-cols-3">
           <Estado nome="com dados (hover na linha)">
             <TabelaExemplo />
@@ -373,7 +392,11 @@ export function ComponentsSection() {
         </div>
       </Bloco>
 
-      <Bloco id="peneira-card" titulo="PeneiraCard" nota="Dados reais de mock-data: aberta, em andamento, encerrada, lotada e privada.">
+      <Bloco
+        id="peneira-card"
+        titulo="PeneiraCard"
+        nota="Dados reais de mock-data: aberta, em andamento, encerrada, lotada e privada."
+      >
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {exemplosPeneira().map(({ nome, peneira }) => (
             <Estado key={nome} nome={nome}>
@@ -383,7 +406,11 @@ export function ComponentsSection() {
         </div>
       </Bloco>
 
-      <Bloco id="solicitacao" titulo="SolicitacaoStatus" nota="Pendente, liberado e recusado (com e sem observação).">
+      <Bloco
+        id="solicitacao"
+        titulo="SolicitacaoStatus"
+        nota="Pendente, liberado e recusado (com e sem observação)."
+      >
         <div className="grid gap-4 md:grid-cols-2">
           {SOLICITACOES.map((s) => (
             <Estado key={s.nome} nome={s.nome}>
@@ -393,7 +420,11 @@ export function ComponentsSection() {
         </div>
       </Bloco>
 
-      <Bloco id="avatar" titulo="AthleteAvatar" nota="Com foto, sem foto (rótulo acessível) e decorativo (alt vazio).">
+      <Bloco
+        id="avatar"
+        titulo="AthleteAvatar"
+        nota="Com foto, sem foto (rótulo acessível) e decorativo (alt vazio)."
+      >
         <Linha rotulo="tamanhos e variações">
           <Estado nome="com foto">
             <AthleteAvatar src="/favicon.png" alt="Foto do atleta" className="h-14 w-14 bg-bg2" />
@@ -401,7 +432,7 @@ export function ComponentsSection() {
           <Estado nome="sem foto">
             <AthleteAvatar alt="Atleta sem foto" className="h-14 w-14" />
           </Estado>
-          <Estado nome="decorativo (alt=&quot;&quot;)">
+          <Estado nome='decorativo (alt="")'>
             <AthleteAvatar alt="" className="h-14 w-14" />
           </Estado>
           <Estado nome="pequeno">
@@ -501,7 +532,11 @@ function CamposGrupo({ titulo, tipo }: { titulo: string; tipo: "input" | "textar
     { nome: "preenchido", valor: tipo === "select" ? "atacante" : "Arthur Moreira" },
     { nome: "disabled", disabled: true },
     { nome: "erro", erro: true, valor: tipo === "select" ? undefined : "texto inválido" },
-    { nome: "sucesso", sucesso: true, valor: tipo === "select" ? "atacante" : "arthur@exemplo.com" },
+    {
+      nome: "sucesso",
+      sucesso: true,
+      valor: tipo === "select" ? "atacante" : "arthur@exemplo.com",
+    },
   ];
 
   return (
@@ -522,7 +557,9 @@ function CamposGrupo({ titulo, tipo }: { titulo: string; tipo: "input" | "textar
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {e.nome}
               </p>
-              <Label htmlFor={id}>{tipo === "select" ? "Posição" : tipo === "textarea" ? "Sobre você" : "E-mail"}</Label>
+              <Label htmlFor={id}>
+                {tipo === "select" ? "Posição" : tipo === "textarea" ? "Sobre você" : "E-mail"}
+              </Label>
               {tipo === "input" && (
                 <Input
                   id={id}
@@ -597,7 +634,9 @@ function Bloco({
         <h3 className="font-display text-xl font-bold">{titulo}</h3>
         <p className="text-sm text-muted-foreground">{nota}</p>
       </div>
-      <div className="min-w-0 rounded-2xl border border-border bg-bg2/40 p-4 sm:p-6">{children}</div>
+      <div className="min-w-0 rounded-2xl border border-border bg-bg2/40 p-4 sm:p-6">
+        {children}
+      </div>
     </div>
   );
 }
@@ -616,7 +655,9 @@ function Linha({ rotulo, children }: { rotulo: string; children: ReactNode }) {
 function Estado({ nome, children }: { nome: string; children: ReactNode }) {
   return (
     <div className="min-w-0 space-y-1.5">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{nome}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {nome}
+      </p>
       {children}
     </div>
   );

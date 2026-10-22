@@ -11,10 +11,18 @@ const GRUPOS_COR: { titulo: string; tokens: ColorToken[] }[] = [
     tokens: [
       { name: "gold", swatch: "bg-gold", uso: "Dourado principal (= --primary)" },
       { name: "gold-light", swatch: "bg-gold-light", uso: "Gradientes e realces" },
-      { name: "gold-dark", swatch: "bg-gold-dark", uso: "Gradientes; --primary em superfícies claras" },
+      {
+        name: "gold-dark",
+        swatch: "bg-gold-dark",
+        uso: "Gradientes; --primary em superfícies claras",
+      },
       { name: "gold-ink", swatch: "bg-gold-ink", uso: "Dourado para TEXTO e anel de foco" },
       { name: "blue", swatch: "bg-blue", uso: "Azul da marca (= --secondary)" },
-      { name: "blue-light", swatch: "bg-blue-light", uso: "Destaques (= --accent), status em andamento" },
+      {
+        name: "blue-light",
+        swatch: "bg-blue-light",
+        uso: "Destaques (= --accent), status em andamento",
+      },
       { name: "blue-dark", swatch: "bg-blue-dark", uso: "Fundos profundos e gradiente azul" },
       { name: "blue-ink", swatch: "bg-blue-ink", uso: "Azul para texto pequeno (≥ 4,5:1)" },
     ],
@@ -127,7 +135,10 @@ export function TokensSection() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <Escala titulo="Espaçamento" nota="Escala do Tailwind (múltiplos de 0,25rem). Mais usados: gap-2, gap-3, p-6, p-4.">
+        <Escala
+          titulo="Espaçamento"
+          nota="Escala do Tailwind (múltiplos de 0,25rem). Mais usados: gap-2, gap-3, p-6, p-4."
+        >
           {ESPACOS.map((e) => (
             <li key={e.cls} className="flex items-center gap-3">
               <code className="w-8 shrink-0 text-xs">{e.nome}</code>
@@ -151,7 +162,10 @@ export function TokensSection() {
           ))}
         </Escala>
 
-        <Escala titulo="Sombras" nota="shadow-card e shadow-gold vêm dos tokens --shadow-card e --shadow-gold.">
+        <Escala
+          titulo="Sombras"
+          nota="shadow-card e shadow-gold vêm dos tokens --shadow-card e --shadow-gold."
+        >
           {SOMBRAS.map((s) => (
             <li key={s.cls} className="space-y-1">
               <Medida
@@ -216,7 +230,11 @@ function TokenRow({ token }: { token: ColorToken }) {
     const cs = getComputedStyle(el);
     const rgba = toRGBA(cs.backgroundColor);
     setInfo({
-      hex: rgba ? (rgba.a < 1 ? `${toHex(rgba)} · ${Math.round(rgba.a * 100)}%` : toHex(rgba)) : "—",
+      hex: rgba
+        ? rgba.a < 1
+          ? `${toHex(rgba)} · ${Math.round(rgba.a * 100)}%`
+          : toHex(rgba)
+        : "—",
       raw: cs.getPropertyValue(`--${token.name}`).trim() || "—",
     });
   }, [token.name]);
@@ -226,7 +244,10 @@ function TokenRow({ token }: { token: ColorToken }) {
       <span
         ref={ref}
         aria-hidden="true"
-        className={cn("mt-0.5 h-10 w-10 shrink-0 rounded-md border border-foreground/20", token.swatch)}
+        className={cn(
+          "mt-0.5 h-10 w-10 shrink-0 rounded-md border border-foreground/20",
+          token.swatch,
+        )}
       />
       <div className="min-w-0 text-sm">
         <p className="flex flex-wrap items-baseline gap-x-2">
@@ -256,7 +277,15 @@ function ContrastRow({ fg, bg }: { fg: string; bg: string }) {
   }, [fg, bg]);
 
   const nivel =
-    ratio === null ? "" : ratio >= 7 ? "AAA" : ratio >= 4.5 ? "AA" : ratio >= 3 ? "só texto grande" : "reprova";
+    ratio === null
+      ? ""
+      : ratio >= 7
+        ? "AAA"
+        : ratio >= 4.5
+          ? "AA"
+          : ratio >= 3
+            ? "só texto grande"
+            : "reprova";
   return (
     <li className="flex items-center gap-3 text-sm">
       <span
@@ -312,9 +341,7 @@ function Medida({
   useEffect(() => {
     if (ref.current) setV(read(getComputedStyle(ref.current), ref.current));
   }, [read]);
-  const valor = (
-    <span className="min-w-0 break-words text-[11px] text-muted-foreground">{v}</span>
-  );
+  const valor = <span className="min-w-0 break-words text-[11px] text-muted-foreground">{v}</span>;
   if (after) {
     return (
       <>

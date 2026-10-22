@@ -78,19 +78,35 @@ function DesignSystemPage() {
         </nav>
 
         <main id="conteudo" className="mt-10 space-y-16">
-          <DSSection id="tokens" title="Tokens" intro="Cores, espaçamento, raios e sombras lidos das variáveis CSS em tempo real.">
+          <DSSection
+            id="tokens"
+            title="Tokens"
+            intro="Cores, espaçamento, raios e sombras lidos das variáveis CSS em tempo real."
+          >
             <TokensSection />
           </DSSection>
-          <DSSection id="tipografia" title="Tipografia" intro="Fontes e escala tipográfica realmente usadas no site.">
+          <DSSection
+            id="tipografia"
+            title="Tipografia"
+            intro="Fontes e escala tipográfica realmente usadas no site."
+          >
             <TypographySection />
           </DSSection>
-          <DSSection id="componentes" title="Componentes" intro="Componentes reais de src/components nos estados em que aparecem no produto.">
+          <DSSection
+            id="componentes"
+            title="Componentes"
+            intro="Componentes reais de src/components nos estados em que aparecem no produto."
+          >
             <ComponentsSection />
           </DSSection>
           <DSSection id="padroes" title="Padrões" intro="Composições recorrentes entre as telas.">
             <PatternsSection />
           </DSSection>
-          <DSSection id="estados" title="Estados" intro="Como a interface comunica carregamento, vazio, erro e sucesso.">
+          <DSSection
+            id="estados"
+            title="Estados"
+            intro="Como a interface comunica carregamento, vazio, erro e sucesso."
+          >
             <StatesSection />
           </DSSection>
         </main>

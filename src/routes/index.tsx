@@ -184,7 +184,7 @@ function Landing() {
               aria-controls="menu-secoes"
               onClick={() => setMenu((v) => !v)}
               className={cn(
-                "inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-300 active:scale-90 lg:hidden",
+                "inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-300 active:scale-90 lg:hidden",
                 scrolled ? "border-border" : "border-white/30 text-white",
               )}
             >

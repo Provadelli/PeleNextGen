@@ -4,7 +4,11 @@ import { cn } from "@/lib/utils";
 /** Escala realmente usada no site (contagem de ocorrências de `text-*` em src/). */
 const ESCALA = [
   { cls: "text-xs", uso: "Rótulos, metadados, badges (224 usos)", amostra: "Rótulo e metadado" },
-  { cls: "text-sm", uso: "Texto de interface e corpo curto (305 usos)", amostra: "Texto de interface" },
+  {
+    cls: "text-sm",
+    uso: "Texto de interface e corpo curto (305 usos)",
+    amostra: "Texto de interface",
+  },
   { cls: "text-base", uso: "Corpo de leitura (34 usos)", amostra: "Texto de leitura confortável" },
   { cls: "text-lg", uso: "Destaques e lead (41 usos)", amostra: "Subtítulo de seção" },
   { cls: "text-xl", uso: "Título de card e de seção (38 usos)", amostra: "Título de card" },
@@ -26,8 +30,16 @@ export function TypographySection() {
   return (
     <div className="space-y-8">
       <div className="grid gap-4 sm:grid-cols-2">
-        <Familia token="--font-display" classe="font-display" uso="Todos os títulos (h1–h6, por regra global em styles.css)" />
-        <Familia token="--font-body" classe="font-body" uso="Texto corrido e interface (definido no body)" />
+        <Familia
+          token="--font-display"
+          classe="font-display"
+          uso="Todos os títulos (h1–h6, por regra global em styles.css)"
+        />
+        <Familia
+          token="--font-body"
+          classe="font-body"
+          uso="Texto corrido e interface (definido no body)"
+        />
       </div>
 
       <div className="space-y-1 rounded-2xl border border-border bg-card p-4 sm:p-6">

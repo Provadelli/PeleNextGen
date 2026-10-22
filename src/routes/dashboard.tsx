@@ -172,7 +172,7 @@ function Dashboard() {
         <DashboardSkeleton />
       ) : (
         <>
-          <section aria-labelledby="kpis-titulo" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <section aria-labelledby="kpis-titulo" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <h2 id="kpis-titulo" className="sr-only">
               Indicadores
             </h2>
@@ -183,7 +183,7 @@ function Dashboard() {
             ))}
           </section>
 
-          <Reveal as="section" delay={120} className="mt-8 grid gap-6 xl:grid-cols-3">
+          <Reveal as="section" delay={120} className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-3">
             <ChartCard
               className="xl:col-span-2"
               title="Inscrições mensais"
@@ -248,7 +248,7 @@ function Dashboard() {
             </ChartCard>
           </Reveal>
 
-          <Reveal as="section" delay={160} className="mt-6 grid gap-6 xl:grid-cols-3">
+          <Reveal as="section" delay={160} className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
             <ChartCard
               className="xl:col-span-2"
               title="Médias por critério"
@@ -349,12 +349,12 @@ function DashboardSkeleton() {
   return (
     <div aria-busy="true" role="status">
       <span className="sr-only">Carregando painel…</span>
-      <div aria-hidden="true" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div aria-hidden="true" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="h-[124px] rounded-2xl" />
         ))}
       </div>
-      <div aria-hidden="true" className="mt-8 grid gap-6 xl:grid-cols-3">
+      <div aria-hidden="true" className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-3">
         <Skeleton className="h-[360px] rounded-2xl xl:col-span-2" />
         <Skeleton className="h-[360px] rounded-2xl" />
       </div>
