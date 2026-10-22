@@ -29,18 +29,18 @@ Valores e forma de pagamento são combinados diretamente com a equipe, fora da p
 - Setup e variáveis de ambiente: seções [Configuração do Ambiente](#configuração-do-ambiente) e [Executando Localmente](#executando-localmente) (Node 22+).
 - Deploy: seção [Deploy](#deploy). Produção: https://pelenextgen.vercel.app/. As variáveis `VITE_SUPABASE_*`, `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` devem existir também no ambiente **Preview** da Vercel.
 - Migration nova desta sprint: `supabase/migrations/20261021120000_solicitacoes_desbloqueio.sql` (aplicar no Supabase antes do deploy).
-- Figma: _link a preencher pela equipe de design_.
+- Figma: _a equipe de design ainda não informou o link; preencher aqui assim que existir_.
 - Acessibilidade e performance: [docs/acessibilidade.md](docs/acessibilidade.md).
 
 ### Equipe e entregas
 | Integrante | RM | Branch | PR | Telas |
 |---|---|---|---|---|
-| Arthur Moreira | 571532 | _a confirmar_ | _a confirmar_ | _a confirmar_ |
-| Pedro Lucas Souza Provadelli | 572547 | `fix/s4-tanstack-cve`, `feat/s4-mvp-concierge`, `feat/s4-a11y-auditoria` | #7 (CVE, mergeado); concierge e auditoria: _número após abrir o PR_ | Solicitação de desbloqueio, aba Desbloqueios (suporte), `/ranking`, `/clubes`, `/candidatos` |
-| Miguel | 573825 | `Miguel_Sprint4` (não `feat/s4-a11y-performance`) | [#6](https://github.com/Provadelli/PeleNextGen/pull/6) (mergeado) | Acessibilidade e performance |
-| Vitor Louzano | 573885 | _a confirmar_ | _a confirmar_ | Testes com usuários |
+| Arthur Moreira | 571532 | `Arthur` | Sem PR aberto até o momento | Não informado pela equipe |
+| Pedro Lucas Souza Provadelli | 572547 | `fix/s4-tanstack-cve`, `feat/s4-mvp-concierge`, `feat/s4-a11y-auditoria`, `fix/cadastro-erros-claros`, `docs/s4-numeros-finais` | [#7](https://github.com/Provadelli/PeleNextGen/pull/7) (CVE), [#9](https://github.com/Provadelli/PeleNextGen/pull/9) (concierge), [#8](https://github.com/Provadelli/PeleNextGen/pull/8) (auditoria), [#10](https://github.com/Provadelli/PeleNextGen/pull/10) (cadastro), [#11](https://github.com/Provadelli/PeleNextGen/pull/11) (números finais), todos mergeados | Solicitação de desbloqueio, aba Desbloqueios (suporte), `/ranking`, `/clubes`, `/candidatos`, cadastro de clube e olheiro |
+| Miguel | 573825 | `Miguel_Sprint4` (não `feat/s4-a11y-performance`) | [#6](https://github.com/Provadelli/PeleNextGen/pull/6) (mergeado) | Acessibilidade WCAG 2.1 AA e performance |
+| Vitor Louzano | 573885 | `feat/fluxos-refinados` | [#2](https://github.com/Provadelli/PeleNextGen/pull/2) (aberto, refinação de login e cadastro) | Login e cadastro; testes com usuários a registrar |
 
-> Branches e PRs marcados como "a confirmar" devem ser preenchidos com os números reais antes da entrega.
+> Os campos "Não informado pela equipe" e o link do Figma devem ser preenchidos pelos próprios integrantes. Os PRs acima foram conferidos no GitHub.
 
 ---
 
