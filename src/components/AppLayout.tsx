@@ -157,7 +157,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         <div data-lenis-prevent className="flex-1 overflow-y-auto p-4 pt-20 lg:pt-4">
-          <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+          <p className="mb-3 px-3 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
             {role ? ROLE_AREA[role] : "\u00A0"}
           </p>
           <nav ref={navRef} className="space-y-1" aria-label="Menu principal" aria-busy={!ready}>
