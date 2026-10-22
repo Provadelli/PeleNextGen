@@ -72,7 +72,9 @@
  * Pelé Next Gen — paleta oficial.
  * Modo claro (:root) e modo escuro (.dark) com acentos dourados e azul.
  */
-:root {
+/* `.light` repete o tema claro dentro de um trecho da página (ex.: styleguide lado a lado). */
+:root,
+.light {
   color-scheme: light;
   --radius: 0.75rem;
 

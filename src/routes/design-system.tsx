@@ -3,6 +3,8 @@ import { ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { DSSection } from "@/components/design-system/DSSection";
+import { TokensSection } from "@/components/design-system/TokensSection";
+import { TypographySection } from "@/components/design-system/TypographySection";
 
 export const Route = createFileRoute("/design-system")({
   head: () => ({
@@ -74,8 +76,12 @@ function DesignSystemPage() {
         </nav>
 
         <main id="conteudo" className="mt-10 space-y-16">
-          <DSSection id="tokens" title="Tokens" intro="Cores, espaçamento, raios e sombras lidos das variáveis CSS." />
-          <DSSection id="tipografia" title="Tipografia" intro="Escala tipográfica usada no site." />
+          <DSSection id="tokens" title="Tokens" intro="Cores, espaçamento, raios e sombras lidos das variáveis CSS em tempo real.">
+            <TokensSection />
+          </DSSection>
+          <DSSection id="tipografia" title="Tipografia" intro="Fontes e escala tipográfica realmente usadas no site.">
+            <TypographySection />
+          </DSSection>
           <DSSection id="componentes" title="Componentes" intro="Componentes reais de src/components." />
           <DSSection id="padroes" title="Padrões" intro="Composições recorrentes entre as telas." />
           <DSSection id="estados" title="Estados" intro="Carregando, vazio, erro e sucesso." />
