@@ -18,6 +18,7 @@ import {
   Legend,
 } from "recharts";
 import { AppLayout } from "@/components/AppLayout";
+import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { peneiras, candidatos } from "@/lib/mock-data";
@@ -377,27 +378,6 @@ function DashboardError({ error }: { error: unknown }) {
         </Button>
       </div>
     </AppLayout>
-  );
-}
-
-function EmptyState({
-  icon: Icon,
-  title,
-  description,
-  action,
-}: {
-  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" }>;
-  title: string;
-  description: string;
-  action?: React.ReactNode;
-}) {
-  return (
-    <div className="mt-4 flex flex-col items-center rounded-xl border border-dashed border-border px-4 py-10 text-center">
-      <Icon className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
-      <p className="mt-3 font-semibold">{title}</p>
-      <p className="mt-1 max-w-xs text-sm text-muted-foreground">{description}</p>
-      {action && <div className="mt-4">{action}</div>}
-    </div>
   );
 }
 

@@ -3,6 +3,8 @@ import { ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { DSSection } from "@/components/design-system/DSSection";
+import { ComponentsSection } from "@/components/design-system/ComponentsSection";
+import { PatternsSection, StatesSection } from "@/components/design-system/PatternsSection";
 import { TokensSection } from "@/components/design-system/TokensSection";
 import { TypographySection } from "@/components/design-system/TypographySection";
 
@@ -82,9 +84,15 @@ function DesignSystemPage() {
           <DSSection id="tipografia" title="Tipografia" intro="Fontes e escala tipográfica realmente usadas no site.">
             <TypographySection />
           </DSSection>
-          <DSSection id="componentes" title="Componentes" intro="Componentes reais de src/components." />
-          <DSSection id="padroes" title="Padrões" intro="Composições recorrentes entre as telas." />
-          <DSSection id="estados" title="Estados" intro="Carregando, vazio, erro e sucesso." />
+          <DSSection id="componentes" title="Componentes" intro="Componentes reais de src/components nos estados em que aparecem no produto.">
+            <ComponentsSection />
+          </DSSection>
+          <DSSection id="padroes" title="Padrões" intro="Composições recorrentes entre as telas.">
+            <PatternsSection />
+          </DSSection>
+          <DSSection id="estados" title="Estados" intro="Como a interface comunica carregamento, vazio, erro e sucesso.">
+            <StatesSection />
+          </DSSection>
         </main>
       </div>
 
