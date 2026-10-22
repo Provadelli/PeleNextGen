@@ -1,5 +1,5 @@
 import campo from "@/assets/home/campo-peneira.jpeg";
-import chuteira from "@/assets/home/chuteira-peneira.jpeg";
+import chuteira from "@/assets/home/chuteira-peneira.webp";
 import estadio from "@/assets/home/estadio-peneiras.jpeg";
 
 /** Capas oficiais das peneiras — revezadas para dar variedade visual às listas. */

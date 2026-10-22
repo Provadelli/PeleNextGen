@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Eye, Handshake, Radar } from "lucide-react";
-import peleBg from "@/assets/home/pele.jpeg";
+import peleBg from "@/assets/home/pele.webp";
 import { Eyebrow, Reveal } from "./Reveal";
 import { GoldButton } from "./GoldButton";
 
@@ -37,8 +37,8 @@ export function MaisQueUmaPeneira() {
             src={peleBg}
             alt=""
             loading="lazy"
-            width={2200}
-            height={1228}
+            width={1200}
+            height={670}
             className="parallax-bg h-full w-full object-cover object-[58%_center] lg:object-[40%_center]"
           />
         </div>
