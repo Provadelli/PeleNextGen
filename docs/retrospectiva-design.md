@@ -1,6 +1,6 @@
 # Retrospectiva de design — Pelé Next Gen (Sprints 1 a 4)
 
-> O que está escrito vem do histórico do git (`git log`, 1.069 commits até 22/10/2026), dos tokens em `src/styles.css`, do primeiro design publicado e do que o grupo informou (sem Figma nas Sprints 1 e 2). Trechos em **[PREENCHER]** são opcionais e dependem de informação que o git não tem (datas e motivos das decisões).
+> O que está escrito vem do histórico do git (`git log`, 1.069 commits até 22/10/2026), dos tokens em `src/styles.css`, do primeiro design publicado e do que o grupo informou (sem Figma nas Sprints 1 e 2).
 
 ## Linha do tempo (evidência no git)
 
@@ -29,7 +29,7 @@
 - No git, esse período corresponde aos commits do bot do Lovable (997 de 1.069 commits), de 24/04/2026 em diante.
 - **Decisão de cores (informada pelo grupo):** dourado e azul foram escolhidos pelo aspecto futebolístico da marca.
 - **Datas das sprints (informadas pelo grupo):** Sprint 1 em 27/04/2026, Sprint 2 em 22/06/2026, Sprint 3 em 25/09/2026 e Sprint 4 com encerramento em 25/10/2026. Cruzando com o git: o grosso do design inicial (24–25/04) vem antes da entrega da Sprint 1, e as 129 mudanças de 15/06 e os commits de 21–22/06 ficam na janela da Sprint 2.
-- **Não registrado:** o motivo da escolha de Poppins/Inter.
+- **Decisão de fontes (informada pelo grupo):** Poppins e Inter foram escolhidas por uma pegada mais minimalista e profissional.
 
 ## Sprint 3 e 4 — o que o histórico confirma
 
