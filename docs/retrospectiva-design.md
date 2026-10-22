@@ -1,6 +1,6 @@
 # Retrospectiva de design — Pelé Next Gen (Sprints 1 a 4)
 
-> **Rascunho.** O que está escrito vem do histórico do git (`git log`, 1.069 commits até 22/10/2026), dos tokens em `src/styles.css` e do que foi feito na Sprint 4. Trechos em **[PREENCHER]** dependem de informação que o git não tem (Figma, decisões e datas das Sprints 1 e 2) e devem ser completados pelo grupo antes da entrega.
+> O que está escrito vem do histórico do git (`git log`, 1.069 commits até 22/10/2026), dos tokens em `src/styles.css`, do primeiro design publicado e do que o grupo informou (sem Figma nas Sprints 1 e 2). Trechos em **[PREENCHER]** são opcionais e dependem de informação que o git não tem (datas e motivos das decisões).
 
 ## Linha do tempo (evidência no git)
 
@@ -22,12 +22,12 @@
 3. **Da cor decorativa para a cor com função.** A acessibilidade (25/09) criou tokens específicos para texto (`--gold-ink`, `--blue-ink`), com os comentários no `styles.css` explicando o porquê (dourado claro dava ~2,5:1 sobre fundo claro). Na Sprint 4 o contraste passou a ser **medido na própria página** para cada par texto/fundo.
 4. **Do desktop para o celular.** A responsividade entrou em 23/09; na Sprint 4 o critério passou a ser mensurável (sem rolagem lateral, alvo de 44px). A medição achou um defeito real: o dashboard ficava 81px mais largo que a tela de 375px porque a grade não tinha `grid-cols-1` (conteúdo cortado, escondido por `overflow-x: clip`).
 
-## Sprints 1 e 2 — **[PREENCHER pelo grupo]**
+## Sprints 1 e 2
 
-- Sprint 1 — **primeiro design publicado:** https://pelescout-nextgen.lovable.app/ ("Pelé Scout — Peneiras oficiais e avaliação de atletas"). Observado na página: tema escuro, Hero com o título "O talento existe. Falta a oportunidade.", cartão da próxima peneira, menu Propósito · Legado · Academia · Como funciona · Peneiras · Mapa · Parceiros, botões dourados "Cadastrar" e "Encontrar minha peneira". Alternância de tema já presente (print: `docs/design-system/primeiro-design-lovable-1280.jpg`). **[PREENCHER:** se esta URL é o resultado exato da Sprint 1 ou uma versão posterior do mesmo projeto; Figma/wireframes; decisões de paleta e fonte.**]**
-- Sprint 2: o que mudou em relação ao Figma, componentes definidos, feedback recebido. **[PREENCHER]**
-- Datas e limites de cada sprint (o git não registra as fronteiras). **[PREENCHER]**
-- Link do Figma (se houver) e o que ficou diferente do protótipo. **[PREENCHER]**
+- **Sem Figma.** Nas Sprints 1 e 2 o design foi feito direto em código, na plataforma Lovable; o resultado das duas sprints é a versão publicada em https://pelescout-nextgen.lovable.app/ (informação do grupo). Não houve protótipo para comparar, então "o que mudou em relação ao Figma" não se aplica.
+- Características dessa versão (lidas na página em 22/10/2026): tema escuro azul-marinho com dourado, Poppins (títulos) e Inter (corpo), `--radius` 0,75rem, alternância de tema, Hero "O talento existe. Falta a oportunidade.", cartão da próxima peneira, menu Propósito · Legado · Academia · Como funciona · Peneiras · Mapa · Parceiros. Print: `docs/design-system/primeiro-design-lovable-1280.jpg`.
+- No git, esse período corresponde aos commits do bot do Lovable (997 de 1.069 commits), de 24/04/2026 em diante.
+- **[PREENCHER pelo grupo, se quiser detalhar]:** datas de início e fim das Sprints 1 e 2 e decisões de marca (por que dourado/azul, por que Poppins/Inter).
 
 ## Sprint 3 e 4 — o que o histórico confirma
 
